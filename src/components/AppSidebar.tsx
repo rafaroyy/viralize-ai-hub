@@ -94,9 +94,9 @@ const Logo = () => {
   return (
     <a
       href="/"
-      className="flex items-center relative z-20 -mx-3 -mt-4"
+      className="flex items-center relative z-20 -mx-3 -mt-4 -mb-6"
     >
-      <img src={logoViralize} alt="Viralize AI" className="h-32 object-contain" />
+      <img src={logoViralize} alt="Viralize AI" className="h-44 object-contain" />
     </a>
   );
 };
