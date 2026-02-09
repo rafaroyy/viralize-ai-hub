@@ -5,6 +5,7 @@ import { Video, FileSearch, LayoutGrid, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import logoViralize from "@/assets/logo-viralize.png";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const navLinks = [
   {
@@ -72,19 +73,33 @@ export function AppSidebar() {
           </nav>
         </div>
 
-        {/* Footer */}
-        <SidebarLink
-          link={{
-            label: "Plano Pro • 12 vídeos",
-            href: "#",
-            icon: (
-              <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center shrink-0">
-                <span className="text-[10px] font-bold text-primary-foreground">P</span>
-              </div>
-            ),
-          }}
-          className="px-1 py-1.5 text-muted-foreground"
-        />
+        {/* Theme Toggle & Footer */}
+        <div className="flex flex-col gap-3">
+          <div className="px-1 flex items-center gap-2">
+            <ThemeToggle />
+            <motion.span
+              animate={{
+                display: open ? "inline-block" : "none",
+                opacity: open ? 1 : 0,
+              }}
+              className="text-xs text-muted-foreground whitespace-pre"
+            >
+              Tema
+            </motion.span>
+          </div>
+          <SidebarLink
+            link={{
+              label: "Plano Pro • 12 vídeos",
+              href: "#",
+              icon: (
+                <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center shrink-0">
+                  <span className="text-[10px] font-bold text-primary-foreground">P</span>
+                </div>
+              ),
+            }}
+            className="px-1 py-1.5 text-muted-foreground"
+          />
+        </div>
       </SidebarBody>
     </Sidebar>
   );
