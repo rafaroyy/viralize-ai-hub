@@ -5,7 +5,9 @@ import { Video, FileSearch, LayoutGrid, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import logoViralize from "@/assets/logo-viralize.png";
+import logoViralizeLight from "@/assets/logo-viralize-light.png";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { useTheme } from "@/hooks/use-theme";
 
 const navLinks = [
   {
@@ -33,12 +35,13 @@ const navLinks = [
 export function AppSidebar() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
-
+  const { isDark, toggleTheme } = useTheme();
+  const currentLogo = isDark ? logoViralize : logoViralizeLight;
   return (
     <Sidebar open={open} setOpen={setOpen}>
       <SidebarBody className="justify-between gap-6">
         <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden pt-1">
-          {open ? <Logo /> : <LogoIcon />}
+          {open ? <Logo src={currentLogo} /> : <LogoIcon src={currentLogo} />}
           <nav className="mt-5 flex flex-col gap-1">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.href;
@@ -76,7 +79,7 @@ export function AppSidebar() {
         {/* Theme Toggle & Footer */}
         <div className="flex flex-col gap-3">
           <div className="px-1 flex items-center gap-2">
-            <ThemeToggle />
+            <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
             <motion.span
               animate={{
                 display: open ? "inline-block" : "none",
@@ -105,24 +108,24 @@ export function AppSidebar() {
   );
 }
 
-const Logo = () => {
+const Logo = ({ src }: { src: string }) => {
   return (
     <a
       href="/"
       className="flex items-center relative z-20 -mx-3 -mt-8 -mb-12"
     >
-      <img src={logoViralize} alt="Viralize AI" className="h-44 object-contain" />
+      <img src={src} alt="Viralize AI" className="h-44 object-contain" />
     </a>
   );
 };
 
-const LogoIcon = () => {
+const LogoIcon = ({ src }: { src: string }) => {
   return (
     <a
       href="/"
       className="flex items-center justify-center relative z-20"
     >
-      <img src={logoViralize} alt="Viralize AI" className="h-12 w-12 object-cover object-left" />
+      <img src={src} alt="Viralize AI" className="h-12 w-12 object-cover object-left" />
     </a>
   );
 };
