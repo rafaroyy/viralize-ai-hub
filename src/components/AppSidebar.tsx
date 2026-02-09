@@ -1,96 +1,125 @@
-import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
-import { Video, FileSearch, LayoutGrid, MessageCircle, Sparkles, PanelLeftClose, PanelLeft } from "lucide-react";
+import { useState } from "react";
+import { useLocation } from "react-router-dom";
+import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/animated-sidebar";
+import { Video, FileSearch, LayoutGrid, MessageCircle, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  { title: "Criar Vídeo", path: "/criar", icon: Video },
-  { title: "Análise de Roteiro", path: "/analise", icon: FileSearch },
-  { title: "Modelos", path: "/modelos", icon: LayoutGrid },
-  { title: "Chat IA", path: "/chat", icon: MessageCircle },
+const navLinks = [
+  {
+    label: "Criar Vídeo",
+    href: "/criar",
+    icon: <Video className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+  },
+  {
+    label: "Análise de Roteiro",
+    href: "/analise",
+    icon: <FileSearch className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+  },
+  {
+    label: "Modelos",
+    href: "/modelos",
+    icon: <LayoutGrid className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+  },
+  {
+    label: "Chat IA",
+    href: "/chat",
+    icon: <MessageCircle className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+  },
 ];
 
-interface AppSidebarProps {
-  collapsed: boolean;
-  onToggle: () => void;
-}
-
-export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
+export function AppSidebar() {
+  const [open, setOpen] = useState(false);
   const location = useLocation();
 
   return (
-    <aside
-      className={cn(
-        "flex flex-col min-h-screen bg-sidebar border-r border-sidebar-border shrink-0 transition-all duration-300",
-        collapsed ? "w-[68px]" : "w-64"
-      )}
-    >
-      {/* Logo + Toggle */}
-      <div className="flex items-center justify-between px-3 py-4 border-b border-sidebar-border">
-        <div className={cn("flex items-center gap-3 overflow-hidden", collapsed && "justify-center w-full")}>
-          <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center shrink-0">
-            <Sparkles className="w-5 h-5 text-primary-foreground" />
-          </div>
-          {!collapsed && (
-            <span className="font-display text-lg font-bold text-foreground tracking-tight whitespace-nowrap">
-              Viralize AI
-            </span>
-          )}
+    <Sidebar open={open} setOpen={setOpen}>
+      <SidebarBody className="justify-between gap-10">
+        <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+          {open ? <Logo /> : <LogoIcon />}
+          <nav className="mt-8 flex flex-col gap-1">
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.href;
+              return (
+                <SidebarLink
+                  key={link.href}
+                  link={{
+                    ...link,
+                    icon: (
+                      <div className={cn(
+                        "w-7 h-7 rounded-md flex items-center justify-center shrink-0 transition-colors",
+                        isActive ? "gradient-primary shadow-glow" : ""
+                      )}>
+                        {React.cloneElement(link.icon as React.ReactElement, {
+                          className: cn(
+                            "w-4 h-4 shrink-0",
+                            isActive ? "text-primary-foreground" : "text-sidebar-foreground"
+                          ),
+                        })}
+                      </div>
+                    ),
+                  }}
+                  className={cn(
+                    "px-2 py-2 rounded-lg transition-colors",
+                    isActive
+                      ? "text-foreground font-semibold"
+                      : "text-sidebar-foreground hover:bg-secondary hover:text-foreground"
+                  )}
+                />
+              );
+            })}
+          </nav>
         </div>
-        {!collapsed && (
-          <button
-            onClick={onToggle}
-            className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors shrink-0"
-          >
-            <PanelLeftClose className="w-4 h-4" />
-          </button>
-        )}
-      </div>
 
-      {/* Expand button when collapsed */}
-      {collapsed && (
-        <div className="px-3 pt-3">
-          <button
-            onClick={onToggle}
-            className="w-full p-2 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center"
-          >
-            <PanelLeft className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
-      {/* Nav */}
-      <nav className="flex-1 px-2 py-4 space-y-1">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <RouterNavLink
-              key={item.path}
-              to={item.path}
-              title={collapsed ? item.title : undefined}
-              className={cn(
-                "flex items-center gap-3 rounded-lg text-sm font-medium transition-all duration-200",
-                collapsed ? "px-0 py-3 justify-center" : "px-4 py-3",
-                isActive
-                  ? "gradient-primary text-primary-foreground shadow-glow"
-                  : "text-sidebar-foreground hover:bg-secondary hover:text-foreground"
-              )}
-            >
-              <item.icon className="w-5 h-5 shrink-0" />
-              {!collapsed && item.title}
-            </RouterNavLink>
-          );
-        })}
-      </nav>
-
-      {/* Footer */}
-      {!collapsed && (
-        <div className="px-3 py-4 border-t border-sidebar-border">
-          <div className="glass-card p-3 text-center">
-            <p className="text-xs text-muted-foreground">Plano Pro</p>
-            <p className="text-xs text-primary font-semibold mt-1">12 vídeos restantes</p>
-          </div>
-        </div>
-      )}
-    </aside>
+        {/* Footer */}
+        <SidebarLink
+          link={{
+            label: "Plano Pro • 12 vídeos",
+            href: "#",
+            icon: (
+              <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center shrink-0">
+                <span className="text-[10px] font-bold text-primary-foreground">P</span>
+              </div>
+            ),
+          }}
+          className="px-2 py-2 text-muted-foreground"
+        />
+      </SidebarBody>
+    </Sidebar>
   );
 }
+
+import React from "react";
+
+const Logo = () => {
+  return (
+    <a
+      href="/"
+      className="font-display font-bold flex items-center gap-3 text-foreground text-lg relative z-20 px-2 py-1"
+    >
+      <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
+        <Sparkles className="w-4 h-4 text-primary-foreground" />
+      </div>
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="whitespace-pre"
+      >
+        Viralize AI
+      </motion.span>
+    </a>
+  );
+};
+
+const LogoIcon = () => {
+  return (
+    <a
+      href="/"
+      className="font-display font-bold flex items-center relative z-20 px-2 py-1"
+    >
+      <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
+        <Sparkles className="w-4 h-4 text-primary-foreground" />
+      </div>
+    </a>
+  );
+};
