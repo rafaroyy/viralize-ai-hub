@@ -96,7 +96,7 @@ const Logo = () => {
       href="/"
       className="flex items-center relative z-20 px-1 py-1"
     >
-      <img src={logoViralize} alt="Viralize AI" className="h-8 object-contain" />
+      <img src={logoViralize} alt="Viralize AI" className="h-10 object-contain" />
     </a>
   );
 };
