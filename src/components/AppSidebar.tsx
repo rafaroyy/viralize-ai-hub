@@ -34,10 +34,10 @@ export function AppSidebar() {
 
   return (
     <Sidebar open={open} setOpen={setOpen}>
-      <SidebarBody className="justify-between gap-10">
+      <SidebarBody className="justify-between gap-6">
         <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
           {open ? <Logo /> : <LogoIcon />}
-          <nav className="mt-8 flex flex-col gap-1">
+          <nav className="mt-6 flex flex-col gap-1">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.href;
               return (
@@ -47,8 +47,8 @@ export function AppSidebar() {
                     ...link,
                     icon: (
                       <div className={cn(
-                        "w-7 h-7 rounded-md flex items-center justify-center shrink-0 transition-colors",
-                        isActive ? "gradient-primary shadow-glow" : ""
+                        "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+                        isActive ? "gradient-primary shadow-glow" : "bg-secondary/50"
                       )}>
                         {React.cloneElement(link.icon as React.ReactElement, {
                           className: cn(
@@ -60,7 +60,7 @@ export function AppSidebar() {
                     ),
                   }}
                   className={cn(
-                    "px-2 py-2 rounded-lg transition-colors",
+                    "px-1 py-1.5 rounded-lg transition-colors",
                     isActive
                       ? "text-foreground font-semibold"
                       : "text-sidebar-foreground hover:bg-secondary hover:text-foreground"
@@ -77,12 +77,12 @@ export function AppSidebar() {
             label: "Plano Pro • 12 vídeos",
             href: "#",
             icon: (
-              <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center shrink-0">
                 <span className="text-[10px] font-bold text-primary-foreground">P</span>
               </div>
             ),
           }}
-          className="px-2 py-2 text-muted-foreground"
+          className="px-1 py-1.5 text-muted-foreground"
         />
       </SidebarBody>
     </Sidebar>
