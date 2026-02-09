@@ -1,5 +1,5 @@
 import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
-import { Video, FileSearch, LayoutGrid, MessageCircle, Sparkles } from "lucide-react";
+import { Video, FileSearch, LayoutGrid, MessageCircle, Sparkles, PanelLeftClose, PanelLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -9,50 +9,88 @@ const navItems = [
   { title: "Chat IA", path: "/chat", icon: MessageCircle },
 ];
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  collapsed: boolean;
+  onToggle: () => void;
+}
+
+export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
   const location = useLocation();
 
   return (
-    <aside className="flex flex-col w-64 min-h-screen bg-sidebar border-r border-sidebar-border shrink-0">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-sidebar-border">
-        <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center">
-          <Sparkles className="w-5 h-5 text-primary-foreground" />
+    <aside
+      className={cn(
+        "flex flex-col min-h-screen bg-sidebar border-r border-sidebar-border shrink-0 transition-all duration-300",
+        collapsed ? "w-[68px]" : "w-64"
+      )}
+    >
+      {/* Logo + Toggle */}
+      <div className="flex items-center justify-between px-3 py-4 border-b border-sidebar-border">
+        <div className={cn("flex items-center gap-3 overflow-hidden", collapsed && "justify-center w-full")}>
+          <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5 text-primary-foreground" />
+          </div>
+          {!collapsed && (
+            <span className="font-display text-lg font-bold text-foreground tracking-tight whitespace-nowrap">
+              Viralize AI
+            </span>
+          )}
         </div>
-        <span className="font-display text-lg font-bold text-foreground tracking-tight">
-          Viralize AI
-        </span>
+        {!collapsed && (
+          <button
+            onClick={onToggle}
+            className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          >
+            <PanelLeftClose className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
+      {/* Expand button when collapsed */}
+      {collapsed && (
+        <div className="px-3 pt-3">
+          <button
+            onClick={onToggle}
+            className="w-full p-2 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center"
+          >
+            <PanelLeft className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex-1 px-2 py-4 space-y-1">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <RouterNavLink
               key={item.path}
               to={item.path}
+              title={collapsed ? item.title : undefined}
               className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                "flex items-center gap-3 rounded-lg text-sm font-medium transition-all duration-200",
+                collapsed ? "px-0 py-3 justify-center" : "px-4 py-3",
                 isActive
                   ? "gradient-primary text-primary-foreground shadow-glow"
                   : "text-sidebar-foreground hover:bg-secondary hover:text-foreground"
               )}
             >
-              <item.icon className="w-5 h-5" />
-              {item.title}
+              <item.icon className="w-5 h-5 shrink-0" />
+              {!collapsed && item.title}
             </RouterNavLink>
           );
         })}
       </nav>
 
       {/* Footer */}
-      <div className="px-4 py-4 border-t border-sidebar-border">
-        <div className="glass-card p-3 text-center">
-          <p className="text-xs text-muted-foreground">Plano Pro</p>
-          <p className="text-xs text-primary font-semibold mt-1">12 vídeos restantes</p>
+      {!collapsed && (
+        <div className="px-3 py-4 border-t border-sidebar-border">
+          <div className="glass-card p-3 text-center">
+            <p className="text-xs text-muted-foreground">Plano Pro</p>
+            <p className="text-xs text-primary font-semibold mt-1">12 vídeos restantes</p>
+          </div>
         </div>
-      </div>
+      )}
     </aside>
   );
 }
