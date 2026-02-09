@@ -5,8 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const AnaliseRoteiro = () => {
-  const [script, setScript] = useState("");
-  const [analyzed, setAnalyzed] = useState(false);
+  const [script, setScript] = useState("Você sabia que 90% das pessoas perdem 4 horas por dia com técnicas erradas de produtividade? Nesse vídeo eu vou te mostrar 3 métodos comprovados que aumentaram minha produtividade em 300%. O primeiro é o Pomodoro 2.0 — ao invés de 25 minutos, use blocos de 52 minutos com pausas de 17. Estudos da DeskTime comprovam que esse é o ritmo ideal. O segundo método é o batching de tarefas — agrupe atividades similares para reduzir o custo cognitivo de troca de contexto. E o terceiro? A regra dos 2 minutos: se leva menos de 2 minutos, faça agora. Essas técnicas mudaram minha vida e a de mais de 10 mil alunos. Link na bio para o curso completo.");
+  const [analyzed, setAnalyzed] = useState(true);
 
   return (
     <div className="p-8 max-w-4xl mx-auto animate-fade-in">
