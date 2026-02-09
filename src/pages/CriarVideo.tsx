@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Video, Sparkles, Upload, Play, Monitor, Smartphone } from "lucide-react";
+import { Video, Sparkles, Upload, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,7 @@ const CriarVideo = () => {
   const [narrationMode, setNarrationMode] = useState("narrated");
   const [scenes, setScenes] = useState([3]);
   const [duration, setDuration] = useState("30");
-  const [previewMode, setPreviewMode] = useState<"mobile" | "desktop">("mobile");
+  
 
   return (
     <div className="flex h-screen">
@@ -162,27 +162,12 @@ const CriarVideo = () => {
 
       {/* Right: Preview */}
       <div className="w-[380px] border-l border-border bg-secondary/30 flex flex-col shrink-0">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+        <div className="flex items-center px-5 py-4 border-b border-border">
           <h3 className="font-display font-semibold text-sm">Preview</h3>
-          <div className="flex gap-1 bg-secondary rounded-lg p-0.5">
-            <button
-              onClick={() => setPreviewMode("mobile")}
-              className={`p-1.5 rounded-md transition-colors ${previewMode === "mobile" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              <Smartphone className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setPreviewMode("desktop")}
-              className={`p-1.5 rounded-md transition-colors ${previewMode === "desktop" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              <Monitor className="w-4 h-4" />
-            </button>
-          </div>
         </div>
 
         <div className="flex-1 flex items-center justify-center p-6">
-          {/* Mock Phone Preview */}
-          <div className={`relative transition-all duration-300 ${previewMode === "mobile" ? "w-[220px]" : "w-full"}`}>
+          <div className="relative w-[220px]">
             <div className="bg-background rounded-2xl border-2 border-border overflow-hidden aspect-[9/16] shadow-card">
               {/* Mock video content */}
               <div className="h-full flex flex-col relative">
