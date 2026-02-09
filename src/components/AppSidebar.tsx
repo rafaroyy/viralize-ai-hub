@@ -1,9 +1,10 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/animated-sidebar";
-import { Video, FileSearch, LayoutGrid, MessageCircle, Sparkles } from "lucide-react";
+import { Video, FileSearch, LayoutGrid, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import logoViralize from "@/assets/logo-viralize.png";
 
 const navLinks = [
   {
@@ -89,24 +90,13 @@ export function AppSidebar() {
   );
 }
 
-import React from "react";
-
 const Logo = () => {
   return (
     <a
       href="/"
-      className="font-display font-bold flex items-center gap-3 text-foreground text-lg relative z-20 px-2 py-1"
+      className="flex items-center relative z-20 px-1 py-1"
     >
-      <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
-        <Sparkles className="w-4 h-4 text-primary-foreground" />
-      </div>
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="whitespace-pre"
-      >
-        Viralize AI
-      </motion.span>
+      <img src={logoViralize} alt="Viralize AI" className="h-8 object-contain" />
     </a>
   );
 };
@@ -115,11 +105,9 @@ const LogoIcon = () => {
   return (
     <a
       href="/"
-      className="font-display font-bold flex items-center relative z-20 px-2 py-1"
+      className="flex items-center justify-center relative z-20 px-1 py-1"
     >
-      <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
-        <Sparkles className="w-4 h-4 text-primary-foreground" />
-      </div>
+      <img src={logoViralize} alt="Viralize AI" className="h-7 w-7 object-cover object-left" />
     </a>
   );
 };
