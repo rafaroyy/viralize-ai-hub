@@ -96,7 +96,7 @@ const Logo = () => {
       href="/"
       className="flex items-center relative z-20 px-1 py-1"
     >
-      <img src={logoViralize} alt="Viralize AI" className="h-10 object-contain" />
+      <img src={logoViralize} alt="Viralize AI" className="h-24 object-contain" />
     </a>
   );
 };
@@ -107,7 +107,7 @@ const LogoIcon = () => {
       href="/"
       className="flex items-center justify-center relative z-20 px-1 py-1"
     >
-      <img src={logoViralize} alt="Viralize AI" className="h-7 w-7 object-cover object-left" />
+      <img src={logoViralize} alt="Viralize AI" className="h-10 w-10 object-cover object-left" />
     </a>
   );
 };
