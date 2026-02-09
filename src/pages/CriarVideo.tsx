@@ -130,7 +130,6 @@ const CriarVideo = () => {
                       <SelectItem value="15">15 segundos</SelectItem>
                       <SelectItem value="30">30 segundos</SelectItem>
                       <SelectItem value="60">60 segundos</SelectItem>
-                      <SelectItem value="90">90 segundos</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
