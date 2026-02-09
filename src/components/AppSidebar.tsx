@@ -93,14 +93,19 @@ export function AppSidebar() {
           <SidebarLink
             link={{
               label: "Plano Pro • 12 vídeos",
-              href: "#",
+              href: "/perfil",
               icon: (
                 <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center shrink-0">
                   <span className="text-[10px] font-bold text-primary-foreground">P</span>
                 </div>
               ),
             }}
-            className="px-1 py-1.5 text-muted-foreground"
+            className={cn(
+              "px-1 py-1.5",
+              location.pathname === "/perfil"
+                ? "text-foreground font-semibold"
+                : "text-muted-foreground hover:text-foreground"
+            )}
           />
         </div>
       </SidebarBody>
