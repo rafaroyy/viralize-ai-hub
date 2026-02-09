@@ -8,6 +8,7 @@ import CriarVideo from "./pages/CriarVideo";
 import AnaliseRoteiro from "./pages/AnaliseRoteiro";
 import Modelos from "./pages/Modelos";
 import ChatIA from "./pages/ChatIA";
+import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,10 @@ const App = () => (
           <Route
             path="/chat"
             element={<AppLayout><ChatIA /></AppLayout>}
+          />
+          <Route
+            path="/perfil"
+            element={<AppLayout><Perfil /></AppLayout>}
           />
           <Route path="*" element={<NotFound />} />
         </Routes>
