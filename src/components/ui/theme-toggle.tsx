@@ -1,27 +1,13 @@
-import { useState, useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ThemeToggleProps {
   className?: string;
+  isDark: boolean;
+  onToggle: () => void;
 }
 
-export function ThemeToggle({ className }: ThemeToggleProps) {
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window !== "undefined") {
-      return !document.documentElement.classList.contains("light");
-    }
-    return true;
-  });
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.remove("light");
-    } else {
-      document.documentElement.classList.add("light");
-    }
-  }, [isDark]);
-
+export function ThemeToggle({ className, isDark, onToggle }: ThemeToggleProps) {
   return (
     <div
       className={cn(
@@ -29,7 +15,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
         isDark ? "bg-secondary justify-end" : "bg-primary/20 justify-start",
         className
       )}
-      onClick={() => setIsDark(!isDark)}
+      onClick={onToggle}
       role="button"
       tabIndex={0}
     >
