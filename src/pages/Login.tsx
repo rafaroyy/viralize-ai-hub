@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, LogIn, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { BackgroundPaths } from "@/components/ui/background-paths";
 import { useTheme } from "@/hooks/use-theme";
 import logoViralize from "@/assets/logo-viralize.png";
 import logoViralizeLight from "@/assets/logo-viralize-light.png";
@@ -39,10 +40,11 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden">
+      {/* Background paths */}
+      <BackgroundPaths />
+
       {/* Background effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/20 rounded-full blur-[120px]" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-blue-500/15 rounded-full blur-[120px]" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
