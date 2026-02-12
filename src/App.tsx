@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
+import LandingPage from "./pages/LandingPage";
 import CriarVideo from "./pages/CriarVideo";
 import AnaliseRoteiro from "./pages/AnaliseRoteiro";
 import Modelos from "./pages/Modelos";
@@ -20,7 +21,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/criar" replace />} />
+          <Route path="/" element={<LandingPage />} />
           <Route
             path="/criar"
             element={<AppLayout><CriarVideo /></AppLayout>}
