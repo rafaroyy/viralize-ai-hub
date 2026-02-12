@@ -2,8 +2,11 @@ import { User, Settings, CreditCard, Bell, LogOut } from "lucide-react";
 import { MemberCard } from "@/components/ui/member-card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Perfil = () => {
+  const { user } = useAuth();
+  const displayName = user?.email?.split("@")[0] ?? "Usuário";
   return (
     <div className="min-h-screen overflow-auto p-8 animate-fade-in">
       <div className="max-w-3xl mx-auto">
@@ -29,7 +32,7 @@ const Perfil = () => {
             Seu cartão exclusivo de membro da Viralize AI
           </p>
           <MemberCard
-            name="João Silva"
+            name={displayName}
             plan="Pro"
             memberId="VRL-2026-00481"
             memberSince="Fev 2026"
