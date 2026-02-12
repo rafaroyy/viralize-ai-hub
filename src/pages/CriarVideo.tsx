@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Video, Sparkles, Upload, Play } from "lucide-react";
+import { Video, Sparkles, Upload, Play, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,27 +7,58 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
+import { MemberCard } from "@/components/ui/member-card";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const CriarVideo = () => {
   const [narrationMode, setNarrationMode] = useState("narrated");
   const [scenes, setScenes] = useState([3]);
   const [duration, setDuration] = useState("30");
-  
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const displayName = user?.email?.split("@")[0] ?? "Usuário";
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <div className="flex h-screen">
       {/* Left: Form */}
       <div className="flex-1 overflow-auto p-8 animate-fade-in">
         <div className="max-w-3xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-                <Video className="w-5 h-5 text-primary-foreground" />
+          {/* Header with Member Card */}
+          <div className="flex items-start justify-between mb-8 gap-4">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
+                  <Video className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <h1 className="font-display text-3xl font-bold">Criar Vídeo Viral</h1>
               </div>
-              <h1 className="font-display text-3xl font-bold">Criar Vídeo Viral</h1>
+              <p className="text-muted-foreground">Configure seu vídeo em minutos e obtenha milhares de visualizações!</p>
             </div>
-            <p className="text-muted-foreground">Configure seu vídeo em minutos e obtenha milhares de visualizações!</p>
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              <MemberCard
+                name={displayName}
+                plan="Pro"
+                memberId="VRL-2026-00481"
+                memberSince="Fev 2026"
+                videosRemaining={12}
+                className="scale-[0.55] origin-top-right -mr-[85px] -mb-[100px]"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Sair
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-8">
