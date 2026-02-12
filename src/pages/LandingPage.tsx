@@ -63,13 +63,13 @@ function Navbar() {
         </nav>
         <div className="flex items-center gap-3">
           <Link
-            to="/criar"
+            to="/login"
             className="hidden sm:inline-flex text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            Login
+            Entrar
           </Link>
           <Link
-            to="/criar"
+            to="/login"
             className="gradient-primary text-primary-foreground px-5 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
           >
             Começar Agora
