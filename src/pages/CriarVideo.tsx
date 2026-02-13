@@ -285,31 +285,6 @@ const CriarVideo = () => {
                 </div>
               </motion.section>
 
-              {/* Duration */}
-              <motion.section
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="glass-card p-6 space-y-4"
-              >
-                <h2 className="font-display text-lg font-semibold">Duração do Vídeo</h2>
-                <div className="grid grid-cols-3 gap-3">
-                  {["15", "30", "60"].map((d) => (
-                    <button
-                      key={d}
-                      onClick={() => setDuration(d)}
-                      className={`py-3 rounded-lg border text-sm font-medium transition-all ${
-                        duration === d
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border hover:border-border/80 text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {d}s
-                    </button>
-                  ))}
-                </div>
-              </motion.section>
-
               {/* CTA */}
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
