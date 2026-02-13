@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Slider } from "@/components/ui/slider";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -77,8 +76,8 @@ function UserBadge({ name, onLogout }: { name: string; onLogout: () => void }) {
 const CriarVideo = () => {
   const [mode, setMode] = useState<"choose" | "assisted" | "manual">("choose");
   const [narrationMode, setNarrationMode] = useState("narrated");
-  const [scenes, setScenes] = useState([3]);
   const [duration, setDuration] = useState("30");
+  const scenes = [Math.min(Math.floor(Number(duration) / 10), 3)];
   const [manualScript, setManualScript] = useState("");
   const [keyword, setKeyword] = useState("");
   const { user, logout } = useAuth();
@@ -453,16 +452,15 @@ const CriarVideo = () => {
                   <Select value={duration} onValueChange={setDuration}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="15">15 segundos</SelectItem>
-                      <SelectItem value="30">30 segundos</SelectItem>
-                      <SelectItem value="60">60 segundos</SelectItem>
+                      <SelectItem value="10">10 segundos (1 cena)</SelectItem>
+                      <SelectItem value="20">20 segundos (2 cenas)</SelectItem>
+                      <SelectItem value="30">30 segundos (3 cenas)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-              <div className="space-y-3">
-                <Label>Número de cenas: {scenes[0]}</Label>
-                <Slider value={scenes} onValueChange={setScenes} min={1} max={10} step={1} />
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Cenas: <strong className="text-foreground">{scenes[0]}</strong> (10s cada)</span>
               </div>
             </section>
 
