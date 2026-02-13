@@ -80,7 +80,7 @@ const CriarVideo = () => {
   const [scenes, setScenes] = useState([3]);
   const [duration, setDuration] = useState("30");
   const [manualScript, setManualScript] = useState("");
-  const [keyword, setKeyword] = useState("productivity hacks");
+  const [keyword, setKeyword] = useState("");
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const displayName = user?.email?.split("@")[0] ?? "Usuário";
@@ -358,19 +358,19 @@ const CriarVideo = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Objetivo *</Label>
-                  <Input defaultValue="Vender curso online de produtividade" />
+                  <Input placeholder="Ex: Vender curso online de produtividade" />
                 </div>
                 <div className="space-y-2">
                   <Label>Tema *</Label>
-                  <Input defaultValue="Produtividade e foco" />
+                  <Input placeholder="Ex: Produtividade e foco" />
                 </div>
                 <div className="space-y-2">
                   <Label>Nicho *</Label>
-                  <Input defaultValue="Empreendedorismo digital" />
+                  <Input placeholder="Ex: Empreendedorismo digital" />
                 </div>
                 <div className="space-y-2">
                   <Label>Palavra-chave *</Label>
-                  <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+                  <Input placeholder="Ex: productivity hacks" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
                 </div>
               </div>
               <Button
@@ -404,11 +404,11 @@ const CriarVideo = () => {
               </div>
               <div className="space-y-2">
                 <Label>Sugestão de Roteiro (Opcional)</Label>
-                <Textarea defaultValue="Começar com um gancho impactante sobre como 90% das pessoas perdem tempo com técnicas erradas de produtividade. Mostrar 3 métodos comprovados com provas sociais de resultados reais." className="min-h-[100px]" />
+                <Textarea placeholder="Ex: Começar com um gancho impactante sobre como 90% das pessoas perdem tempo com técnicas erradas..." className="min-h-[100px]" />
               </div>
               <div className="space-y-2">
                 <Label>Pontos Principais (Opcional)</Label>
-                <Textarea defaultValue={"Ponto 1: Gancho — \"Você está perdendo 4h por dia sem saber\"\nPonto 2: Método Pomodoro 2.0 com dados\nPonto 3: CTA — \"Link na bio para o curso completo\""} className="min-h-[80px]" />
+                <Textarea placeholder={"Ex: Ponto 1: Gancho — \"Você está perdendo 4h por dia\"\nPonto 2: Método com dados\nPonto 3: CTA"} className="min-h-[80px]" />
               </div>
             </section>
 
