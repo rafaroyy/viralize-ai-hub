@@ -72,68 +72,124 @@ Responda APENAS com um JSON válido, sem markdown, sem texto antes ou depois. O 
 
 Forneça entre 3 e 6 insights, misturando positivos e warnings. Seja específico, prático e direto nos feedbacks. Use exemplos concretos de como melhorar quando der warnings.`;
 
+async function transcribeAudio(audioBlob: Blob, apiKey: string, projectKey?: string): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", audioBlob, "video.mp4");
+  formData.append("model", "whisper-1");
+  formData.append("language", "pt");
+
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${apiKey}`,
+  };
+  if (projectKey) {
+    headers["OpenAI-Project"] = projectKey;
+  }
+
+  const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Whisper API error:", response.status, errorText);
+    throw new Error("Erro ao transcrever vídeo.");
+  }
+
+  const data = await response.json();
+  return data.text;
+}
+
+async function analyzeScript(script: string, apiKey: string, projectKey?: string) {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${apiKey}`,
+    "Content-Type": "application/json",
+  };
+  if (projectKey) {
+    headers["OpenAI-Project"] = projectKey;
+  }
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: `Analise o seguinte roteiro de vídeo viral:\n\n${script}` },
+      ],
+      temperature: 0.7,
+      response_format: { type: "json_object" },
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("OpenAI API error:", response.status, errorText);
+    throw new Error("Erro ao analisar roteiro. Tente novamente.");
+  }
+
+  const data = await response.json();
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) throw new Error("Empty response from OpenAI");
+  return JSON.parse(content);
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { script } = await req.json();
-
-    if (!script || typeof script !== "string" || script.trim().length < 10) {
-      return new Response(
-        JSON.stringify({ error: "Roteiro muito curto para análise. Escreva pelo menos algumas frases." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     const apiKey = Deno.env.get("OPENAI_API_KEY");
     const projectKey = Deno.env.get("OPENAI_PROJECT_KEY");
+    if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
 
-    if (!apiKey) {
-      throw new Error("OPENAI_API_KEY is not configured");
+    const contentType = req.headers.get("content-type") || "";
+    let script: string;
+
+    if (contentType.includes("multipart/form-data")) {
+      // Video upload flow: transcribe first, then analyze
+      const formData = await req.formData();
+      const videoFile = formData.get("video") as File | null;
+
+      if (!videoFile) {
+        return new Response(
+          JSON.stringify({ error: "Nenhum vídeo enviado." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      console.log("Transcribing video:", videoFile.name, "size:", videoFile.size);
+      script = await transcribeAudio(videoFile, apiKey, projectKey);
+      console.log("Transcription result:", script.substring(0, 200));
+
+      if (!script || script.trim().length < 10) {
+        return new Response(
+          JSON.stringify({ error: "Não foi possível identificar fala no vídeo. Tente um vídeo com áudio mais claro." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } else {
+      // Text script flow
+      const body = await req.json();
+      script = body.script;
+
+      if (!script || typeof script !== "string" || script.trim().length < 10) {
+        return new Response(
+          JSON.stringify({ error: "Roteiro muito curto para análise. Escreva pelo menos algumas frases." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
-    const headers: Record<string, string> = {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    };
+    const analysis = await analyzeScript(script, apiKey, projectKey);
 
-    if (projectKey) {
-      headers["OpenAI-Project"] = projectKey;
+    // Include the transcription in the response for video uploads
+    if (contentType.includes("multipart/form-data")) {
+      analysis.transcription = script;
     }
-
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: `Analise o seguinte roteiro de vídeo viral:\n\n${script}` },
-        ],
-        temperature: 0.7,
-        response_format: { type: "json_object" },
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("OpenAI API error:", response.status, errorText);
-      return new Response(
-        JSON.stringify({ error: "Erro ao analisar roteiro. Tente novamente." }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-
-    if (!content) {
-      throw new Error("Empty response from OpenAI");
-    }
-
-    const analysis = JSON.parse(content);
 
     return new Response(JSON.stringify(analysis), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
