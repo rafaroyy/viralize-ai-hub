@@ -2,3 +2,6 @@ project_id = "adggfjgfjjozbispsqcc"
 
 [functions.chat-viralize]
 verify_jwt = false
+
+[functions.analyze-script]
+verify_jwt = false

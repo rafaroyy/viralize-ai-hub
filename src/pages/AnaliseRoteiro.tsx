@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 
 interface PCRScore {
   score: number;
@@ -13,114 +13,23 @@ interface PCRScore {
 }
 
 interface AnalysisResult {
-  id: number;
-  title: string;
-  date: string;
   overallScore: number;
   retentionScore: number;
   emotionalPeak: string;
   pergunta: PCRScore;
   conflito: PCRScore;
   resposta: PCRScore;
-  insights: { icon: typeof CheckCircle; color: string; text: string }[];
+  insights: { type: "positive" | "warning"; text: string }[];
   ctaFeedback: string;
 }
 
-const mockHistory: AnalysisResult[] = [
-  {
-    id: 1,
-    title: "Roteiro: Produtividade 3 métodos",
-    date: "09 Fev 2026, 11:30",
-    overallScore: 78,
-    retentionScore: 72,
-    emotionalPeak: "Curiosidade",
-    pergunta: {
-      score: 85,
-      label: "Pergunta (Gancho)",
-      feedback: "Bom uso de estatística no gancho. O '90% das pessoas' gera curiosidade e identificação imediata.",
-    },
-    conflito: {
-      score: 68,
-      label: "Conflito (Tensão)",
-      feedback: "O conflito poderia ser mais profundo. Falta ir contra o senso comum ou mostrar um erro específico que o público comete.",
-    },
-    resposta: {
-      score: 75,
-      label: "Resposta (Entrega)",
-      feedback: "A promessa de '3 métodos' é clara, mas o CTA poderia ser mais direto e urgente.",
-    },
-    insights: [
-      { icon: CheckCircle, color: "text-green-500", text: "O gancho nos primeiros 3 segundos gera curiosidade com dado impactante" },
-      { icon: CheckCircle, color: "text-green-500", text: "A promessa de transformação ('300%') cria desejo de assistir até o final" },
-      { icon: AlertTriangle, color: "text-yellow-500", text: "Falta um momento de tensão — vá contra o senso comum para criar conflito" },
-      { icon: AlertTriangle, color: "text-yellow-500", text: "O CTA precisa ser mais específico: 'Salva esse vídeo' ou 'Comenta se faz sentido'" },
-      { icon: AlertTriangle, color: "text-yellow-500", text: "Considere adicionar uma quebra de padrão emocional no meio do vídeo" },
-    ],
-    ctaFeedback: "CTA genérico. Troque por algo direto: 'Segue o perfil pra parte 2' ou 'Salva esse vídeo'.",
-  },
-  {
-    id: 2,
-    title: "Roteiro: Como ganhar dinheiro dormindo",
-    date: "08 Fev 2026, 15:12",
-    overallScore: 85,
-    retentionScore: 88,
-    emotionalPeak: "Desejo + Choque",
-    pergunta: {
-      score: 92,
-      label: "Pergunta (Gancho)",
-      feedback: "Hook muito forte — promessa clara que obriga a pessoa a ficar até o final para saber como.",
-    },
-    conflito: {
-      score: 80,
-      label: "Conflito (Tensão)",
-      feedback: "Boa construção de tensão com storytelling. Vai contra a crença de que 'precisa trabalhar muito'.",
-    },
-    resposta: {
-      score: 82,
-      label: "Resposta (Entrega)",
-      feedback: "Resposta clara e aplicável. Prova social com números reais fortalece a entrega.",
-    },
-    insights: [
-      { icon: CheckCircle, color: "text-green-500", text: "Hook irresistível — promessa clara e curiosidade extrema" },
-      { icon: CheckCircle, color: "text-green-500", text: "Estrutura P-C-R bem aplicada com storytelling" },
-      { icon: CheckCircle, color: "text-green-500", text: "Pico emocional forte: desejo + quebra de crença" },
-      { icon: AlertTriangle, color: "text-yellow-500", text: "O vídeo poderia ser 5s mais curto para maximizar retenção" },
-      { icon: AlertTriangle, color: "text-yellow-500", text: "Adicione legenda com destaque nas palavras-chave emocionais" },
-    ],
-    ctaFeedback: "CTA funcional. Considere testar 'Comenta EU QUERO' para gerar engajamento.",
-  },
-  {
-    id: 3,
-    title: "Roteiro: 5 apps que ninguém conhece",
-    date: "07 Fev 2026, 09:45",
-    overallScore: 52,
-    retentionScore: 45,
-    emotionalPeak: "Fraco — sem pico claro",
-    pergunta: {
-      score: 40,
-      label: "Pergunta (Gancho)",
-      feedback: "Gancho fraco — não gera curiosidade suficiente. '5 apps' é genérico e não obriga ninguém a ficar.",
-    },
-    conflito: {
-      score: 35,
-      label: "Conflito (Tensão)",
-      feedback: "Sem conflito real. Não vai contra nenhuma crença, não cria tensão. O vídeo fica 'morno'.",
-    },
-    resposta: {
-      score: 55,
-      label: "Resposta (Entrega)",
-      feedback: "Os apps são bons, mas a entrega não tem impacto. Falta ordenar do mais impressionante para o menos.",
-    },
-    insights: [
-      { icon: CheckCircle, color: "text-green-500", text: "Tema com alto potencial de busca orgânica" },
-      { icon: AlertTriangle, color: "text-yellow-500", text: "Gancho não obriga a pessoa a assistir — reformule como pergunta ou promessa" },
-      { icon: AlertTriangle, color: "text-yellow-500", text: "Vídeo neutro e 'bonitinho' — falta emoção. Precisa de pelo menos 1 pico emocional" },
-      { icon: AlertTriangle, color: "text-yellow-500", text: "Sem conflito: não desafia nenhuma crença nem mostra o que o público faz errado" },
-      { icon: AlertTriangle, color: "text-yellow-500", text: "CTA genérico — especifique a ação: 'Salva pra não esquecer' ou 'Segue pra parte 2'" },
-    ],
-    ctaFeedback: "CTA inexistente ou genérico. Adicione: 'Salva esse vídeo pra não perder esses apps'.",
-  },
-];
+interface HistoryItem extends AnalysisResult {
+  id: number;
+  title: string;
+  date: string;
+}
+
+const ANALYZE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-script`;
 
 const ScoreBar = ({ label, score }: { label: string; score: number }) => {
   const getColor = (s: number) => {
@@ -146,19 +55,68 @@ const ScoreBar = ({ label, score }: { label: string; score: number }) => {
 };
 
 const AnaliseRoteiro = () => {
-  const [script, setScript] = useState("Você sabia que 90% das pessoas perdem 4 horas por dia com técnicas erradas de produtividade? Nesse vídeo eu vou te mostrar 3 métodos comprovados que aumentaram minha produtividade em 300%.");
+  const [script, setScript] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [currentResult, setCurrentResult] = useState<AnalysisResult | null>(null);
-  const [viewingHistory, setViewingHistory] = useState<AnalysisResult | null>(null);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [viewingHistory, setViewingHistory] = useState<HistoryItem | null>(null);
+  const { toast } = useToast();
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
+    if (!script.trim() || script.trim().length < 10) {
+      toast({
+        title: "Roteiro muito curto",
+        description: "Escreva pelo menos algumas frases para análise.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      setCurrentResult(mockHistory[0]);
+
+    try {
+      const resp = await fetch(ANALYZE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ script }),
+      });
+
+      if (!resp.ok) {
+        const errorData = await resp.json().catch(() => null);
+        throw new Error(errorData?.error || "Erro ao analisar roteiro");
+      }
+
+      const analysis: AnalysisResult = await resp.json();
+      setCurrentResult(analysis);
+
+      const historyItem: HistoryItem = {
+        ...analysis,
+        id: Date.now(),
+        title: `Roteiro: ${script.slice(0, 40).trim()}...`,
+        date: new Date().toLocaleString("pt-BR", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+      setHistory((prev) => [historyItem, ...prev]);
       setShowResult(true);
-    }, 3000);
+    } catch (e) {
+      console.error("Analysis error:", e);
+      toast({
+        title: "Erro na análise",
+        description: e instanceof Error ? e.message : "Erro desconhecido",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const resultToShow = viewingHistory || currentResult;
@@ -173,6 +131,14 @@ const AnaliseRoteiro = () => {
     if (score >= 80) return "bg-green-500/10";
     if (score >= 60) return "bg-primary/10";
     return "bg-yellow-500/10";
+  };
+
+  const getInsightIcon = (type: string) => {
+    return type === "positive" ? CheckCircle : AlertTriangle;
+  };
+
+  const getInsightColor = (type: string) => {
+    return type === "positive" ? "text-green-500" : "text-yellow-500";
   };
 
   return (
@@ -236,7 +202,7 @@ const AnaliseRoteiro = () => {
 
           <TabsContent value="text">
             <Textarea
-              placeholder="Cole seu roteiro aqui para análise..."
+              placeholder="Exemplo: Você sabia que 90% das pessoas perdem 4 horas por dia com técnicas erradas de produtividade? Nesse vídeo eu vou te mostrar 3 métodos comprovados que aumentaram minha produtividade em 300%..."
               className="min-h-[200px]"
               value={script}
               onChange={(e) => setScript(e.target.value)}
@@ -255,7 +221,7 @@ const AnaliseRoteiro = () => {
         <Button
           className="mt-4 gradient-primary text-primary-foreground shadow-glow hover:opacity-90"
           onClick={handleAnalyze}
-          disabled={isLoading}
+          disabled={isLoading || !script.trim()}
         >
           <Sparkles className="w-4 h-4 mr-2" />
           Analisar Roteiro
@@ -263,51 +229,53 @@ const AnaliseRoteiro = () => {
       </section>
 
       {/* Histórico */}
-      <div className="space-y-4">
-        <h2 className="font-display text-xl font-semibold">Histórico de Análises</h2>
+      {history.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="font-display text-xl font-semibold">Histórico de Análises</h2>
 
-        <div className="space-y-3">
-          {mockHistory.map((item) => (
-            <div
-              key={item.id}
-              className="glass-card p-4 flex items-center justify-between cursor-pointer hover:border-primary/30 transition-all"
-              onClick={() => {
-                setViewingHistory(item);
-                setShowResult(true);
-              }}
-            >
-              <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${getScoreBg(item.overallScore)}`}>
-                  <span className={`text-lg font-bold font-display ${getScoreColor(item.overallScore)}`}>
-                    {item.overallScore}%
-                  </span>
-                </div>
-                <div>
-                  <p className="font-medium text-sm">{item.title}</p>
-                  <div className="flex items-center gap-3 mt-1 flex-wrap">
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="w-3 h-3" />
-                      {item.date}
-                    </span>
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <TrendingUp className="w-3 h-3" />
-                      Retenção: {item.retentionScore}%
-                    </span>
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Zap className="w-3 h-3" />
-                      {item.emotionalPeak}
+          <div className="space-y-3">
+            {history.map((item) => (
+              <div
+                key={item.id}
+                className="glass-card p-4 flex items-center justify-between cursor-pointer hover:border-primary/30 transition-all"
+                onClick={() => {
+                  setViewingHistory(item);
+                  setShowResult(true);
+                }}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${getScoreBg(item.overallScore)}`}>
+                    <span className={`text-lg font-bold font-display ${getScoreColor(item.overallScore)}`}>
+                      {item.overallScore}%
                     </span>
                   </div>
+                  <div>
+                    <p className="font-medium text-sm">{item.title}</p>
+                    <div className="flex items-center gap-3 mt-1 flex-wrap">
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Clock className="w-3 h-3" />
+                        {item.date}
+                      </span>
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <TrendingUp className="w-3 h-3" />
+                        Retenção: {item.retentionScore}%
+                      </span>
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Zap className="w-3 h-3" />
+                        {item.emotionalPeak}
+                      </span>
+                    </div>
+                  </div>
                 </div>
+                <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 shrink-0">
+                  <Eye className="w-4 h-4 mr-1" />
+                  Ver
+                </Button>
               </div>
-              <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 shrink-0">
-                <Eye className="w-4 h-4 mr-1" />
-                Ver
-              </Button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Loading Dialog */}
       <Dialog open={isLoading} onOpenChange={() => {}}>
@@ -318,7 +286,7 @@ const AnaliseRoteiro = () => {
             </div>
             <h3 className="font-display text-xl font-bold mb-2">Analisando com P–C–R...</h3>
             <p className="text-sm text-muted-foreground max-w-xs">
-              Avaliando gancho, conflito, entrega emocional e potencial de retenção do seu roteiro
+              A IA está avaliando gancho, conflito, entrega emocional e potencial de retenção do seu roteiro
             </p>
             <div className="flex gap-1 mt-6">
               <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
@@ -341,7 +309,6 @@ const AnaliseRoteiro = () => {
             <div className="space-y-5 animate-fade-in">
               <div>
                 <h2 className="font-display text-xl font-bold">Análise P–C–R</h2>
-                <p className="text-xs text-muted-foreground mt-1">{resultToShow.title}</p>
               </div>
 
               {/* Score Overview */}
@@ -404,12 +371,15 @@ const AnaliseRoteiro = () => {
               <div className="glass-card p-5 space-y-3">
                 <h3 className="font-display font-semibold text-sm">Insights</h3>
                 <div className="space-y-2">
-                  {resultToShow.insights.map((item, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/50">
-                      <item.icon className={`w-5 h-5 ${item.color} mt-0.5 shrink-0`} />
-                      <p className="text-sm">{item.text}</p>
-                    </div>
-                  ))}
+                  {resultToShow.insights.map((item, i) => {
+                    const Icon = getInsightIcon(item.type);
+                    return (
+                      <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/50">
+                        <Icon className={`w-5 h-5 ${getInsightColor(item.type)} mt-0.5 shrink-0`} />
+                        <p className="text-sm">{item.text}</p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
