@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/animated-sidebar";
 import { Video, FileSearch, LayoutGrid, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
@@ -115,22 +115,22 @@ export function AppSidebar() {
 
 const Logo = ({ src }: { src: string }) => {
   return (
-    <a
-      href="/"
+    <Link
+      to="/criar"
       className="flex items-center relative z-20 -mx-3 -mt-8 -mb-12"
     >
       <img src={src} alt="Viralize AI" className="h-44 object-contain" />
-    </a>
+    </Link>
   );
 };
 
 const LogoIcon = ({ src }: { src: string }) => {
   return (
-    <a
-      href="/"
+    <Link
+      to="/criar"
       className="flex items-center justify-center relative z-20"
     >
       <img src={src} alt="Viralize AI" className="h-12 w-12 object-cover object-left" />
-    </a>
+    </Link>
   );
 };
