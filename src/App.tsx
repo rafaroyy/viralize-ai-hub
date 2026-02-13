@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import LandingPage from "./pages/LandingPage";
@@ -16,11 +16,11 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute() {
   const { isAuthenticated, loading } = useAuth();
   if (loading) return null;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  return <>{children}</>;
+  return <AppLayout><Outlet /></AppLayout>;
 }
 
 const App = () => (
@@ -33,26 +33,13 @@ const App = () => (
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
-            <Route
-              path="/criar"
-              element={<ProtectedRoute><AppLayout><CriarVideo /></AppLayout></ProtectedRoute>}
-            />
-            <Route
-              path="/analise"
-              element={<ProtectedRoute><AppLayout><AnaliseRoteiro /></AppLayout></ProtectedRoute>}
-            />
-            <Route
-              path="/modelos"
-              element={<ProtectedRoute><AppLayout><Modelos /></AppLayout></ProtectedRoute>}
-            />
-            <Route
-              path="/chat"
-              element={<ProtectedRoute><AppLayout><ChatIA /></AppLayout></ProtectedRoute>}
-            />
-            <Route
-              path="/perfil"
-              element={<ProtectedRoute><AppLayout><Perfil /></AppLayout></ProtectedRoute>}
-            />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/criar" element={<CriarVideo />} />
+              <Route path="/analise" element={<AnaliseRoteiro />} />
+              <Route path="/modelos" element={<Modelos />} />
+              <Route path="/chat" element={<ChatIA />} />
+              <Route path="/perfil" element={<Perfil />} />
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
