@@ -272,10 +272,18 @@ const CriarVideo = () => {
                 transition={{ delay: 0.3 }}
                 className="glass-card p-6 space-y-4"
               >
-                <h2 className="font-display text-lg font-semibold flex items-center gap-2">
-                  <Upload className="w-4 h-4 text-primary" />
-                  Vídeos Personalizados
-                </h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+                    <Upload className="w-4 h-4 text-primary" />
+                    Vídeos Personalizados
+                  </h2>
+                  <span className="text-[10px] text-primary font-medium px-2 py-1 rounded-full bg-primary/10 border border-primary/20">
+                    ✦ Recomendado: 4 vídeos de 5s
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Para melhores resultados, envie <strong className="text-foreground">4 vídeos de 5 segundos</strong> cada.
+                </p>
                 <div className="border-2 border-dashed border-border rounded-xl p-10 text-center hover:border-primary/50 transition-colors cursor-pointer group">
                   <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                     <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
