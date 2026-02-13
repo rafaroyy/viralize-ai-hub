@@ -21,6 +21,7 @@ interface AnalysisResult {
   resposta: PCRScore;
   insights: { type: "positive" | "warning"; text: string }[];
   ctaFeedback: string;
+  transcription?: string;
 }
 
 interface HistoryItem extends AnalysisResult {
@@ -56,34 +57,53 @@ const ScoreBar = ({ label, score }: { label: string; score: number }) => {
 
 const AnaliseRoteiro = () => {
   const [script, setScript] = useState("");
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [currentResult, setCurrentResult] = useState<AnalysisResult | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [viewingHistory, setViewingHistory] = useState<HistoryItem | null>(null);
+  const [activeTab, setActiveTab] = useState("text");
   const { toast } = useToast();
 
   const handleAnalyze = async () => {
-    if (!script.trim() || script.trim().length < 10) {
-      toast({
-        title: "Roteiro muito curto",
-        description: "Escreva pelo menos algumas frases para análise.",
-        variant: "destructive",
-      });
+    const isVideo = activeTab === "video";
+
+    if (isVideo && !videoFile) {
+      toast({ title: "Nenhum vídeo selecionado", description: "Envie um vídeo para análise.", variant: "destructive" });
+      return;
+    }
+    if (!isVideo && (!script.trim() || script.trim().length < 10)) {
+      toast({ title: "Roteiro muito curto", description: "Escreva pelo menos algumas frases para análise.", variant: "destructive" });
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const resp = await fetch(ANALYZE_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ script }),
-      });
+      let resp: Response;
+
+      if (isVideo && videoFile) {
+        const formData = new FormData();
+        formData.append("video", videoFile);
+
+        resp = await fetch(ANALYZE_URL, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: formData,
+        });
+      } else {
+        resp = await fetch(ANALYZE_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ script }),
+        });
+      }
 
       if (!resp.ok) {
         const errorData = await resp.json().catch(() => null);
@@ -93,27 +113,23 @@ const AnaliseRoteiro = () => {
       const analysis: AnalysisResult = await resp.json();
       setCurrentResult(analysis);
 
+      const title = isVideo
+        ? `Vídeo: ${videoFile!.name.slice(0, 35)}...`
+        : `Roteiro: ${script.slice(0, 40).trim()}...`;
+
       const historyItem: HistoryItem = {
         ...analysis,
         id: Date.now(),
-        title: `Roteiro: ${script.slice(0, 40).trim()}...`,
+        title,
         date: new Date().toLocaleString("pt-BR", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
+          day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
         }),
       };
       setHistory((prev) => [historyItem, ...prev]);
       setShowResult(true);
     } catch (e) {
       console.error("Analysis error:", e);
-      toast({
-        title: "Erro na análise",
-        description: e instanceof Error ? e.message : "Erro desconhecido",
-        variant: "destructive",
-      });
+      toast({ title: "Erro na análise", description: e instanceof Error ? e.message : "Erro desconhecido", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -186,9 +202,8 @@ const AnaliseRoteiro = () => {
         </div>
       </section>
 
-      {/* Input Section */}
       <section className="glass-card p-6 mb-6">
-        <Tabs defaultValue="text">
+        <Tabs defaultValue="text" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4">
             <TabsTrigger value="text" className="gap-2">
               <FileText className="w-4 h-4" />
@@ -210,21 +225,46 @@ const AnaliseRoteiro = () => {
           </TabsContent>
 
           <TabsContent value="video">
-            <div className="border-2 border-dashed border-border rounded-xl p-12 text-center hover:border-primary/50 transition-colors cursor-pointer">
-              <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">Arraste seu vídeo ou clique para selecionar</p>
-              <p className="text-xs text-muted-foreground mt-1">A IA vai transcrever e analisar automaticamente</p>
-            </div>
+            <label
+              htmlFor="video-upload"
+              className="border-2 border-dashed border-border rounded-xl p-12 text-center hover:border-primary/50 transition-colors cursor-pointer block"
+            >
+              {videoFile ? (
+                <div className="space-y-2">
+                  <FileText className="w-10 h-10 text-primary mx-auto" />
+                  <p className="text-sm font-medium">{videoFile.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {(videoFile.size / (1024 * 1024)).toFixed(1)} MB — Clique para trocar
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">Arraste seu vídeo ou clique para selecionar</p>
+                  <p className="text-xs text-muted-foreground mt-1">A IA vai transcrever e analisar automaticamente</p>
+                </>
+              )}
+              <input
+                id="video-upload"
+                type="file"
+                accept="video/*,audio/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) setVideoFile(file);
+                }}
+              />
+            </label>
           </TabsContent>
         </Tabs>
 
         <Button
           className="mt-4 gradient-primary text-primary-foreground shadow-glow hover:opacity-90"
           onClick={handleAnalyze}
-          disabled={isLoading || !script.trim()}
+          disabled={isLoading || (activeTab === "text" ? !script.trim() : !videoFile)}
         >
           <Sparkles className="w-4 h-4 mr-2" />
-          Analisar Roteiro
+          {activeTab === "video" ? "Transcrever e Analisar" : "Analisar Roteiro"}
         </Button>
       </section>
 
@@ -335,6 +375,18 @@ const AnaliseRoteiro = () => {
                   <p className="text-[10px] text-muted-foreground mt-0.5">Pico Emocional</p>
                 </div>
               </div>
+              {/* Transcription (video uploads) */}
+              {resultToShow.transcription && (
+                <div className="glass-card p-4 space-y-2">
+                  <h3 className="font-display font-semibold text-sm flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-primary" />
+                    Transcrição do Vídeo
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {resultToShow.transcription}
+                  </p>
+                </div>
+              )}
 
               {/* P-C-R Breakdown */}
               <div className="glass-card p-5 space-y-4">
