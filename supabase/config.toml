@@ -1,0 +1,4 @@
+project_id = "adggfjgfjjozbispsqcc"
+
+[functions.chat-viralize]
+verify_jwt = false
