@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft } from "lucide-react";
+import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
-import { MemberCard } from "@/components/ui/member-card";
+import { FlickeringGrid } from "@/components/ui/flickering-grid";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,6 +21,56 @@ function WordCounter({ text }: { text: string }) {
     <span className={`text-xs font-medium tabular-nums ${isOver ? "text-destructive" : "text-muted-foreground"}`}>
       {count}/{MAX_WORDS} palavras
     </span>
+  );
+}
+
+function UserBadge({ name, onLogout }: { name: string; onLogout: () => void }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-border/50 bg-card/80 backdrop-blur-sm hover:border-primary/30 transition-all group"
+      >
+        <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
+          <Crown className="w-4 h-4 text-primary-foreground" />
+        </div>
+        <div className="text-left">
+          <p className="text-sm font-semibold leading-tight">{name}</p>
+          <p className="text-[10px] text-primary font-medium">Pro · 12 vídeos</p>
+        </div>
+        <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -4, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+            className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-card shadow-lg p-1.5 z-50"
+          >
+            <a
+              href="/perfil"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-accent transition-colors"
+            >
+              <Crown className="w-3.5 h-3.5 text-primary" />
+              Meu Perfil
+            </a>
+            <div className="h-px bg-border my-1" />
+            <button
+              onClick={onLogout}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10 transition-colors w-full text-left"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              Sair da conta
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -49,8 +99,20 @@ const CriarVideo = () => {
   // Mode selection screen
   if (mode === "choose") {
     return (
-      <div className="flex h-screen">
-        <div className="flex-1 overflow-auto p-8 animate-fade-in">
+      <div className="relative flex h-screen overflow-hidden">
+        {/* Flickering grid background */}
+        <div className="absolute inset-0 z-0">
+          <FlickeringGrid
+            color="hsl(263 70% 58%)"
+            maxOpacity={0.12}
+            flickerChance={0.1}
+            squareSize={4}
+            gridGap={6}
+          />
+        </div>
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
+
+        <div className="relative z-10 flex-1 overflow-auto p-8 animate-fade-in">
           <div className="max-w-3xl mx-auto">
             {/* Header */}
             <div className="flex items-start justify-between mb-12 gap-4">
@@ -63,25 +125,7 @@ const CriarVideo = () => {
                 </div>
                 <p className="text-muted-foreground">Escolha como deseja criar seu vídeo</p>
               </div>
-              <div className="flex flex-col items-end gap-2 shrink-0">
-                <MemberCard
-                  name={displayName}
-                  plan="Pro"
-                  memberId="VRL-2026-00481"
-                  memberSince="Fev 2026"
-                  videosRemaining={12}
-                  className="scale-[0.55] origin-top-right -mr-[85px] -mb-[100px]"
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Sair
-                </Button>
-              </div>
+              <UserBadge name={displayName} onLogout={handleLogout} />
             </div>
 
             {/* Mode cards */}
@@ -133,8 +177,20 @@ const CriarVideo = () => {
   // Manual mode
   if (mode === "manual") {
     return (
-      <div className="flex h-screen">
-        <div className="flex-1 overflow-auto p-8 animate-fade-in">
+      <div className="relative flex h-screen overflow-hidden">
+        {/* Flickering grid background */}
+        <div className="absolute inset-0 z-0">
+          <FlickeringGrid
+            color="hsl(263 70% 58%)"
+            maxOpacity={0.08}
+            flickerChance={0.08}
+            squareSize={4}
+            gridGap={6}
+          />
+        </div>
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/90 via-background/70 to-background" />
+
+        <div className="relative z-10 flex-1 overflow-auto p-8 animate-fade-in">
           <div className="max-w-2xl mx-auto">
             {/* Header */}
             <div className="flex items-start justify-between mb-8 gap-4">
@@ -154,25 +210,7 @@ const CriarVideo = () => {
                 </div>
                 <p className="text-muted-foreground">Escreva, envie e gere. Sem complicações.</p>
               </div>
-              <div className="flex flex-col items-end gap-2 shrink-0">
-                <MemberCard
-                  name={displayName}
-                  plan="Pro"
-                  memberId="VRL-2026-00481"
-                  memberSince="Fev 2026"
-                  videosRemaining={12}
-                  className="scale-[0.55] origin-top-right -mr-[85px] -mb-[100px]"
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Sair
-                </Button>
-              </div>
+              <UserBadge name={displayName} onLogout={handleLogout} />
             </div>
 
             <div className="space-y-8">
@@ -299,8 +337,20 @@ const CriarVideo = () => {
 
   // Assisted mode (original)
   return (
-    <div className="flex h-screen">
-      <div className="flex-1 overflow-auto p-8 animate-fade-in">
+    <div className="relative flex h-screen overflow-hidden">
+      {/* Flickering grid background */}
+      <div className="absolute inset-0 z-0">
+        <FlickeringGrid
+          color="hsl(263 70% 58%)"
+          maxOpacity={0.08}
+          flickerChance={0.08}
+          squareSize={4}
+          gridGap={6}
+        />
+      </div>
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/90 via-background/70 to-background" />
+
+      <div className="relative z-10 flex-1 overflow-auto p-8 animate-fade-in">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-start justify-between mb-8 gap-4">
             <div>
@@ -319,25 +369,7 @@ const CriarVideo = () => {
               </div>
               <p className="text-muted-foreground">Configure seu vídeo em minutos e obtenha milhares de visualizações!</p>
             </div>
-            <div className="flex flex-col items-end gap-2 shrink-0">
-              <MemberCard
-                name={displayName}
-                plan="Pro"
-                memberId="VRL-2026-00481"
-                memberSince="Fev 2026"
-                videosRemaining={12}
-                className="scale-[0.55] origin-top-right -mr-[85px] -mb-[100px]"
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-2"
-              >
-                <LogOut className="w-4 h-4" />
-                Sair
-              </Button>
-            </div>
+            <UserBadge name={displayName} onLogout={handleLogout} />
           </div>
 
           <div className="space-y-8">
@@ -470,7 +502,7 @@ const CriarVideo = () => {
       </div>
 
       {/* Right: Preview */}
-      <div className="w-[380px] border-l border-border bg-secondary/30 flex flex-col shrink-0">
+      <div className="relative z-10 w-[380px] border-l border-border bg-secondary/30 backdrop-blur-sm flex flex-col shrink-0">
         <div className="flex items-center px-5 py-4 border-b border-border">
           <h3 className="font-display font-semibold text-sm">Preview</h3>
         </div>
@@ -549,7 +581,7 @@ const CriarVideo = () => {
 
 function ManualPreview({ script, duration, narrationMode }: { script: string; duration: string; narrationMode: string }) {
   return (
-    <div className="w-[380px] border-l border-border bg-secondary/30 flex flex-col shrink-0">
+    <div className="relative z-10 w-[380px] border-l border-border bg-secondary/30 backdrop-blur-sm flex flex-col shrink-0">
       <div className="flex items-center px-5 py-4 border-b border-border">
         <h3 className="font-display font-semibold text-sm">Preview</h3>
       </div>
