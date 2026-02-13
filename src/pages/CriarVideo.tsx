@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Video, Sparkles, Upload, Play, LogOut } from "lucide-react";
+import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,11 +10,26 @@ import { Slider } from "@/components/ui/slider";
 import { MemberCard } from "@/components/ui/member-card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+
+const MAX_WORDS = 25;
+
+function WordCounter({ text }: { text: string }) {
+  const count = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const isOver = count > MAX_WORDS;
+  return (
+    <span className={`text-xs font-medium tabular-nums ${isOver ? "text-destructive" : "text-muted-foreground"}`}>
+      {count}/{MAX_WORDS} palavras
+    </span>
+  );
+}
 
 const CriarVideo = () => {
+  const [mode, setMode] = useState<"choose" | "assisted" | "manual">("choose");
   const [narrationMode, setNarrationMode] = useState("narrated");
   const [scenes, setScenes] = useState([3]);
   const [duration, setDuration] = useState("30");
+  const [manualScript, setManualScript] = useState("");
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const displayName = user?.email?.split("@")[0] ?? "Usuário";
@@ -24,14 +39,278 @@ const CriarVideo = () => {
     navigate("/");
   };
 
+  const handleScriptChange = (value: string) => {
+    const words = value.trim().split(/\s+/);
+    if (words.length <= MAX_WORDS || value.length < manualScript.length) {
+      setManualScript(value);
+    }
+  };
+
+  // Mode selection screen
+  if (mode === "choose") {
+    return (
+      <div className="flex h-screen">
+        <div className="flex-1 overflow-auto p-8 animate-fade-in">
+          <div className="max-w-3xl mx-auto">
+            {/* Header */}
+            <div className="flex items-start justify-between mb-12 gap-4">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
+                    <Video className="w-5 h-5 text-primary-foreground" />
+                  </div>
+                  <h1 className="font-display text-3xl font-bold">Criar Vídeo Viral</h1>
+                </div>
+                <p className="text-muted-foreground">Escolha como deseja criar seu vídeo</p>
+              </div>
+              <div className="flex flex-col items-end gap-2 shrink-0">
+                <MemberCard
+                  name={displayName}
+                  plan="Pro"
+                  memberId="VRL-2026-00481"
+                  memberSince="Fev 2026"
+                  videosRemaining={12}
+                  className="scale-[0.55] origin-top-right -mr-[85px] -mb-[100px]"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sair
+                </Button>
+              </div>
+            </div>
+
+            {/* Mode cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+              <motion.button
+                whileHover={{ scale: 1.03, y: -4 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setMode("assisted")}
+                className="glass-card p-8 text-left group cursor-pointer transition-colors hover:border-primary/50"
+              >
+                <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mb-5 shadow-glow group-hover:scale-110 transition-transform">
+                  <Wand2 className="w-7 h-7 text-primary-foreground" />
+                </div>
+                <h3 className="font-display text-xl font-bold mb-2">Assistente IA</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Configure objetivo, nicho, roteiro e deixe a IA montar tudo para você com opções avançadas.
+                </p>
+                <div className="mt-4 flex items-center gap-2 text-xs text-primary font-medium">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Recomendado
+                </div>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.03, y: -4 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setMode("manual")}
+                className="glass-card p-8 text-left group cursor-pointer transition-colors hover:border-primary/50"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                  <PenLine className="w-7 h-7 text-foreground" />
+                </div>
+                <h3 className="font-display text-xl font-bold mb-2">Script Manual</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Escreva seu próprio roteiro curto e envie seus vídeos. Controle total e simplicidade.
+                </p>
+                <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground font-medium">
+                  <FileText className="w-3.5 h-3.5" />
+                  Direto ao ponto
+                </div>
+              </motion.button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Manual mode
+  if (mode === "manual") {
+    return (
+      <div className="flex h-screen">
+        <div className="flex-1 overflow-auto p-8 animate-fade-in">
+          <div className="max-w-2xl mx-auto">
+            {/* Header */}
+            <div className="flex items-start justify-between mb-8 gap-4">
+              <div>
+                <button
+                  onClick={() => setMode("choose")}
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Voltar
+                </button>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
+                    <PenLine className="w-5 h-5 text-foreground" />
+                  </div>
+                  <h1 className="font-display text-3xl font-bold">Script Manual</h1>
+                </div>
+                <p className="text-muted-foreground">Escreva, envie e gere. Sem complicações.</p>
+              </div>
+              <div className="flex flex-col items-end gap-2 shrink-0">
+                <MemberCard
+                  name={displayName}
+                  plan="Pro"
+                  memberId="VRL-2026-00481"
+                  memberSince="Fev 2026"
+                  videosRemaining={12}
+                  className="scale-[0.55] origin-top-right -mr-[85px] -mb-[100px]"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sair
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              {/* Script */}
+              <motion.section
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="glass-card p-6 space-y-4"
+              >
+                <div className="flex items-center justify-between">
+                  <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-primary" />
+                    Seu Roteiro
+                  </h2>
+                  <WordCounter text={manualScript} />
+                </div>
+                <Textarea
+                  value={manualScript}
+                  onChange={(e) => handleScriptChange(e.target.value)}
+                  placeholder="Escreva aqui seu roteiro em até 25 palavras..."
+                  className="min-h-[140px] text-base leading-relaxed resize-none"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Dica: seja direto e impactante. Menos palavras = mais retenção.
+                </p>
+              </motion.section>
+
+              {/* Narration */}
+              <motion.section
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="glass-card p-6 space-y-5"
+              >
+                <h2 className="font-display text-lg font-semibold">Modo de Narração</h2>
+                <RadioGroup value={narrationMode} onValueChange={setNarrationMode} className="space-y-3">
+                  <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${narrationMode === "narrated" ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
+                    <RadioGroupItem value="narrated" />
+                    <div>
+                      <p className="font-medium text-sm">Com narração + legenda</p>
+                      <p className="text-xs text-muted-foreground">IA narra e exibe legendas</p>
+                    </div>
+                  </label>
+                  <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${narrationMode === "muted" ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
+                    <RadioGroupItem value="muted" />
+                    <div>
+                      <p className="font-medium text-sm">Mudo com texto central</p>
+                      <p className="text-xs text-muted-foreground">Texto no centro sem áudio</p>
+                    </div>
+                  </label>
+                </RadioGroup>
+              </motion.section>
+
+              {/* Upload */}
+              <motion.section
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="glass-card p-6 space-y-4"
+              >
+                <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+                  <Upload className="w-4 h-4 text-primary" />
+                  Vídeos Personalizados
+                </h2>
+                <div className="border-2 border-dashed border-border rounded-xl p-10 text-center hover:border-primary/50 transition-colors cursor-pointer group">
+                  <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                    <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
+                  <p className="text-sm font-medium mb-1">Arraste ou clique para adicionar</p>
+                  <p className="text-xs text-muted-foreground">MP4, MOV, AVI — até 100MB</p>
+                </div>
+              </motion.section>
+
+              {/* Duration */}
+              <motion.section
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="glass-card p-6 space-y-4"
+              >
+                <h2 className="font-display text-lg font-semibold">Duração do Vídeo</h2>
+                <div className="grid grid-cols-3 gap-3">
+                  {["15", "30", "60"].map((d) => (
+                    <button
+                      key={d}
+                      onClick={() => setDuration(d)}
+                      className={`py-3 rounded-lg border text-sm font-medium transition-all ${
+                        duration === d
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border hover:border-border/80 text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {d}s
+                    </button>
+                  ))}
+                </div>
+              </motion.section>
+
+              {/* CTA */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <Button
+                  size="lg"
+                  disabled={!manualScript.trim()}
+                  className="w-full gradient-primary text-primary-foreground font-semibold text-base py-6 shadow-glow hover:opacity-90 transition-opacity disabled:opacity-40"
+                >
+                  <Play className="w-5 h-5 mr-2" />
+                  Gerar Vídeo
+                </Button>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Preview */}
+        <ManualPreview script={manualScript} duration={duration} narrationMode={narrationMode} />
+      </div>
+    );
+  }
+
+  // Assisted mode (original)
   return (
     <div className="flex h-screen">
-      {/* Left: Form */}
       <div className="flex-1 overflow-auto p-8 animate-fade-in">
         <div className="max-w-3xl mx-auto">
-          {/* Header with Member Card */}
           <div className="flex items-start justify-between mb-8 gap-4">
             <div>
+              <button
+                onClick={() => setMode("choose")}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Voltar
+              </button>
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
                   <Video className="w-5 h-5 text-primary-foreground" />
@@ -199,19 +478,13 @@ const CriarVideo = () => {
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="relative w-[220px]">
             <div className="bg-background rounded-2xl border-2 border-border overflow-hidden aspect-[9/16] shadow-card">
-              {/* Mock video content */}
               <div className="h-full flex flex-col relative">
-                {/* Gradient background */}
                 <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background to-background" />
-
-                {/* Scene indicators */}
                 <div className="relative z-10 flex gap-1 px-3 pt-3">
                   {Array.from({ length: scenes[0] }, (_, i) => (
                     <div key={i} className={`h-1 flex-1 rounded-full ${i === 0 ? "bg-primary" : "bg-muted"}`} />
                   ))}
                 </div>
-
-                {/* Mock content */}
                 <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center">
                   <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center mb-3 animate-pulse-glow">
                     <Play className="w-5 h-5 text-primary-foreground" />
@@ -223,8 +496,6 @@ const CriarVideo = () => {
                     Cena 1 de {scenes[0]} • {duration}s
                   </p>
                 </div>
-
-                {/* Mock captions */}
                 {narrationMode === "narrated" && (
                   <div className="relative z-10 px-3 pb-4">
                     <div className="bg-background/80 backdrop-blur-sm rounded-lg p-2 text-center">
@@ -234,21 +505,14 @@ const CriarVideo = () => {
                     </div>
                   </div>
                 )}
-
                 {narrationMode === "muted" && (
                   <div className="relative z-10 px-3 pb-4">
                     <div className="text-center">
-                      <p className="text-xs font-bold text-primary">
-                        3 MÉTODOS COMPROVADOS
-                      </p>
-                      <p className="text-[9px] text-muted-foreground">
-                        que vão mudar sua rotina
-                      </p>
+                      <p className="text-xs font-bold text-primary">3 MÉTODOS COMPROVADOS</p>
+                      <p className="text-[9px] text-muted-foreground">que vão mudar sua rotina</p>
                     </div>
                   </div>
                 )}
-
-                {/* Bottom bar */}
                 <div className="relative z-10 flex items-center gap-3 px-3 pb-3">
                   <div className="h-1 flex-1 bg-muted rounded-full overflow-hidden">
                     <div className="h-full w-1/3 bg-primary rounded-full" />
@@ -260,7 +524,6 @@ const CriarVideo = () => {
           </div>
         </div>
 
-        {/* Preview info */}
         <div className="px-5 py-4 border-t border-border space-y-2">
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">Duração</span>
@@ -283,5 +546,91 @@ const CriarVideo = () => {
     </div>
   );
 };
+
+function ManualPreview({ script, duration, narrationMode }: { script: string; duration: string; narrationMode: string }) {
+  return (
+    <div className="w-[380px] border-l border-border bg-secondary/30 flex flex-col shrink-0">
+      <div className="flex items-center px-5 py-4 border-b border-border">
+        <h3 className="font-display font-semibold text-sm">Preview</h3>
+      </div>
+
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="relative w-[220px]">
+          <div className="bg-background rounded-2xl border-2 border-border overflow-hidden aspect-[9/16] shadow-card">
+            <div className="h-full flex flex-col relative">
+              <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background to-background" />
+
+              <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center">
+                <AnimatePresence mode="wait">
+                  {script.trim() ? (
+                    <motion.div
+                      key="script"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="space-y-3"
+                    >
+                      {narrationMode === "narrated" ? (
+                        <>
+                          <p className="text-xs font-bold font-display leading-tight">{script}</p>
+                          <div className="bg-background/80 backdrop-blur-sm rounded-lg p-2">
+                            <p className="text-[9px] font-medium text-muted-foreground italic">"{script}"</p>
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-sm font-bold text-primary leading-tight">{script}</p>
+                      )}
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="empty"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="space-y-3"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mx-auto">
+                        <PenLine className="w-5 h-5 text-muted-foreground" />
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">
+                        Seu roteiro aparecerá aqui...
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <div className="relative z-10 flex items-center gap-3 px-3 pb-3">
+                <div className="h-1 flex-1 bg-muted rounded-full overflow-hidden">
+                  <div className="h-full w-0 bg-primary rounded-full" />
+                </div>
+                <span className="text-[8px] text-muted-foreground">0:00/{duration}s</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-5 py-4 border-t border-border space-y-2">
+        <div className="flex justify-between text-xs">
+          <span className="text-muted-foreground">Modo</span>
+          <span className="font-medium text-primary">Script Manual</span>
+        </div>
+        <div className="flex justify-between text-xs">
+          <span className="text-muted-foreground">Duração</span>
+          <span className="font-medium">{duration} segundos</span>
+        </div>
+        <div className="flex justify-between text-xs">
+          <span className="text-muted-foreground">Narração</span>
+          <span className="font-medium">{narrationMode === "narrated" ? "Com áudio" : "Mudo"}</span>
+        </div>
+        <div className="flex justify-between text-xs">
+          <span className="text-muted-foreground">Palavras</span>
+          <span className="font-medium">{script.trim() ? script.trim().split(/\s+/).length : 0}/{MAX_WORDS}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default CriarVideo;
