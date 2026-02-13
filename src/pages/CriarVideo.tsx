@@ -80,6 +80,7 @@ const CriarVideo = () => {
   const [scenes, setScenes] = useState([3]);
   const [duration, setDuration] = useState("30");
   const [manualScript, setManualScript] = useState("");
+  const [keyword, setKeyword] = useState("productivity hacks");
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const displayName = user?.email?.split("@")[0] ?? "Usuário";
@@ -369,10 +370,18 @@ const CriarVideo = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>Palavra-chave *</Label>
-                  <Input defaultValue="productivity hacks" />
+                  <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} />
                 </div>
               </div>
-              <Button variant="outline" className="border-primary/30 text-primary hover:bg-primary/10">
+              <Button
+                variant="outline"
+                className="border-primary/30 text-primary hover:bg-primary/10"
+                onClick={() => {
+                  const q = encodeURIComponent(keyword.trim());
+                  if (q) window.open(`https://www.tiktok.com/search?q=${q}`, "_blank");
+                }}
+                disabled={!keyword.trim()}
+              >
                 <Sparkles className="w-4 h-4 mr-2" />
                 Buscar inspiração
               </Button>
