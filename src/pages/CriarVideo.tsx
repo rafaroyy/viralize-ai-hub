@@ -434,43 +434,87 @@ const CriarVideo = () => {
 
             {/* Configurações */}
             <section className="glass-card p-6 space-y-5">
-              <h2 className="font-display text-lg font-semibold">Configurações do Vídeo</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label>Idioma</Label>
-                  <Select defaultValue="pt-br">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pt-br">🇧🇷 Português (BR)</SelectItem>
-                      <SelectItem value="en">🇺🇸 English</SelectItem>
-                      <SelectItem value="es">🇪🇸 Español</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Duração do vídeo</Label>
-                  <Select value={duration} onValueChange={setDuration}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="10">10 segundos (1 cena)</SelectItem>
-                      <SelectItem value="20">20 segundos (2 cenas)</SelectItem>
-                      <SelectItem value="30">30 segundos (3 cenas)</SelectItem>
-                    </SelectContent>
-                  </Select>
+              <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+                <Video className="w-4 h-4 text-primary" />
+                Configurações do Vídeo
+              </h2>
+
+              {/* Duration visual selector */}
+              <div className="space-y-3">
+                <Label>Duração e Cenas</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { value: "10", label: "10s", scenes: 1 },
+                    { value: "20", label: "20s", scenes: 2 },
+                    { value: "30", label: "30s", scenes: 3 },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setDuration(opt.value)}
+                      className={`relative p-4 rounded-xl border-2 text-center transition-all ${
+                        duration === opt.value
+                          ? "border-primary bg-primary/5 shadow-glow"
+                          : "border-border hover:border-primary/30"
+                      }`}
+                    >
+                      <p className={`text-2xl font-bold font-display ${duration === opt.value ? "text-primary" : "text-foreground"}`}>
+                        {opt.label}
+                      </p>
+                      <div className="flex justify-center gap-1 mt-2">
+                        {Array.from({ length: opt.scenes }, (_, i) => (
+                          <div
+                            key={i}
+                            className={`w-2 h-2 rounded-full ${duration === opt.value ? "bg-primary" : "bg-muted-foreground/30"}`}
+                          />
+                        ))}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        {opt.scenes} {opt.scenes === 1 ? "cena" : "cenas"}
+                      </p>
+                    </button>
+                  ))}
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>Cenas: <strong className="text-foreground">{scenes[0]}</strong> (10s cada)</span>
+
+              {/* Language */}
+              <div className="space-y-2">
+                <Label>Idioma</Label>
+                <Select defaultValue="pt-br">
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pt-br">🇧🇷 Português (BR)</SelectItem>
+                    <SelectItem value="en">🇺🇸 English</SelectItem>
+                    <SelectItem value="es">🇪🇸 Español</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </section>
 
             {/* Upload */}
             <section className="glass-card p-6 space-y-4">
-              <h2 className="font-display text-lg font-semibold">Vídeos Personalizados (Opcional)</h2>
-              <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">Arraste ou clique para adicionar</p>
-                <p className="text-xs text-muted-foreground mt-1">MP4, MOV, AVI</p>
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+                  <Upload className="w-4 h-4 text-primary" />
+                  Vídeos Personalizados
+                </h2>
+                <span className="text-xs text-muted-foreground font-medium px-2 py-1 rounded-full bg-secondary">
+                  {scenes[0]} {scenes[0] === 1 ? "vídeo necessário" : "vídeos necessários"}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Envie <strong className="text-foreground">{scenes[0]}</strong> {scenes[0] === 1 ? "vídeo" : "vídeos"} — um para cada cena de 10 segundos.
+              </p>
+              <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${scenes[0]}, 1fr)` }}>
+                {Array.from({ length: scenes[0] }, (_, i) => (
+                  <div
+                    key={i}
+                    className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 transition-colors cursor-pointer group aspect-[9/16] flex flex-col items-center justify-center"
+                  >
+                    <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors mb-2" />
+                    <p className="text-xs font-medium">Cena {i + 1}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">MP4, MOV</p>
+                  </div>
+                ))}
               </div>
             </section>
 
