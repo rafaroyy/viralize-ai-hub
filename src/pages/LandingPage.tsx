@@ -11,6 +11,7 @@ import logoViralizeLight from "@/assets/logo-viralize-light.png";
 import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
+import { GradientText } from "@/components/ui/gradient-text";
 
 /* ═══════════════════════════════════════════
    HELPERS
@@ -238,7 +239,9 @@ function HeroSection() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="flex flex-col gap-6">
           <h1 className="text-4xl sm:text-5xl xl:text-6xl font-bold tracking-tight leading-[1.1] font-display">
             Viralizar não é sorte,{" "}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-400 to-primary">é framework</span>
+            <GradientText className="text-4xl sm:text-5xl xl:text-6xl font-bold tracking-tight leading-[1.1] font-display">
+              é framework
+            </GradientText>
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg max-w-xl leading-relaxed">
             Você não precisa de mais ideias. Precisa de estrutura. A Viralize monta seu vídeo frame por frame com frameworks de retenção e venda — do gancho ao CTA — em minutos.
