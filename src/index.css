@@ -49,6 +49,12 @@
     --gradient-subtle: linear-gradient(135deg, hsl(240 15% 8%), hsl(263 20% 12%));
     --shadow-glow: 0 0 30px hsl(263 70% 58% / 0.15);
     --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.3);
+
+    --color-1: 263 70% 58%;
+    --color-2: 280 80% 65%;
+    --color-3: 240 60% 50%;
+    --color-4: 295 70% 55%;
+    --color-5: 250 80% 60%;
   }
 
   .light {
@@ -93,6 +99,12 @@
     --gradient-subtle: linear-gradient(135deg, hsl(0 0% 96%), hsl(263 20% 95%));
     --shadow-glow: 0 0 30px hsl(263 70% 58% / 0.15);
     --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.08);
+
+    --color-1: 263 70% 58%;
+    --color-2: 280 80% 65%;
+    --color-3: 240 60% 50%;
+    --color-4: 295 70% 55%;
+    --color-5: 250 80% 60%;
   }
 }
 
