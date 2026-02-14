@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle, Clock, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { api, CaptionStyle, JobStatus } from "@/lib/api";
+import { Slider } from "@/components/ui/slider";
 
 const MAX_WORDS = 25;
 
@@ -82,8 +83,8 @@ function UserBadge({ name, videosRemaining, onLogout }: { name: string; videosRe
 const CriarVideo = () => {
   const [mode, setMode] = useState<"choose" | "assisted" | "manual">("choose");
   const [narrationMode, setNarrationMode] = useState("narrated");
-  const [duration, setDuration] = useState("30");
-  const scenes = [Math.min(Math.floor(Number(duration) / 10), 3)];
+  const [duration, setDuration] = useState("24");
+  const scenesCount = Math.ceil(Number(duration) / 8);
   const [manualScript, setManualScript] = useState("");
   const [keyword, setKeyword] = useState("");
   const { user, logout, quota } = useAuth();
@@ -194,7 +195,7 @@ const CriarVideo = () => {
         palavra_chave_global: keyword.trim(),
         idioma,
         duracao: Number(duration),
-        cenas: scenes[0],
+        cenas: scenesCount,
         aspect_ratio: "9:16",
         usar_legenda_e_fala: narrationMode === "narrated",
         caption_style: captionStyle,
@@ -648,37 +649,35 @@ const CriarVideo = () => {
                 Configurações do Vídeo
               </h2>
 
-              <div className="space-y-3">
-                <Label>Duração e Cenas</Label>
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { value: "10", label: "10s", scenes: 1 },
-                    { value: "20", label: "20s", scenes: 2 },
-                    { value: "30", label: "30s", scenes: 3 },
-                  ].map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setDuration(opt.value)}
-                      className={`relative p-4 rounded-xl border-2 text-center transition-all ${
-                        duration === opt.value
-                          ? "border-primary bg-primary/5 shadow-glow"
-                          : "border-border hover:border-primary/30"
-                      }`}
-                    >
-                      <p className={`text-2xl font-bold font-display ${duration === opt.value ? "text-primary" : "text-foreground"}`}>
-                        {opt.label}
-                      </p>
-                      <div className="flex justify-center gap-1 mt-2">
-                        {Array.from({ length: opt.scenes }, (_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-full ${duration === opt.value ? "bg-primary" : "bg-muted-foreground/30"}`} />
-                        ))}
-                      </div>
-                      <p className="text-[10px] text-muted-foreground mt-1">
-                        {opt.scenes} {opt.scenes === 1 ? "cena" : "cenas"}
-                      </p>
-                    </button>
-                  ))}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-primary" />
+                    Duração do Vídeo
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-bold font-display text-primary">{duration}s</span>
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Layers className="w-3 h-3" />
+                      {scenesCount} {scenesCount === 1 ? "cena" : "cenas"}
+                    </span>
+                  </div>
                 </div>
+                <Slider
+                  value={[Number(duration)]}
+                  onValueChange={([v]) => setDuration(String(v))}
+                  min={8}
+                  max={60}
+                  step={1}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-[10px] text-muted-foreground">
+                  <span>8s (1 cena)</span>
+                  <span>60s ({Math.ceil(60 / 8)} cenas)</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Cada cena tem ~8 segundos. A quantidade de cenas é calculada automaticamente.
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -724,11 +723,11 @@ const CriarVideo = () => {
                     Vídeos Personalizados
                   </h2>
                   <span className="text-xs text-muted-foreground font-medium px-2 py-1 rounded-full bg-secondary">
-                    {scenes[0]} {scenes[0] === 1 ? "vídeo necessário" : "vídeos necessários"}
+                    {scenesCount} {scenesCount === 1 ? "vídeo necessário" : "vídeos necessários"}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Envie <strong className="text-foreground">{scenes[0]}</strong> {scenes[0] === 1 ? "vídeo" : "vídeos"} — um para cada cena de 10 segundos.
+                  Envie <strong className="text-foreground">{scenesCount}</strong> {scenesCount === 1 ? "vídeo" : "vídeos"} — um para cada cena de 8 segundos.
                 </p>
                 <div
                   className="border-2 border-dashed border-border rounded-xl p-10 text-center hover:border-primary/50 transition-colors cursor-pointer group"
@@ -780,7 +779,7 @@ const CriarVideo = () => {
               <div className="h-full flex flex-col relative">
                 <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background to-background" />
                 <div className="relative z-10 flex gap-1 px-3 pt-3">
-                  {Array.from({ length: scenes[0] }, (_, i) => (
+                  {Array.from({ length: scenesCount }, (_, i) => (
                     <div key={i} className={`h-1 flex-1 rounded-full ${i === 0 ? "bg-primary" : "bg-muted"}`} />
                   ))}
                 </div>
@@ -792,7 +791,7 @@ const CriarVideo = () => {
                     {tema.trim() || "Seu tema aparecerá aqui"}
                   </p>
                   <p className="text-[10px] text-muted-foreground">
-                    Cena 1 de {scenes[0]} • {duration}s
+                    Cena 1 de {scenesCount} • {duration}s
                   </p>
                 </div>
                 {narrationMode === "narrated" && (
@@ -830,7 +829,7 @@ const CriarVideo = () => {
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">Cenas</span>
-            <span className="font-medium">{scenes[0]}</span>
+            <span className="font-medium">{scenesCount}</span>
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">Narração</span>
