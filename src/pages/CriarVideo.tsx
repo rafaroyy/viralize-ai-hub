@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,9 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { api, CaptionStyle, JobStatus } from "@/lib/api";
 
 const MAX_WORDS = 25;
 
@@ -23,7 +27,7 @@ function WordCounter({ text }: { text: string }) {
   );
 }
 
-function UserBadge({ name, onLogout }: { name: string; onLogout: () => void }) {
+function UserBadge({ name, videosRemaining, onLogout }: { name: string; videosRemaining: number | null; onLogout: () => void }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -37,7 +41,9 @@ function UserBadge({ name, onLogout }: { name: string; onLogout: () => void }) {
         </div>
         <div className="text-left">
           <p className="text-sm font-semibold leading-tight">{name}</p>
-          <p className="text-[10px] text-primary font-medium">Pro · 12 vídeos</p>
+          <p className="text-[10px] text-primary font-medium">
+            Pro{videosRemaining !== null ? ` · ${videosRemaining} vídeos` : ""}
+          </p>
         </div>
         <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
@@ -80,9 +86,64 @@ const CriarVideo = () => {
   const scenes = [Math.min(Math.floor(Number(duration) / 10), 3)];
   const [manualScript, setManualScript] = useState("");
   const [keyword, setKeyword] = useState("");
-  const { user, logout } = useAuth();
+  const { user, logout, quota } = useAuth();
   const navigate = useNavigate();
-  const displayName = user?.email?.split("@")[0] ?? "Usuário";
+  const { toast } = useToast();
+  const displayName = user?.username ?? user?.email?.split("@")[0] ?? "Usuário";
+
+  // Form fields for assisted mode
+  const [objetivo, setObjetivo] = useState("");
+  const [tema, setTema] = useState("");
+  const [nicho, setNicho] = useState("");
+  const [idioma, setIdioma] = useState("pt-BR");
+  const [videoSource, setVideoSource] = useState<"sora" | "custom">("sora");
+
+  // Caption styles from API
+  const [captionStyles, setCaptionStyles] = useState<CaptionStyle[]>([]);
+  const [captionStyle, setCaptionStyle] = useState("karaoke");
+
+  // File uploads
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const manualFileInputRef = useRef<HTMLInputElement>(null);
+  const [manualFiles, setManualFiles] = useState<File[]>([]);
+
+  // Job state
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [jobStatus, setJobStatus] = useState<JobStatus | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Fetch caption styles on mount
+  useEffect(() => {
+    api.captionStyles().then((data) => {
+      setCaptionStyles(data.styles);
+      setCaptionStyle(data.default);
+    }).catch(() => {});
+  }, []);
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
+
+  const startPolling = useCallback((id: string) => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    pollRef.current = setInterval(async () => {
+      try {
+        const status = await api.jobStatus(id);
+        setJobStatus(status);
+        if (status.status === "completed" || status.status === "failed") {
+          if (pollRef.current) clearInterval(pollRef.current);
+          pollRef.current = null;
+        }
+      } catch {
+        // keep polling
+      }
+    }, 3000);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -96,25 +157,205 @@ const CriarVideo = () => {
     }
   };
 
+  const handleFileSelect = (files: FileList | null, isManual = false) => {
+    if (!files) return;
+    const arr = Array.from(files);
+    if (isManual) {
+      setManualFiles((prev) => [...prev, ...arr]);
+    } else {
+      setUploadedFiles((prev) => [...prev, ...arr]);
+    }
+  };
+
+  const removeFile = (index: number, isManual = false) => {
+    if (isManual) {
+      setManualFiles((prev) => prev.filter((_, i) => i !== index));
+    } else {
+      setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleSubmitAssisted = async () => {
+    if (!objetivo.trim() || !tema.trim() || !nicho.trim()) {
+      toast({ title: "Preencha os campos obrigatórios", description: "Objetivo, tema e nicho são obrigatórios.", variant: "destructive" });
+      return;
+    }
+    if (videoSource === "custom" && uploadedFiles.length === 0) {
+      toast({ title: "Envie os vídeos", description: "No modo Custom é obrigatório enviar vídeos.", variant: "destructive" });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const payload: Record<string, unknown> = {
+        tema: tema.trim(),
+        nicho: nicho.trim(),
+        objetivo: objetivo.trim(),
+        palavra_chave_global: keyword.trim(),
+        idioma,
+        duracao: Number(duration),
+        cenas: scenes[0],
+        aspect_ratio: "9:16",
+        usar_legenda_e_fala: narrationMode === "narrated",
+        caption_style: captionStyle,
+        video_source: videoSource,
+      };
+      const files = videoSource === "custom" ? uploadedFiles : undefined;
+      const res = await api.renderVideo(payload, files);
+      setJobId(res.job_id);
+      setJobStatus({ job_id: res.job_id, status: "pending", progress: 0, message: res.message, created_at: res.created_at, updated_at: res.created_at });
+      startPolling(res.job_id);
+      toast({ title: "Vídeo enviado!", description: res.message });
+    } catch (e) {
+      toast({ title: "Erro ao gerar vídeo", description: e instanceof Error ? e.message : "Erro desconhecido", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmitManual = async () => {
+    if (!manualScript.trim()) {
+      toast({ title: "Roteiro vazio", description: "Escreva o roteiro antes de gerar.", variant: "destructive" });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const payload: Record<string, unknown> = {
+        script_mode: "manual",
+        manual_script: manualScript.trim(),
+        idioma,
+        cenas: 3,
+        aspect_ratio: "9:16",
+        usar_legenda_e_fala: narrationMode === "narrated",
+        caption_style: captionStyle,
+        video_source: manualFiles.length > 0 ? "custom" : "sora",
+      };
+      const files = manualFiles.length > 0 ? manualFiles : undefined;
+      const res = await api.renderVideo(payload, files);
+      setJobId(res.job_id);
+      setJobStatus({ job_id: res.job_id, status: "pending", progress: 0, message: res.message, created_at: res.created_at, updated_at: res.created_at });
+      startPolling(res.job_id);
+      toast({ title: "Vídeo enviado!", description: res.message });
+    } catch (e) {
+      toast({ title: "Erro ao gerar vídeo", description: e instanceof Error ? e.message : "Erro desconhecido", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!jobId) return;
+    try {
+      await api.downloadVideo(jobId);
+      toast({ title: "Download iniciado!" });
+    } catch (e) {
+      toast({ title: "Erro no download", description: e instanceof Error ? e.message : "Erro", variant: "destructive" });
+    }
+  };
+
+  const resetJob = () => {
+    setJobId(null);
+    setJobStatus(null);
+    if (pollRef.current) clearInterval(pollRef.current);
+  };
+
+  const videosRemaining = quota?.total?.remaining ?? null;
+
+  // Job status dialog
+  const jobDialog = (
+    <Dialog open={!!jobId} onOpenChange={(open) => { if (!open) resetJob(); }}>
+      <DialogContent className="sm:max-w-md glass-card border-border">
+        {jobStatus && (
+          <div className="flex flex-col items-center py-6 text-center space-y-4">
+            {jobStatus.status === "pending" || jobStatus.status === "processing" ? (
+              <>
+                <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center animate-pulse-glow">
+                  <Loader2 className="w-8 h-8 text-primary-foreground animate-spin" />
+                </div>
+                <h3 className="font-display text-xl font-bold">
+                  {jobStatus.status === "pending" ? "Na fila..." : "Processando..."}
+                </h3>
+                <p className="text-sm text-muted-foreground">{jobStatus.message}</p>
+                <Progress value={jobStatus.progress} className="w-full" />
+                <p className="text-xs text-muted-foreground">{jobStatus.progress}%</p>
+              </>
+            ) : jobStatus.status === "completed" ? (
+              <>
+                <div className="w-16 h-16 rounded-2xl bg-green-500/20 flex items-center justify-center">
+                  <CheckCircle className="w-8 h-8 text-green-500" />
+                </div>
+                <h3 className="font-display text-xl font-bold">Vídeo Pronto!</h3>
+                <p className="text-sm text-muted-foreground">{jobStatus.message}</p>
+                <Button onClick={handleDownload} className="gradient-primary text-primary-foreground shadow-glow">
+                  <Download className="w-4 h-4 mr-2" />
+                  Baixar Vídeo
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="w-16 h-16 rounded-2xl bg-destructive/20 flex items-center justify-center">
+                  <AlertCircle className="w-8 h-8 text-destructive" />
+                </div>
+                <h3 className="font-display text-xl font-bold">Erro</h3>
+                <p className="text-sm text-destructive">{jobStatus.error || jobStatus.message}</p>
+                <Button variant="outline" onClick={resetJob}>Fechar</Button>
+              </>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+
+  // Caption style selector component
+  const CaptionStyleSelector = () => (
+    <div className="space-y-2">
+      <Label>Estilo de Legenda</Label>
+      <Select value={captionStyle} onValueChange={setCaptionStyle}>
+        <SelectTrigger><SelectValue /></SelectTrigger>
+        <SelectContent>
+          {captionStyles.length > 0 ? captionStyles.map((s) => (
+            <SelectItem key={s.id} value={s.id}>
+              {s.label}
+            </SelectItem>
+          )) : (
+            <SelectItem value="karaoke">Karaoke</SelectItem>
+          )}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
+  // File list component
+  const FileList = ({ files, isManual = false }: { files: File[]; isManual?: boolean }) => (
+    files.length > 0 ? (
+      <div className="space-y-2 mt-3">
+        {files.map((file, i) => (
+          <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-secondary/50 text-sm">
+            <Video className="w-4 h-4 text-primary shrink-0" />
+            <span className="flex-1 truncate">{file.name}</span>
+            <span className="text-xs text-muted-foreground">{(file.size / (1024 * 1024)).toFixed(1)}MB</span>
+            <button onClick={() => removeFile(i, isManual)} className="text-muted-foreground hover:text-destructive">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ))}
+      </div>
+    ) : null
+  );
+
   // Mode selection screen
   if (mode === "choose") {
     return (
       <div className="relative flex h-screen overflow-hidden">
-        {/* Flickering grid background */}
         <div className="absolute inset-0 z-0">
-          <FlickeringGrid
-            color="hsl(263 70% 58%)"
-            maxOpacity={0.12}
-            flickerChance={0.1}
-            squareSize={4}
-            gridGap={6}
-          />
+          <FlickeringGrid color="hsl(263 70% 58%)" maxOpacity={0.12} flickerChance={0.1} squareSize={4} gridGap={6} />
         </div>
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
 
         <div className="relative z-10 flex-1 overflow-auto p-8 animate-fade-in">
           <div className="max-w-3xl mx-auto">
-            {/* Header */}
             <div className="flex items-start justify-between mb-12 gap-4">
               <div>
                 <div className="flex items-center gap-3 mb-2">
@@ -125,10 +366,9 @@ const CriarVideo = () => {
                 </div>
                 <p className="text-muted-foreground">Escolha como deseja criar seu vídeo</p>
               </div>
-              <UserBadge name={displayName} onLogout={handleLogout} />
+              <UserBadge name={displayName} videosRemaining={videosRemaining} onLogout={handleLogout} />
             </div>
 
-            {/* Mode cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
               <motion.button
                 whileHover={{ scale: 1.03, y: -4 }}
@@ -170,6 +410,7 @@ const CriarVideo = () => {
             </div>
           </div>
         </div>
+        {jobDialog}
       </div>
     );
   }
@@ -178,21 +419,13 @@ const CriarVideo = () => {
   if (mode === "manual") {
     return (
       <div className="relative flex h-screen overflow-hidden">
-        {/* Flickering grid background */}
         <div className="absolute inset-0 z-0">
-          <FlickeringGrid
-            color="hsl(263 70% 58%)"
-            maxOpacity={0.08}
-            flickerChance={0.08}
-            squareSize={4}
-            gridGap={6}
-          />
+          <FlickeringGrid color="hsl(263 70% 58%)" maxOpacity={0.08} flickerChance={0.08} squareSize={4} gridGap={6} />
         </div>
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/90 via-background/70 to-background" />
 
         <div className="relative z-10 flex-1 overflow-auto p-8 animate-fade-in">
           <div className="max-w-2xl mx-auto">
-            {/* Header */}
             <div className="flex items-start justify-between mb-8 gap-4">
               <div>
                 <button
@@ -210,17 +443,12 @@ const CriarVideo = () => {
                 </div>
                 <p className="text-muted-foreground">Escreva, envie e gere. Sem complicações.</p>
               </div>
-              <UserBadge name={displayName} onLogout={handleLogout} />
+              <UserBadge name={displayName} videosRemaining={videosRemaining} onLogout={handleLogout} />
             </div>
 
             <div className="space-y-8">
               {/* Script */}
-              <motion.section
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="glass-card p-6 space-y-4"
-              >
+              <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="font-display text-lg font-semibold flex items-center gap-2">
                     <FileText className="w-4 h-4 text-primary" />
@@ -240,12 +468,7 @@ const CriarVideo = () => {
               </motion.section>
 
               {/* Narration */}
-              <motion.section
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="glass-card p-6 space-y-5"
-              >
+              <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-6 space-y-5">
                 <h2 className="font-display text-lg font-semibold">Modo de Narração</h2>
                 <RadioGroup value={narrationMode} onValueChange={setNarrationMode} className="space-y-3">
                   <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${narrationMode === "narrated" ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
@@ -263,15 +486,11 @@ const CriarVideo = () => {
                     </div>
                   </label>
                 </RadioGroup>
+                {narrationMode === "narrated" && <CaptionStyleSelector />}
               </motion.section>
 
               {/* Upload */}
-              <motion.section
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="glass-card p-6 space-y-4"
-              >
+              <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="font-display text-lg font-semibold flex items-center gap-2">
                     <Upload className="w-4 h-4 text-primary" />
@@ -282,29 +501,42 @@ const CriarVideo = () => {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Para melhores resultados, envie <strong className="text-foreground">4 vídeos de 5 segundos</strong> cada.
+                  Para melhores resultados, envie <strong className="text-foreground">4 vídeos de 5 segundos</strong> cada. Se não enviar, a IA usará vídeos gerados (Sora).
                 </p>
-                <div className="border-2 border-dashed border-border rounded-xl p-10 text-center hover:border-primary/50 transition-colors cursor-pointer group">
+                <div
+                  className="border-2 border-dashed border-border rounded-xl p-10 text-center hover:border-primary/50 transition-colors cursor-pointer group"
+                  onClick={() => manualFileInputRef.current?.click()}
+                >
                   <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                     <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
                   </div>
                   <p className="text-sm font-medium mb-1">Arraste ou clique para adicionar</p>
                   <p className="text-xs text-muted-foreground">MP4, MOV, AVI — até 100MB</p>
                 </div>
+                <input
+                  ref={manualFileInputRef}
+                  type="file"
+                  accept="video/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => handleFileSelect(e.target.files, true)}
+                />
+                <FileList files={manualFiles} isManual />
               </motion.section>
 
               {/* CTA */}
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-              >
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
                 <Button
                   size="lg"
-                  disabled={!manualScript.trim()}
+                  disabled={!manualScript.trim() || isSubmitting}
+                  onClick={handleSubmitManual}
                   className="w-full gradient-primary text-primary-foreground font-semibold text-base py-6 shadow-glow hover:opacity-90 transition-opacity disabled:opacity-40"
                 >
-                  <Play className="w-5 h-5 mr-2" />
+                  {isSubmitting ? (
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  ) : (
+                    <Play className="w-5 h-5 mr-2" />
+                  )}
                   Gerar Vídeo
                 </Button>
               </motion.div>
@@ -312,24 +544,17 @@ const CriarVideo = () => {
           </div>
         </div>
 
-        {/* Right: Preview */}
         <ManualPreview script={manualScript} duration={duration} narrationMode={narrationMode} />
+        {jobDialog}
       </div>
     );
   }
 
-  // Assisted mode (original)
+  // Assisted mode
   return (
     <div className="relative flex h-screen overflow-hidden">
-      {/* Flickering grid background */}
       <div className="absolute inset-0 z-0">
-        <FlickeringGrid
-          color="hsl(263 70% 58%)"
-          maxOpacity={0.08}
-          flickerChance={0.08}
-          squareSize={4}
-          gridGap={6}
-        />
+        <FlickeringGrid color="hsl(263 70% 58%)" maxOpacity={0.08} flickerChance={0.08} squareSize={4} gridGap={6} />
       </div>
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/90 via-background/70 to-background" />
 
@@ -352,7 +577,7 @@ const CriarVideo = () => {
               </div>
               <p className="text-muted-foreground">Configure seu vídeo em minutos e obtenha milhares de visualizações!</p>
             </div>
-            <UserBadge name={displayName} onLogout={handleLogout} />
+            <UserBadge name={displayName} videosRemaining={videosRemaining} onLogout={handleLogout} />
           </div>
 
           <div className="space-y-8">
@@ -365,15 +590,15 @@ const CriarVideo = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Objetivo *</Label>
-                  <Input placeholder="Ex: Vender curso online de produtividade" />
+                  <Input placeholder="Ex: Vender curso online de produtividade" value={objetivo} onChange={(e) => setObjetivo(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Tema *</Label>
-                  <Input placeholder="Ex: Produtividade e foco" />
+                  <Input placeholder="Ex: Produtividade e foco" value={tema} onChange={(e) => setTema(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Nicho *</Label>
-                  <Input placeholder="Ex: Empreendedorismo digital" />
+                  <Input placeholder="Ex: Empreendedorismo digital" value={nicho} onChange={(e) => setNicho(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Palavra-chave *</Label>
@@ -392,31 +617,6 @@ const CriarVideo = () => {
                 <Sparkles className="w-4 h-4 mr-2" />
                 Buscar inspiração
               </Button>
-            </section>
-
-            {/* Roteiro */}
-            <section className="glass-card p-6 space-y-5">
-              <h2 className="font-display text-lg font-semibold">Roteiro</h2>
-              <div className="space-y-2">
-                <Label>Tipo de Roteiro</Label>
-                <Select defaultValue="educativo">
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="educativo">Educativo com prova social</SelectItem>
-                    <SelectItem value="storytelling">Storytelling</SelectItem>
-                    <SelectItem value="tutorial">Tutorial passo a passo</SelectItem>
-                    <SelectItem value="listicle">Listicle / Top N</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Sugestão de Roteiro (Opcional)</Label>
-                <Textarea placeholder="Ex: Começar com um gancho impactante sobre como 90% das pessoas perdem tempo com técnicas erradas..." className="min-h-[100px]" />
-              </div>
-              <div className="space-y-2">
-                <Label>Pontos Principais (Opcional)</Label>
-                <Textarea placeholder={"Ex: Ponto 1: Gancho — \"Você está perdendo 4h por dia\"\nPonto 2: Método com dados\nPonto 3: CTA"} className="min-h-[80px]" />
-              </div>
             </section>
 
             {/* Narração */}
@@ -438,6 +638,7 @@ const CriarVideo = () => {
                   </div>
                 </label>
               </RadioGroup>
+              {narrationMode === "narrated" && <CaptionStyleSelector />}
             </section>
 
             {/* Configurações */}
@@ -447,7 +648,6 @@ const CriarVideo = () => {
                 Configurações do Vídeo
               </h2>
 
-              {/* Duration visual selector */}
               <div className="space-y-3">
                 <Label>Duração e Cenas</Label>
                 <div className="grid grid-cols-3 gap-3">
@@ -470,10 +670,7 @@ const CriarVideo = () => {
                       </p>
                       <div className="flex justify-center gap-1 mt-2">
                         {Array.from({ length: opt.scenes }, (_, i) => (
-                          <div
-                            key={i}
-                            className={`w-2 h-2 rounded-full ${duration === opt.value ? "bg-primary" : "bg-muted-foreground/30"}`}
-                          />
+                          <div key={i} className={`w-2 h-2 rounded-full ${duration === opt.value ? "bg-primary" : "bg-muted-foreground/30"}`} />
                         ))}
                       </div>
                       <p className="text-[10px] text-muted-foreground mt-1">
@@ -484,51 +681,87 @@ const CriarVideo = () => {
                 </div>
               </div>
 
-              {/* Language */}
               <div className="space-y-2">
                 <Label>Idioma</Label>
-                <Select defaultValue="pt-br">
+                <Select value={idioma} onValueChange={setIdioma}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pt-br">🇧🇷 Português (BR)</SelectItem>
+                    <SelectItem value="pt-BR">🇧🇷 Português (BR)</SelectItem>
                     <SelectItem value="en">🇺🇸 English</SelectItem>
                     <SelectItem value="es">🇪🇸 Español</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Video Source */}
+              <div className="space-y-3">
+                <Label>Fonte dos Vídeos</Label>
+                <RadioGroup value={videoSource} onValueChange={(v) => setVideoSource(v as "sora" | "custom")} className="space-y-3">
+                  <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${videoSource === "sora" ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
+                    <RadioGroupItem value="sora" />
+                    <div>
+                      <p className="font-medium text-sm">Gerados pela IA (Sora)</p>
+                      <p className="text-xs text-muted-foreground">A IA cria os vídeos automaticamente</p>
+                    </div>
+                  </label>
+                  <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${videoSource === "custom" ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
+                    <RadioGroupItem value="custom" />
+                    <div>
+                      <p className="font-medium text-sm">Vídeos personalizados (Upload)</p>
+                      <p className="text-xs text-muted-foreground">Envie seus próprios vídeos</p>
+                    </div>
+                  </label>
+                </RadioGroup>
+              </div>
             </section>
 
-            {/* Upload */}
-            <section className="glass-card p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="font-display text-lg font-semibold flex items-center gap-2">
-                  <Upload className="w-4 h-4 text-primary" />
-                  Vídeos Personalizados
-                </h2>
-                <span className="text-xs text-muted-foreground font-medium px-2 py-1 rounded-full bg-secondary">
-                  {scenes[0]} {scenes[0] === 1 ? "vídeo necessário" : "vídeos necessários"}
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Envie <strong className="text-foreground">{scenes[0]}</strong> {scenes[0] === 1 ? "vídeo" : "vídeos"} — um para cada cena de 10 segundos.
-              </p>
-              <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${scenes[0]}, 1fr)` }}>
-                {Array.from({ length: scenes[0] }, (_, i) => (
-                  <div
-                    key={i}
-                    className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 transition-colors cursor-pointer group aspect-[9/16] flex flex-col items-center justify-center"
-                  >
-                    <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors mb-2" />
-                    <p className="text-xs font-medium">Cena {i + 1}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">MP4, MOV</p>
-                  </div>
-                ))}
-              </div>
-            </section>
+            {/* Upload - only when custom */}
+            {videoSource === "custom" && (
+              <section className="glass-card p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+                    <Upload className="w-4 h-4 text-primary" />
+                    Vídeos Personalizados
+                  </h2>
+                  <span className="text-xs text-muted-foreground font-medium px-2 py-1 rounded-full bg-secondary">
+                    {scenes[0]} {scenes[0] === 1 ? "vídeo necessário" : "vídeos necessários"}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Envie <strong className="text-foreground">{scenes[0]}</strong> {scenes[0] === 1 ? "vídeo" : "vídeos"} — um para cada cena de 10 segundos.
+                </p>
+                <div
+                  className="border-2 border-dashed border-border rounded-xl p-10 text-center hover:border-primary/50 transition-colors cursor-pointer group"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors mx-auto mb-2" />
+                  <p className="text-sm font-medium mb-1">Arraste ou clique para adicionar</p>
+                  <p className="text-xs text-muted-foreground">MP4, MOV, AVI — até 100MB</p>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="video/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => handleFileSelect(e.target.files)}
+                />
+                <FileList files={uploadedFiles} />
+              </section>
+            )}
 
             {/* CTA */}
-            <Button size="lg" className="w-full gradient-primary text-primary-foreground font-semibold text-base py-6 shadow-glow hover:opacity-90 transition-opacity">
-              <Play className="w-5 h-5 mr-2" />
+            <Button
+              size="lg"
+              onClick={handleSubmitAssisted}
+              disabled={isSubmitting}
+              className="w-full gradient-primary text-primary-foreground font-semibold text-base py-6 shadow-glow hover:opacity-90 transition-opacity"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              ) : (
+                <Play className="w-5 h-5 mr-2" />
+              )}
               Gerar Vídeo
             </Button>
           </div>
@@ -556,7 +789,7 @@ const CriarVideo = () => {
                     <Play className="w-5 h-5 text-primary-foreground" />
                   </div>
                   <p className="text-xs font-bold font-display leading-tight mb-1">
-                    Você está perdendo 4h por dia sem saber
+                    {tema.trim() || "Seu tema aparecerá aqui"}
                   </p>
                   <p className="text-[10px] text-muted-foreground">
                     Cena 1 de {scenes[0]} • {duration}s
@@ -604,11 +837,16 @@ const CriarVideo = () => {
             <span className="font-medium">{narrationMode === "narrated" ? "Com áudio" : "Mudo"}</span>
           </div>
           <div className="flex justify-between text-xs">
+            <span className="text-muted-foreground">Fonte</span>
+            <span className="font-medium">{videoSource === "sora" ? "IA (Sora)" : "Upload"}</span>
+          </div>
+          <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">Idioma</span>
-            <span className="font-medium">🇧🇷 Português</span>
+            <span className="font-medium">{idioma === "pt-BR" ? "🇧🇷 Português" : idioma === "en" ? "🇺🇸 English" : "🇪🇸 Español"}</span>
           </div>
         </div>
       </div>
+      {jobDialog}
     </div>
   );
 };
