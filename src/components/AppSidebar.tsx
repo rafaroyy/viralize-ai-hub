@@ -8,6 +8,7 @@ import logoViralize from "@/assets/logo-viralize.png";
 import logoViralizeLight from "@/assets/logo-viralize-light.png";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useTheme } from "@/hooks/use-theme";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navLinks = [
   {
@@ -36,6 +37,9 @@ export function AppSidebar() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
+  const { user, quota } = useAuth();
+  const displayName = user?.username ?? "Usuário";
+  const videosRemaining = quota?.total?.remaining;
   const currentLogo = isDark ? logoViralize : logoViralizeLight;
   return (
     <Sidebar open={open} setOpen={setOpen}>
@@ -92,7 +96,7 @@ export function AppSidebar() {
           </div>
           <SidebarLink
             link={{
-              label: "Plano Pro • 12 vídeos",
+              label: `${displayName} · ${videosRemaining ?? "?"} vídeos`,
               href: "/perfil",
               icon: (
                 <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center shrink-0">

@@ -1,28 +1,50 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { api, QuotaResponse } from "@/lib/api";
+
+interface UserData {
+  user_id: number;
+  username: string;
+  email: string;
+}
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: { email: string } | null;
+  user: UserData | null;
+  quota: QuotaResponse["quota"] | null;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
+  refreshQuota: () => Promise<void>;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
-const API_BASE = "https://api.viralizeia.com";
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<{ email: string } | null>(null);
+  const [user, setUser] = useState<UserData | null>(null);
+  const [quota, setQuota] = useState<QuotaResponse["quota"] | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const refreshQuota = async () => {
+    try {
+      const data = await api.quota();
+      setQuota(data.quota);
+    } catch {
+      // silently fail
+    }
+  };
 
   useEffect(() => {
     const stored = localStorage.getItem("viralize_user");
-    if (stored) {
+    const token = localStorage.getItem("viralize_token");
+    if (stored && token) {
       try {
-        setUser(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        setUser(parsed);
+        // Refresh quota in background
+        refreshQuota();
       } catch {
         localStorage.removeItem("viralize_user");
+        localStorage.removeItem("viralize_token");
       }
     }
     setLoading(false);
@@ -30,30 +52,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const res = await fetch(`${API_BASE}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        return {
-          success: false,
-          error: data?.message || (res.status === 401 ? "Email ou senha incorretos." : "Erro ao fazer login. Tente novamente."),
-        };
-      }
-
-      const data = await res.json();
-      const userData = { email };
-      if (data.token) {
-        localStorage.setItem("viralize_token", data.token);
-      }
+      const data = await api.login(email, password);
+      const userData: UserData = {
+        user_id: data.user_id,
+        username: data.username,
+        email,
+      };
+      localStorage.setItem("viralize_token", data.access_token);
       localStorage.setItem("viralize_user", JSON.stringify(userData));
       setUser(userData);
+      // Fetch quota after login
+      await refreshQuota();
       return { success: true };
-    } catch {
-      return { success: false, error: "Erro de conexão. Verifique sua internet." };
+    } catch (e) {
+      return {
+        success: false,
+        error: e instanceof Error ? e.message : "Erro ao fazer login. Tente novamente.",
+      };
     }
   };
 
@@ -61,10 +76,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("viralize_user");
     localStorage.removeItem("viralize_token");
     setUser(null);
+    setQuota(null);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated: !!user, user, login, logout, loading }}>
+    <AuthContext.Provider value={{ isAuthenticated: !!user, user, quota, login, logout, refreshQuota, loading }}>
       {children}
     </AuthContext.Provider>
   );
