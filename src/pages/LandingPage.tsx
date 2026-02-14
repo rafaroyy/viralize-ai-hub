@@ -490,93 +490,199 @@ function ProofSection() {
 }
 
 /* ═══════════════════════════════════════════
-   4) TOUR — SCROLLYTELLING
+   4) TEST DRIVE — MOCK UI
    ═══════════════════════════════════════════ */
 
-const tourSteps = [
-{ icon: Target, title: "Você escolhe o alvo", desc: "Produto, público e objetivo. Sem adivinhação.", mockLabel: "Configuração", mockSub: "Nicho: Infoproduto · Objetivo: Venda" },
-{ icon: Cpu, title: "A Viralize escolhe o framework", desc: "Estrutura baseada no objetivo: viralizar, vender ou captar.", mockLabel: "Framework", mockSub: "HDC — Hook, Dado, CTA" },
-{ icon: LayoutGrid, title: "Sai o vídeo quebrado em frames", desc: "Hook → tensão → prova → virada → CTA.", mockLabel: "Frames", mockSub: "5 frames · 22s · 9:16" },
-{ icon: RefreshCw, title: "Você gera variações em 1 clique", desc: "3 versões pra testar rápido.", mockLabel: "Variações", mockSub: "v1 · v2 · v3 geradas" },
-{ icon: Download, title: "Você exporta pronto pra postar", desc: "Formato otimizado por plataforma + legendas.", mockLabel: "Exportar", mockSub: "TikTok · Reels · Shorts" }];
-
-
 function TourSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end end"] });
-  const activeIndex = useTransform(scrollYProgress, [0, 1], [0, tourSteps.length - 1]);
-  const [active, setActive] = useState(0);
+  const [step, setStep] = useState(0);
 
-  useEffect(() => {
-    const unsubscribe = activeIndex.on("change", (v) => setActive(Math.round(v)));
-    return unsubscribe;
-  }, [activeIndex]);
+  const mockNiche = "Casal / Relacionamento";
+  const mockObjective = "Venda com link no perfil";
+  const mockFramework = "HDC — Hook, Dado, CTA";
 
-  const currentStep = tourSteps[active] || tourSteps[0];
+  const mockFrames = [
+    { n: "01", label: "Hook", text: "\"Se você namora, veja esse vídeo.\"", time: "0–3s" },
+    { n: "02", label: "Contexto", text: "\"Ideia genial de date que ninguém faz.\"", time: "3–8s" },
+    { n: "03", label: "Demonstração", text: "Mostrar o jogo Crime Night na mesa", time: "8–16s" },
+    { n: "04", label: "CTA", text: "\"Link do jogo no meu perfil.\"", time: "16–22s" },
+  ];
+
+  const mockVariations = [
+    { id: "v1", hook: "Se você namora, veja isso.", style: "Direto" },
+    { id: "v2", hook: "Date perfeito existe e custa menos de R$50.", style: "Curiosidade" },
+    { id: "v3", hook: "O date que salvou meu relacionamento.", style: "Storytelling" },
+  ];
 
   return (
-    <section id="tour" ref={containerRef} className="relative" style={{ height: `${(tourSteps.length + 1) * 100}vh` }}>
-      <div className="sticky top-0 min-h-screen flex items-center py-20">
-        <div className="container mx-auto px-4 sm:px-6">
-          <ScrollReveal>
-            <div className="text-center mb-12">
-              <SectionTag>Por dentro</SectionTag>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
-                Não é gerador. É motor de retenção.
-              </h2>
-              <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
-                Veja a Viralize montando o vídeo por dentro, frame por frame.
-              </p>
-            </div>
-          </ScrollReveal>
+    <section id="tour" className="w-full py-20 md:py-28">
+      <div className="container mx-auto px-4 sm:px-6">
+        <ScrollReveal>
+          <div className="text-center mb-10">
+            <SectionTag>Test Drive</SectionTag>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
+              Veja a Viralize{" "}
+              <GradientText className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
+                montando um vídeo.
+              </GradientText>
+            </h2>
+            <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
+              Interface real. Dados mockados. Só pra você sentir o poder.
+            </p>
+          </div>
+        </ScrollReveal>
 
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center max-w-5xl mx-auto">
-            {/* Mock (left) */}
-            <div className="glass-card p-6 sm:p-8 rounded-2xl border border-border/60 relative overflow-hidden order-2 lg:order-1">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+        {/* Step tabs */}
+        <div className="flex justify-center gap-2 mb-8 flex-wrap">
+          {["Configurar", "Framework", "Frames", "Variações"].map((label, i) => (
+            <button
+              key={label}
+              onClick={() => setStep(i)}
+              className={cn(
+                "px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200",
+                i === step
+                  ? "gradient-primary text-primary-foreground shadow-glow"
+                  : "bg-secondary/60 text-muted-foreground hover:text-foreground border border-border/50"
+              )}>
+              <span className="mr-1.5 opacity-60">{String(i + 1).padStart(2, "0")}</span>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Mock UI card */}
+        <div className="max-w-3xl mx-auto">
+          <div className="glass-card rounded-2xl border border-border/60 overflow-hidden">
+            {/* Title bar */}
+            <div className="flex items-center gap-2 px-5 py-3 border-b border-border/40 bg-secondary/30">
+              <div className="flex gap-1.5">
+                <span className="w-3 h-3 rounded-full bg-destructive/60" />
+                <span className="w-3 h-3 rounded-full bg-yellow-500/60" />
+                <span className="w-3 h-3 rounded-full bg-green-500/60" />
+              </div>
+              <span className="text-[10px] text-muted-foreground ml-2 font-mono">viralize.ai/criar</span>
+            </div>
+
+            <div className="p-5 sm:p-7 min-h-[340px]">
               <AnimatePresence mode="wait">
-                <motion.div
-                  key={active}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.35 }}
-                  className="relative z-10 flex flex-col items-center text-center gap-4 min-h-[200px] justify-center">
+                {/* Step 0 — Config */}
+                {step === 0 && (
+                  <motion.div key="s0" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col gap-5">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Nicho / Tema</label>
+                      <div className="bg-secondary/60 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground">{mockNiche}</div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Objetivo do vídeo</label>
+                      <div className="bg-secondary/60 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground">{mockObjective}</div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Produto / Serviço</label>
+                      <div className="bg-secondary/60 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground">Crime Night — Jogo de casal</div>
+                    </div>
+                    <button onClick={() => setStep(1)} className="gradient-primary text-primary-foreground px-5 py-3 rounded-xl font-semibold text-sm self-end hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2">
+                      Gerar framework <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </motion.div>
+                )}
 
-                  <div className="w-14 h-14 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
-                    <currentStep.icon className="h-7 w-7 text-primary-foreground" />
-                  </div>
-                  <span className="text-lg font-bold font-display">{currentStep.mockLabel}</span>
-                  <span className="text-sm text-muted-foreground">{currentStep.mockSub}</span>
-                </motion.div>
+                {/* Step 1 — Framework */}
+                {step === 1 && (
+                  <motion.div key="s1" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col gap-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
+                        <Cpu className="h-5 w-5 text-primary-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-foreground">Framework selecionado pela IA</p>
+                        <p className="text-xs text-muted-foreground">Baseado no seu objetivo e nicho</p>
+                      </div>
+                    </div>
+                    <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 flex flex-col gap-2">
+                      <span className="text-lg font-bold text-foreground font-display">{mockFramework}</span>
+                      <p className="text-sm text-muted-foreground">Estrutura agressiva para venda direta em vídeo curto. Prende nos 3 primeiros segundos, mostra dado/prova e fecha com ação clara.</p>
+                      <div className="flex gap-2 mt-1">
+                        {["Retenção alta", "Venda direta", "9:16"].map(tag => (
+                          <span key={tag} className="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full font-medium border border-primary/20">{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <button onClick={() => setStep(2)} className="gradient-primary text-primary-foreground px-5 py-3 rounded-xl font-semibold text-sm self-end hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2">
+                      Montar frames <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Step 2 — Frames */}
+                {step === 2 && (
+                  <motion.div key="s2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-foreground uppercase tracking-wider">Frames gerados — 4 blocos · 22s</span>
+                      <span className="text-[10px] bg-primary/20 text-primary px-2.5 py-1 rounded-full border border-primary/30 font-medium">9:16 · TikTok</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {mockFrames.map((frame, i) => (
+                        <motion.div
+                          key={frame.n}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: i * 0.1 }}
+                          className="bg-secondary/70 border border-border/50 rounded-xl p-4 flex flex-col gap-2 hover:border-primary/40 transition-colors group">
+                          <div className="flex items-center justify-between">
+                            <span className="text-lg font-bold text-primary/80 group-hover:text-primary transition-colors">{frame.n}</span>
+                            <span className="text-[10px] text-muted-foreground font-mono">{frame.time}</span>
+                          </div>
+                          <span className="text-xs font-semibold text-foreground">{frame.label}</span>
+                          <span className="text-[11px] text-muted-foreground leading-snug">{frame.text}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                    <button onClick={() => setStep(3)} className="gradient-primary text-primary-foreground px-5 py-3 rounded-xl font-semibold text-sm self-end hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2">
+                      Gerar variações <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Step 3 — Variations */}
+                {step === 3 && (
+                  <motion.div key="s3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col gap-4">
+                    <span className="text-xs font-semibold text-foreground uppercase tracking-wider">3 variações de hook prontas</span>
+                    <div className="flex flex-col gap-3">
+                      {mockVariations.map((v, i) => (
+                        <motion.div
+                          key={v.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.12 }}
+                          className={cn(
+                            "border rounded-xl p-4 flex items-start gap-3 transition-colors",
+                            i === 0 ? "border-primary/50 bg-primary/5" : "border-border/50 bg-secondary/40"
+                          )}>
+                          <span className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0 text-xs font-bold text-primary-foreground shadow-glow">{v.id.toUpperCase()}</span>
+                          <div className="flex flex-col gap-1">
+                            <span className="text-sm font-semibold text-foreground">"{v.hook}"</span>
+                            <span className="text-[10px] text-muted-foreground">Estilo: {v.style}</span>
+                          </div>
+                          {i === 0 && <span className="ml-auto text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full border border-primary/30 font-medium shrink-0">Recomendado</span>}
+                        </motion.div>
+                      ))}
+                    </div>
+                    <div className="flex gap-3 justify-end">
+                      <button onClick={() => setStep(0)} className="border border-border bg-secondary/50 hover:bg-secondary text-foreground px-5 py-3 rounded-xl font-semibold text-sm transition-colors flex items-center gap-2">
+                        <RefreshCw className="h-4 w-4" /> Recomeçar
+                      </button>
+                      <Link to="/login" className="gradient-primary text-primary-foreground px-5 py-3 rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2">
+                        Quero criar o meu <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </div>
+                  </motion.div>
+                )}
               </AnimatePresence>
-            </div>
-
-            {/* Steps (right) */}
-            <div className="flex flex-col gap-4 order-1 lg:order-2">
-              {tourSteps.map((step, i) =>
-              <motion.div
-                key={i}
-                className={cn(
-                  "p-5 rounded-xl border transition-all duration-300 cursor-default",
-                  i === active ?
-                  "border-primary/50 bg-primary/5 shadow-glow" :
-                  "border-border/30 bg-secondary/20 opacity-50"
-                )}>
-
-                  <div className="flex items-center gap-3 mb-1">
-                    <span className="text-xs font-bold text-primary">{String(i + 1).padStart(2, "0")}</span>
-                    <h4 className="font-semibold text-sm">{step.title}</h4>
-                  </div>
-                  <p className="text-xs text-muted-foreground ml-7">{step.desc}</p>
-                </motion.div>
-              )}
             </div>
           </div>
         </div>
       </div>
-    </section>);
-
+    </section>
+  );
 }
 
 /* ═══════════════════════════════════════════
