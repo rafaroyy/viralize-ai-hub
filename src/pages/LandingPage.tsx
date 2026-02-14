@@ -732,7 +732,7 @@ function WhatYouGetSection() {
   "Variações automáticas pra teste rápido"];
 
 
-  return;
+  return null;
 
 
 
@@ -919,12 +919,13 @@ function PricingSection() {
 function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const faqs = [
-  { q: "A Viralize gera o vídeo pronto ou só o roteiro?", a: "Vídeo pronto. Com frames, copy visual, narração, legendas e edição. Você só exporta e posta." },
-  { q: "Preciso saber editar vídeo?", a: "Não. A Viralize faz tudo. Você escolhe o tema, a IA monta, você aprova e publica." },
-  { q: "O que são os frameworks de viralização?", a: "São estruturas testadas em +500M de views orgânicos. Cada uma define a ordem, ritmo e gatilhos do vídeo pra maximizar retenção e conversão." },
+  { q: "A Viralize gera o vídeo pronto ou só o roteiro?", a: "Vídeo pronto. Você escolhe o modo (Assistente IA ou Script Manual), configura nicho, objetivo e duração, e a IA gera o vídeo completo com legendas, cenas e edição. Só baixar e postar." },
+  { q: "Preciso saber editar vídeo?", a: "Não. A Viralize faz tudo. Você pode usar vídeos gerados por IA (Sora) ou fazer upload dos seus próprios clipes. A plataforma monta, edita e adiciona legendas automaticamente." },
+  { q: "Como funciona o Assistente IA?", a: "Você define o nicho, objetivo e tema. A IA gera o roteiro e monta o vídeo automaticamente, dividindo em cenas proporcionais à duração escolhida (1 cena a cada 8 segundos). Suporta vídeos de 8s a 30s." },
+  { q: "O que é a Análise de Roteiro?", a: "É uma ferramenta que avalia seu roteiro usando a metodologia P–C–R (Pergunta, Conflito, Resposta). Você recebe scores de retenção, pico emocional e insights práticos para melhorar seu conteúdo antes de gravar." },
+  { q: "Posso usar meus próprios vídeos?", a: "Sim! No modo de vídeos personalizados, recomendamos enviar 4 clipes de 5 segundos cada. A IA faz a montagem, roteiro e edição. Dica: use o botão 'Buscar Inspiração' para encontrar referências no TikTok e o SnapTik para remover marcas d'água." },
   { q: "Posso usar os vídeos comercialmente?", a: "Sim. Tudo que você cria é 100% seu. Use em seus canais, para clientes ou revenda." },
-  { q: "Como funciona a garantia de 7 dias?", a: "Se não fizer sentido, pediu cancelamento em até 7 dias e devolvemos 100%. Sem perguntas." },
-  { q: "Quantos vídeos posso gerar por mês?", a: "Depende do seu plano. Consulte os limites de quota na seção de preços ou dentro da plataforma." }];
+  { q: "Como funciona a garantia de 7 dias?", a: "Se não fizer sentido, pediu cancelamento em até 7 dias e devolvemos 100%. Sem perguntas." }];
 
 
   return (
