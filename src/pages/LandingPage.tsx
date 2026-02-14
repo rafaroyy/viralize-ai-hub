@@ -12,6 +12,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import { GradientText } from "@/components/ui/gradient-text";
+import viralVideoProof from "@/assets/viral-video-proof.mp4";
 
 /* ═══════════════════════════════════════════
    HELPERS
@@ -344,7 +345,7 @@ function HeroSection() {
    ═══════════════════════════════════════════ */
 
 function ProofSection() {
-  const featured = viralGallery[0];
+  const featured = viralGallery[4]; // 1.8M views
 
   return (
     <section id="proof" className="w-full overflow-hidden">
@@ -354,9 +355,9 @@ function ProofSection() {
             <SectionTag>Prova real</SectionTag>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
               Clique e assista.{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-400 to-primary">
+              <GradientText className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
                 Isso aqui saiu da Viralize.
-              </span>
+              </GradientText>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Zero teoria. Só entrega. Veja a estrutura do vídeo por trás do resultado.
@@ -366,21 +367,25 @@ function ProofSection() {
       >
         {/* Video mock — vertical format */}
         <div className="h-full w-full flex flex-col md:flex-row gap-4 md:gap-6 p-2 md:p-4">
-          {/* Left: video placeholder (vertical) */}
+          {/* Left: real video */}
           <div className="flex-1 flex items-center justify-center relative bg-background/60 rounded-xl border border-border/40 overflow-hidden min-h-[200px]">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5" />
-            <div className="relative z-10 flex flex-col items-center gap-3">
-              <div className="w-16 h-16 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center cursor-pointer hover:bg-primary/30 transition-colors">
-                <Play className="h-7 w-7 text-primary ml-1" />
-              </div>
-              <span className="text-xs text-muted-foreground">{featured.duration} · {featured.platform}</span>
-              <span className="text-sm font-semibold text-foreground text-center max-w-[250px] leading-snug">
-                {featured.title}
+            <video
+              src={viralVideoProof}
+              className="h-full w-full object-cover rounded-xl"
+              controls
+              playsInline
+              muted
+              loop
+              preload="metadata"
+            />
+            {/* Overlay stats */}
+            <div className="absolute bottom-3 left-3 flex gap-2 z-10">
+              <span className="text-[10px] font-medium bg-background/70 backdrop-blur-sm text-foreground px-2 py-1 rounded-full border border-border/30 flex items-center gap-1">
+                <Eye className="h-3 w-3" />{featured.views}
               </span>
-              <div className="flex gap-3 text-xs text-muted-foreground mt-1">
-                <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{featured.views}</span>
-                <span>❤ {featured.likes}</span>
-              </div>
+              <span className="text-[10px] font-medium bg-background/70 backdrop-blur-sm text-foreground px-2 py-1 rounded-full border border-border/30">
+                ❤ {featured.likes}
+              </span>
             </div>
           </div>
 
