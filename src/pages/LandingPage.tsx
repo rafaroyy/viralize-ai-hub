@@ -1,14 +1,20 @@
-import { useRef } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { motion, useInView, useAnimation } from "framer-motion";
-import { ArrowRight, PlayCircle, FileText, Wand2, Download, Check, ChevronDown, Sparkles, Zap, Shield, BarChart3 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import {
+  ArrowRight, Check, ChevronDown, Play, X, Clock, Layers,
+  Target, Cpu, LayoutGrid, RefreshCw, Download, User, ShoppingBag, Store, Mic,
+  Eye, Zap, Shield, Sparkles,
+} from "lucide-react";
 import logoViralize from "@/assets/logo-viralize.png";
 import logoViralizeLight from "@/assets/logo-viralize-light.png";
 import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
 
-/* ─── Scroll Reveal ─── */
+/* ═══════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════ */
+
 function ScrollReveal({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
@@ -25,15 +31,128 @@ function ScrollReveal({ children, delay = 0, className }: { children: React.Reac
   );
 }
 
-/* ─── Navbar ─── */
+function SectionTag({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-block text-xs font-semibold tracking-widest uppercase text-primary mb-4 border border-primary/30 rounded-full px-4 py-1.5 bg-primary/5">
+      {children}
+    </span>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   MOCK DATA — viralGallery
+   ═══════════════════════════════════════════ */
+
+const viralGallery = [
+  {
+    title: "Se você faz isso no TikTok, tá matando seu alcance",
+    platform: "TikTok", duration: "00:19", views: "2.3M", likes: "184k", framework: "HDC",
+    hook: "Você tá sabotando o algoritmo e nem percebe.",
+    structure: ["Choque (1ª frase)", "Prova rápida (1 dado)", "Virada (o que fazer)", "CTA simples"],
+    cta: "Comenta 'FRAMEWORK' que eu te mando o modelo.",
+  },
+  {
+    title: "O erro que faz teu Reels morrer em 3 segundos",
+    platform: "Instagram", duration: "00:23", views: "1.1M", likes: "77k", framework: "HDC",
+    hook: "Se você começa assim, acabou.",
+    structure: ["Negação do óbvio", "Exemplo visual", "Checklist 3 passos", "Fechamento com autoridade"],
+    cta: "Quer que eu gere 3 versões disso pro teu nicho? Clica em começar.",
+  },
+  {
+    title: "Como vender sem parecer vendedor (em 20s)",
+    platform: "TikTok", duration: "00:20", views: "860k", likes: "41k", framework: "PPMO",
+    hook: "Você não precisa convencer. Precisa encaixar a prova.",
+    structure: ["Problema", "Prova", "Mecanismo", "Oferta"],
+    cta: "Se quiser o roteiro, aperta gerar agora.",
+  },
+  {
+    title: "3 frases que seguram atenção instantânea",
+    platform: "YouTube Shorts", duration: "00:28", views: "540k", likes: "22k", framework: "Lista Ritmada",
+    hook: "Anota isso: são 3 frases que prendem qualquer um.",
+    structure: ["Setup rápido", "Lista com ritmo", "Mini payoff", "CTA discreto"],
+    cta: "Quer as variações? Gera na Viralize.",
+  },
+  {
+    title: "Por que seu anúncio não converte (a verdade)",
+    platform: "TikTok", duration: "00:22", views: "1.8M", likes: "130k", framework: "HDC",
+    hook: "Seu anúncio tá bonito. E é exatamente por isso que não vende.",
+    structure: ["Provocação", "Dado real", "Solução rápida", "CTA direto"],
+    cta: "Comenta 'COPY' pra receber o template.",
+  },
+  {
+    title: "Hook perfeito: 3 modelos pra copiar agora",
+    platform: "Instagram", duration: "00:18", views: "720k", likes: "55k", framework: "Lista Ritmada",
+    hook: "Salva esse vídeo. Sério.",
+    structure: ["Comando de ação", "Modelo 1", "Modelo 2", "Modelo 3", "CTA"],
+    cta: "Quer mais 10 modelos? Gera na Viralize.",
+  },
+  {
+    title: "Esse formato vendeu R$40k em 7 dias",
+    platform: "TikTok", duration: "00:25", views: "2.0M", likes: "160k", framework: "PPMO",
+    hook: "Não foi sorte. Foi estrutura.",
+    structure: ["Resultado", "Contexto", "Framework usado", "Prova social", "CTA"],
+    cta: "Quer o mesmo framework? Clica em começar.",
+  },
+  {
+    title: "A regra dos 3s que todo viral segue",
+    platform: "YouTube Shorts", duration: "00:30", views: "480k", likes: "29k", framework: "HDC",
+    hook: "Todo vídeo viral tem isso nos primeiros 3 segundos.",
+    structure: ["Afirmação forte", "Exemplo 1", "Exemplo 2", "Revelação", "CTA"],
+    cta: "Gera o teu agora na Viralize.",
+  },
+  {
+    title: "Pare de postar sem framework",
+    platform: "Instagram", duration: "00:15", views: "950k", likes: "68k", framework: "HDC",
+    hook: "Você posta todo dia e não cresce? O problema não é frequência.",
+    structure: ["Dor", "Diagnóstico", "Solução", "CTA"],
+    cta: "Comenta 'VIRAL' que eu te mostro como.",
+  },
+  {
+    title: "Copy que vende em vídeo curto (sem ser chato)",
+    platform: "TikTok", duration: "00:21", views: "1.4M", likes: "102k", framework: "PPMO",
+    hook: "Vender em vídeo curto não é sobre falar do produto.",
+    structure: ["Anti-padrão", "Exemplo real", "Técnica", "CTA natural"],
+    cta: "Quer o roteiro? Gera na Viralize.",
+  },
+  {
+    title: "Hack de retenção: como prender até o final",
+    platform: "YouTube Shorts", duration: "00:26", views: "630k", likes: "38k", framework: "Loop Aberto",
+    hook: "Fica até o final que eu provo.",
+    structure: ["Promessa", "Tensão", "Entrega parcial", "Entrega final + CTA"],
+    cta: "Gera variações desse formato agora.",
+  },
+  {
+    title: "Por que creators medianos faturam mais que bons",
+    platform: "TikTok", duration: "00:24", views: "1.6M", likes: "115k", framework: "Contraste",
+    hook: "Talento não paga boleto. Estrutura paga.",
+    structure: ["Tese contrária", "Prova", "Framework", "CTA"],
+    cta: "Quer a estrutura? Tá na Viralize.",
+  },
+];
+
+/* ═══════════════════════════════════════════
+   1) HEADER
+   ═══════════════════════════════════════════ */
+
 function Navbar() {
   const { isDark } = useTheme();
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handler);
     return () => window.removeEventListener("scroll", handler);
   }, []);
+
+  const navItems = [
+    { label: "Como funciona", href: "#tour" },
+    { label: "Vídeos", href: "#proof" },
+    { label: "Por dentro", href: "#tour" },
+    { label: "Preços", href: "#pricing" },
+    { label: "FAQ", href: "#faq" },
+  ];
+
   return (
     <motion.header
       className={cn(
@@ -41,376 +160,565 @@ function Navbar() {
         scrolled ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg" : "bg-transparent"
       )}
     >
-      <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-        <a href="#" className="flex items-center gap-2">
-          <img src={isDark ? logoViralize : logoViralizeLight} alt="Viralize AI" className="h-10 object-contain" />
+      <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <a href="#" className="flex items-center gap-2 shrink-0">
+          <img src={isDark ? logoViralize : logoViralizeLight} alt="Viralize" className="h-9 object-contain" />
         </a>
-        <nav className="hidden md:flex items-center gap-8">
-          {[
-            { label: "Recursos", href: "#features" },
-            { label: "Como Funciona", href: "#how-it-works" },
-            { label: "Preços", href: "#pricing" },
-            { label: "FAQ", href: "#faq" },
-          ].map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
+
+        {/* Desktop nav */}
+        <nav className="hidden lg:flex items-center gap-7">
+          {navItems.map((item) => (
+            <a key={item.href + item.label} href={item.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               {item.label}
             </a>
           ))}
         </nav>
+
         <div className="flex items-center gap-3">
-          <Link
-            to="/login"
-            className="hidden sm:inline-flex text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
+          <Link to="/login" className="hidden sm:inline-flex text-sm text-muted-foreground hover:text-foreground transition-colors">
             Entrar
           </Link>
-          <Link
-            to="/login"
-            className="gradient-primary text-primary-foreground px-5 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-          >
-            Começar Agora
+          <Link to="/login" className="gradient-primary text-primary-foreground px-5 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity shadow-glow">
+            Começar agora
           </Link>
+          {/* Mobile hamburger */}
+          <button className="lg:hidden ml-1 p-2" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
+            <div className="space-y-1.5">
+              <span className={cn("block w-5 h-0.5 bg-foreground transition-transform", mobileOpen && "rotate-45 translate-y-2")} />
+              <span className={cn("block w-5 h-0.5 bg-foreground transition-opacity", mobileOpen && "opacity-0")} />
+              <span className={cn("block w-5 h-0.5 bg-foreground transition-transform", mobileOpen && "-rotate-45 -translate-y-2")} />
+            </div>
+          </button>
         </div>
       </div>
+
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="lg:hidden bg-background/95 backdrop-blur-xl border-b border-border/50 overflow-hidden"
+          >
+            <nav className="container mx-auto px-6 py-4 flex flex-col gap-3">
+              {navItems.map((item) => (
+                <a key={item.href + item.label} href={item.href} onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground py-2">
+                  {item.label}
+                </a>
+              ))}
+              <Link to="/login" onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground py-2">
+                Entrar
+              </Link>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 }
 
-/* ─── Hero ─── */
-function HeroSection() {
-  const containerVariants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.15 } },
-  };
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  };
+/* ═══════════════════════════════════════════
+   2) HERO
+   ═══════════════════════════════════════════ */
 
+function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/20 rounded-full blur-[120px]" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-blue-500/15 rounded-full blur-[120px]" />
+      {/* BG effects */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/15 rounded-full blur-[160px]" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+      </div>
 
-      <div className="container mx-auto px-6 py-20 grid lg:grid-cols-2 gap-12 items-center relative z-10">
-        <ScrollReveal>
-          <motion.div className="flex flex-col justify-center space-y-6" variants={containerVariants} initial="hidden" animate="visible">
-            <motion.div className="space-y-4" variants={itemVariants}>
-              <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-7xl leading-tight">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">O Cérebro Por Trás,</span>
-                <br />
-                <span className="text-foreground">Dos Vídeos Que Viralizam</span>
-              </h1>
-              <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                A IA que carrega os frameworks responsáveis por +500 milhões de impressões orgânicas no TikTok e Instagram.
-                Crie vídeos virais baseados em frameworks reais de venda.
-              </p>
-            </motion.div>
+      <div className="container mx-auto px-4 sm:px-6 py-16 md:py-24 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center relative z-10">
+        {/* Left */}
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="flex flex-col gap-6">
+          <h1 className="text-4xl sm:text-5xl xl:text-6xl font-bold tracking-tight leading-[1.1] font-display">
+            Viralizar não é sorte,{" "}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-400 to-primary">é framework</span>
+          </h1>
+          <p className="text-muted-foreground text-base sm:text-lg max-w-xl leading-relaxed">
+            Você não precisa de mais ideias. Precisa de estrutura. A Viralize monta seu vídeo frame por frame com frameworks de retenção e venda — do gancho ao CTA — em minutos.
+          </p>
 
-            <motion.div className="flex flex-col gap-4 sm:flex-row sm:items-center" variants={itemVariants}>
-              <Link
-                to="/criar"
-                className="gradient-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow"
-              >
-                Começar agora
-                <motion.span animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, repeatDelay: 2, duration: 1 }}>
-                  <ArrowRight className="h-4 w-4" />
-                </motion.span>
-              </Link>
-              <a
-                href="#how-it-works"
-                className="bg-secondary/50 hover:bg-secondary text-foreground px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center gap-2"
-              >
-                <PlayCircle className="h-4 w-4" />
-                Ver Como Funciona
-              </a>
-            </motion.div>
+          <div className="flex flex-col sm:flex-row gap-3 mt-2">
+            <Link
+              to="/login"
+              className="gradient-primary text-primary-foreground px-7 py-3.5 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2 shadow-glow text-sm"
+            >
+              Gerar meu primeiro vídeo
+              <motion.span animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, repeatDelay: 2, duration: 1 }}>
+                <ArrowRight className="h-4 w-4" />
+              </motion.span>
+            </Link>
+            <a
+              href="#proof"
+              className="border border-border bg-secondary/50 hover:bg-secondary text-foreground px-7 py-3.5 rounded-xl font-semibold transition-colors inline-flex items-center justify-center gap-2 text-sm"
+            >
+              <Play className="h-4 w-4" />
+              Ver vídeos criados
+            </a>
+          </div>
 
-            <motion.div variants={itemVariants} className="pt-4 flex gap-6">
-              {[
-                { value: "+500M", label: "Views Orgânicos" },
-                { value: "3.5X", label: "Mais Engajamento" },
-                { value: "95%", label: "Taxa de Viralização" },
-              ].map((stat) => (
-                <div key={stat.label} className="flex flex-col">
-                  <p className="text-sm font-semibold text-foreground">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
-                </div>
-              ))}
-            </motion.div>
-          </motion.div>
-        </ScrollReveal>
+          {/* Micro bullets */}
+          <div className="flex flex-col sm:flex-row gap-4 text-sm text-muted-foreground mt-2">
+            {["Do prompt ao vídeo: 2–5 minutos", "Copy visual por frame (não é só roteiro)", "Garantia de 7 dias"].map((t) => (
+              <span key={t} className="flex items-center gap-2">
+                <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                {t}
+              </span>
+            ))}
+          </div>
 
-        <ScrollReveal delay={0.3}>
-          <div className="relative h-[450px] w-full overflow-hidden rounded-xl border border-border/50 glass-card p-1">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-blue-500/20 z-10 rounded-xl" />
-            <div className="relative z-20 h-full w-full rounded-xl bg-gradient-to-br from-primary/10 to-blue-500/10 p-6 flex items-center justify-center">
-              <div className="grid grid-cols-2 gap-6 w-full max-w-md">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.6 }}
-                  className="col-span-2 h-24 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center"
-                  whileHover={{ scale: 1.03, boxShadow: "0 0 15px hsl(var(--primary) / 0.3)" }}
-                >
-                  <span className="text-xl text-foreground tracking-tight text-center font-bold">
-                    Viralize AI Studio
-                  </span>
-                </motion.div>
-                {["Roteiro Viral", "Edição IA", "Análise", "Exportar"].map((label, i) => (
+          {/* Stat pills */}
+          <div className="flex flex-wrap gap-3 mt-2">
+            {[
+              { value: "+500M", label: "views orgânicos" },
+              { value: "3.5x", label: "mais engajamento" },
+              { value: "Frameworks", label: "reais de venda" },
+            ].map((s) => (
+              <div key={s.label} className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-full px-4 py-2">
+                <span className="text-sm font-bold text-foreground">{s.value}</span>
+                <span className="text-xs text-muted-foreground">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Right — Video Builder mock */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="relative"
+        >
+          <div className="glass-card p-4 sm:p-6 rounded-2xl border border-border/60 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-semibold text-foreground tracking-wide uppercase">Video Builder</span>
+                <span className="text-[10px] font-medium bg-primary/20 text-primary px-2.5 py-1 rounded-full border border-primary/30">
+                  Framework aplicado: HDC
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                {[
+                  { n: "01", label: "Hook", sub: "Choque inicial" },
+                  { n: "02", label: "Tensão", sub: "Dado + prova" },
+                  { n: "03", label: "Virada", sub: "Solução rápida" },
+                  { n: "04", label: "Prova", sub: "Social proof" },
+                  { n: "05", label: "CTA", sub: "Ação direta" },
+                  { n: "06", label: "Saída", sub: "Loop / replay" },
+                ].map((frame, i) => (
                   <motion.div
-                    key={label}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.8 + i * 0.1 }}
-                    className="h-28 rounded-xl bg-secondary/50 border border-border/50 flex items-center justify-center"
-                    whileHover={{ scale: 1.05, boxShadow: "0 0 10px hsl(var(--primary) / 0.2)" }}
+                    key={frame.n}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5 + i * 0.1 }}
+                    className="bg-secondary/70 border border-border/50 rounded-xl p-3 sm:p-4 flex flex-col items-center gap-1 hover:border-primary/40 transition-colors group"
                   >
-                    <span className="text-sm text-muted-foreground">{label}</span>
+                    <span className="text-lg sm:text-xl font-bold text-primary/80 group-hover:text-primary transition-colors">{frame.n}</span>
+                    <span className="text-xs font-semibold text-foreground">{frame.label}</span>
+                    <span className="text-[10px] text-muted-foreground">{frame.sub}</span>
                   </motion.div>
                 ))}
               </div>
             </div>
           </div>
-        </ScrollReveal>
+          {/* Glow behind */}
+          <div className="absolute -inset-4 bg-primary/10 rounded-3xl blur-3xl -z-10" />
+        </motion.div>
       </div>
     </section>
   );
 }
 
-/* ─── Features ─── */
-function FeaturesSection() {
-  const features = [
-    {
-      icon: <Sparkles className="h-6 w-6 text-primary" />,
-      title: "Frameworks de Viralização",
-      description: "Acesso aos mesmos frameworks usados por criadores que geram milhões de views.",
-    },
-    {
-      icon: <Zap className="h-6 w-6 text-primary" />,
-      title: "Geração em Minutos",
-      description: "Do prompt ao vídeo pronto para publicar em menos de 2 minutos.",
-    },
-    {
-      icon: <BarChart3 className="h-6 w-6 text-primary" />,
-      title: "Análise de Roteiro P-C-R",
-      description: "Metodologia exclusiva de Pergunta, Conflito e Resposta para máxima retenção.",
-    },
-    {
-      icon: <Shield className="h-6 w-6 text-primary" />,
-      title: "Garantia de 7 Dias",
-      description: "Teste a plataforma sem riscos. Não gostou? Devolvemos 100% do seu dinheiro.",
-    },
-  ];
+/* ═══════════════════════════════════════════
+   3) PROVA — MARQUEE + MODAL
+   ═══════════════════════════════════════════ */
+
+function ProofSection() {
+  const [selected, setSelected] = useState<typeof viralGallery[0] | null>(null);
+  const doubled = [...viralGallery, ...viralGallery];
 
   return (
-    <section id="features" className="w-full py-20 md:py-32">
-      <div className="container mx-auto px-6">
+    <section id="proof" className="w-full py-20 md:py-28 overflow-hidden">
+      <div className="container mx-auto px-4 sm:px-6 mb-12">
         <ScrollReveal>
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-              Por Que Criadores Escolhem a{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">Viralize AI</span>
+          <div className="text-center space-y-3">
+            <SectionTag>Prova real</SectionTag>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
+              Clique e assista. Isso aqui saiu da Viralize.
             </h2>
-            <p className="max-w-[700px] mx-auto text-muted-foreground md:text-lg">
-              Ferramentas que transformam ideias em vídeos virais com frameworks comprovados de venda.
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Zero teoria. Só entrega. Veja a estrutura do vídeo por trás do resultado.
             </p>
           </div>
         </ScrollReveal>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map((feature, i) => (
-            <ScrollReveal key={feature.title} delay={i * 0.1}>
-              <motion.div
-                className="glass-card p-6 h-full"
-                whileHover={{ y: -4, boxShadow: "0 10px 40px hsl(var(--primary) / 0.1)" }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center mb-4 shadow-glow">
-                  {feature.icon}
-                </div>
-                <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground">{feature.description}</p>
-              </motion.div>
-            </ScrollReveal>
+      </div>
+
+      {/* Marquee row 1 */}
+      <div className="relative mb-3">
+        <div className="flex animate-[marquee_60s_linear_infinite] hover:[animation-play-state:paused] w-max gap-3">
+          {doubled.map((v, i) => (
+            <button
+              key={i}
+              onClick={() => setSelected(v)}
+              className="glass-card shrink-0 w-72 p-4 text-left hover:border-primary/40 transition-all group cursor-pointer"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">{v.platform}</span>
+                <span className="text-[10px] text-muted-foreground">{v.duration}</span>
+              </div>
+              <p className="text-sm font-semibold text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">{v.title}</p>
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{v.views}</span>
+                <span>❤ {v.likes}</span>
+                <span className="ml-auto text-primary/70 text-[10px] font-medium">{v.framework}</span>
+              </div>
+            </button>
           ))}
         </div>
       </div>
-    </section>
-  );
-}
 
-/* ─── How it works ─── */
-function HowItWorksSection() {
-  const steps = [
-    {
-      number: "01",
-      title: "Descreva Seu Prompt",
-      description: "Digite o que você quer que o vídeo comunique. A IA entenderá seu objetivo e frameworks necessários.",
-      icon: <FileText className="h-8 w-8 text-primary" />,
-      details: ["Produto ou serviço", "Público-alvo", "Objetivo de venda"],
-    },
-    {
-      number: "02",
-      title: "IA Gera o Criativo",
-      description: "Nossos frameworks analisam seu prompt e geram um vídeo otimizado para viralizar.",
-      icon: <Wand2 className="h-8 w-8 text-blue-500" />,
-      details: ["Copy visual", "Sequência de frames", "Gatilhos de atenção"],
-    },
-    {
-      number: "03",
-      title: "Customize e Exporte",
-      description: "Ajuste cores, textos e timing. Exporte em qualidade profissional para suas redes.",
-      icon: <Download className="h-8 w-8 text-primary" />,
-      details: ["Personalização total", "Múltiplos formatos", "Pronto para publicar"],
-    },
-  ];
-
-  return (
-    <section id="how-it-works" className="w-full py-20 md:py-32 bg-secondary/20">
-      <div className="container mx-auto px-6">
-        <ScrollReveal>
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-              Como Funciona
-            </h2>
-            <p className="max-w-[700px] mx-auto text-muted-foreground md:text-lg">
-              Três passos simples para criar vídeos que convertem.
-            </p>
-          </div>
-        </ScrollReveal>
-        <div className="grid md:grid-cols-3 gap-8">
-          {steps.map((step, i) => (
-            <ScrollReveal key={step.number} delay={i * 0.15}>
-              <motion.div
-                className="glass-card p-8 text-center h-full"
-                whileHover={{ y: -4 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500 mb-4">
-                  {step.number}
-                </div>
-                <div className="w-14 h-14 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-glow">
-                  {step.icon}
-                </div>
-                <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
-                <p className="text-muted-foreground text-sm mb-4">{step.description}</p>
-                <ul className="space-y-2">
-                  {step.details.map((detail) => (
-                    <li key={detail} className="text-xs text-muted-foreground flex items-center justify-center gap-2">
-                      <Check className="h-3 w-3 text-primary" />
-                      {detail}
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            </ScrollReveal>
-          ))}
-        </div>
-
-        <ScrollReveal>
+      {/* Modal */}
+      <AnimatePresence>
+        {selected && (
           <motion.div
-            className="mt-16 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-xl border border-primary/30 p-8 text-center"
-            whileHover={{ scale: 1.01 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-background/80 backdrop-blur-md"
+            onClick={() => setSelected(null)}
           >
-            <h3 className="text-2xl font-bold mb-2">
-              Tempo Médio: <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">2 Minutos</span>
-            </h3>
-            <p className="text-muted-foreground">
-              Do prompt ao vídeo pronto para publicar. Sem necessidade de conhecimentos técnicos em edição.
-            </p>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="glass-card border border-border/60 rounded-2xl p-6 sm:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <span className="text-[10px] font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">{selected.platform}</span>
+                  <span className="text-[10px] text-muted-foreground ml-2">{selected.duration}</span>
+                </div>
+                <button onClick={() => setSelected(null)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+              </div>
+
+              {/* Video placeholder */}
+              <div className="aspect-[9/16] max-h-48 bg-secondary/60 rounded-xl flex items-center justify-center mb-6 border border-border/40">
+                <Play className="h-10 w-10 text-primary/60" />
+              </div>
+
+              <h3 className="text-lg font-bold mb-4 font-display">{selected.title}</h3>
+
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-1">Hook</p>
+                  <p className="text-sm text-muted-foreground italic">"{selected.hook}"</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-1">Estrutura</p>
+                  <ol className="space-y-1">
+                    {selected.structure.map((s, i) => (
+                      <li key={i} className="text-sm text-muted-foreground flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-primary/70 w-4">{i + 1}.</span>
+                        {s}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-1">CTA</p>
+                  <p className="text-sm text-muted-foreground">"{selected.cta}"</p>
+                </div>
+              </div>
+
+              <Link
+                to="/login"
+                className="gradient-primary text-primary-foreground w-full mt-6 py-3 rounded-xl font-semibold text-sm inline-flex items-center justify-center gap-2 shadow-glow hover:opacity-90 transition-opacity"
+              >
+                Gerar variações desse vídeo
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </motion.div>
           </motion.div>
-        </ScrollReveal>
+        )}
+      </AnimatePresence>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   4) TOUR — SCROLLYTELLING
+   ═══════════════════════════════════════════ */
+
+const tourSteps = [
+  { icon: Target, title: "Você escolhe o alvo", desc: "Produto, público e objetivo. Sem adivinhação.", mockLabel: "Configuração", mockSub: "Nicho: Infoproduto · Objetivo: Venda" },
+  { icon: Cpu, title: "A Viralize escolhe o framework", desc: "Estrutura baseada no objetivo: viralizar, vender ou captar.", mockLabel: "Framework", mockSub: "HDC — Hook, Dado, CTA" },
+  { icon: LayoutGrid, title: "Sai o vídeo quebrado em frames", desc: "Hook → tensão → prova → virada → CTA.", mockLabel: "Frames", mockSub: "5 frames · 22s · 9:16" },
+  { icon: RefreshCw, title: "Você gera variações em 1 clique", desc: "3 versões pra testar rápido.", mockLabel: "Variações", mockSub: "v1 · v2 · v3 geradas" },
+  { icon: Download, title: "Você exporta pronto pra postar", desc: "Formato otimizado por plataforma + legendas.", mockLabel: "Exportar", mockSub: "TikTok · Reels · Shorts" },
+];
+
+function TourSection() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end end"] });
+  const activeIndex = useTransform(scrollYProgress, [0, 1], [0, tourSteps.length - 1]);
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    const unsubscribe = activeIndex.on("change", (v) => setActive(Math.round(v)));
+    return unsubscribe;
+  }, [activeIndex]);
+
+  const currentStep = tourSteps[active] || tourSteps[0];
+
+  return (
+    <section id="tour" ref={containerRef} className="relative" style={{ height: `${(tourSteps.length + 1) * 100}vh` }}>
+      <div className="sticky top-0 min-h-screen flex items-center py-20">
+        <div className="container mx-auto px-4 sm:px-6">
+          <ScrollReveal>
+            <div className="text-center mb-12">
+              <SectionTag>Por dentro</SectionTag>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
+                Não é gerador. É motor de retenção.
+              </h2>
+              <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
+                Veja a Viralize montando o vídeo por dentro, frame por frame.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center max-w-5xl mx-auto">
+            {/* Mock (left) */}
+            <div className="glass-card p-6 sm:p-8 rounded-2xl border border-border/60 relative overflow-hidden order-2 lg:order-1">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={active}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.35 }}
+                  className="relative z-10 flex flex-col items-center text-center gap-4 min-h-[200px] justify-center"
+                >
+                  <div className="w-14 h-14 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
+                    <currentStep.icon className="h-7 w-7 text-primary-foreground" />
+                  </div>
+                  <span className="text-lg font-bold font-display">{currentStep.mockLabel}</span>
+                  <span className="text-sm text-muted-foreground">{currentStep.mockSub}</span>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Steps (right) */}
+            <div className="flex flex-col gap-4 order-1 lg:order-2">
+              {tourSteps.map((step, i) => (
+                <motion.div
+                  key={i}
+                  className={cn(
+                    "p-5 rounded-xl border transition-all duration-300 cursor-default",
+                    i === active
+                      ? "border-primary/50 bg-primary/5 shadow-glow"
+                      : "border-border/30 bg-secondary/20 opacity-50"
+                  )}
+                >
+                  <div className="flex items-center gap-3 mb-1">
+                    <span className="text-xs font-bold text-primary">{String(i + 1).padStart(2, "0")}</span>
+                    <h4 className="font-semibold text-sm">{step.title}</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-7">{step.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
-/* ─── Pricing ─── */
+/* ═══════════════════════════════════════════
+   5) O QUE VOCÊ RECEBE
+   ═══════════════════════════════════════════ */
+
+function WhatYouGetSection() {
+  const bullets = [
+    "3 hooks prontos (sem enrolação)",
+    "Copy visual por frame (texto + intenção)",
+    "Estrutura de retenção (ordem e tempo)",
+    "Gatilhos de venda sem parecer vendedor",
+    "Variações automáticas pra teste rápido",
+  ];
+
+  return (
+    <section className="w-full py-20 md:py-28">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="max-w-3xl mx-auto text-center">
+          <ScrollReveal>
+            <SectionTag>Entrega</SectionTag>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display mb-6">
+              Você aperta um botão. Sai um vídeo pronto pra ganhar feed.
+            </h2>
+          </ScrollReveal>
+
+          <ScrollReveal delay={0.1}>
+            <div className="grid sm:grid-cols-2 gap-3 text-left mt-8 mb-8">
+              {bullets.map((b, i) => (
+                <div key={i} className="flex items-center gap-3 glass-card p-4 rounded-xl">
+                  <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0 shadow-glow">
+                    <Check className="h-4 w-4 text-primary-foreground" />
+                  </div>
+                  <span className="text-sm font-medium text-foreground">{b}</span>
+                </div>
+              ))}
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal delay={0.2}>
+            <div className="bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20 rounded-xl p-6">
+              <p className="text-lg font-bold font-display bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">
+                Não é inspiração. É execução.
+              </p>
+            </div>
+          </ScrollReveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   6) PRA QUEM É
+   ═══════════════════════════════════════════ */
+
+const audiences = [
+  { icon: User, title: "Infoprodutor", desc: "Vídeos que vendem sem implorar." },
+  { icon: ShoppingBag, title: "Afiliado", desc: "Volume + estrutura: escala com consistência." },
+  { icon: Store, title: "Negócio local", desc: "Captação com criativos curtos que convertem." },
+  { icon: Mic, title: "Creator", desc: "Retenção, ritmo e gancho no lugar certo." },
+];
+
+function AudienceSection() {
+  return (
+    <section className="w-full py-20 md:py-28 bg-secondary/20">
+      <div className="container mx-auto px-4 sm:px-6">
+        <ScrollReveal>
+          <div className="text-center mb-12">
+            <SectionTag>Público</SectionTag>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
+              Serve pra quem precisa de resultado, não de teoria.
+            </h2>
+          </div>
+        </ScrollReveal>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
+          {audiences.map((a, i) => (
+            <ScrollReveal key={a.title} delay={i * 0.1}>
+              <motion.div
+                className="glass-card p-6 text-center h-full"
+                whileHover={{ y: -4, boxShadow: "0 0 30px hsl(var(--primary) / 0.15)" }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-glow">
+                  <a.icon className="h-6 w-6 text-primary-foreground" />
+                </div>
+                <h3 className="font-bold text-base mb-2 font-display">{a.title}</h3>
+                <p className="text-sm text-muted-foreground">{a.desc}</p>
+              </motion.div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   7) PREÇOS
+   ═══════════════════════════════════════════ */
+
 function PricingSection() {
   const plans = [
     {
       name: "Mensal",
       price: "R$ 97",
       period: "/mês",
-      description: "Perfeito para começar a criar vídeos virais.",
       features: [
-        "Acesso ao Cérebro Viral",
-        "Frameworks básicos de viralização",
-        "12 vídeos por mês",
+        "Acesso completo ao motor de vídeos",
+        "Frameworks de viralização",
+        "Copy visual por frame",
+        "Variações automáticas",
         "Suporte por email",
         "Garantia de 7 dias",
       ],
-      popular: false,
+      popular: true,
     },
     {
       name: "Trimestral",
       price: "R$ 197",
       period: "/trimestre",
-      description: "Melhor custo-benefício para criadores sérios.",
       features: [
         "Tudo do plano Mensal",
         "Frameworks avançados",
-        "40 vídeos por trimestre",
-        "Análise de conversão",
-        "Suporte prioritário",
         "Relatórios de performance",
+        "Suporte prioritário",
       ],
-      popular: true,
+      popular: false,
     },
   ];
 
   return (
-    <section id="pricing" className="w-full py-20 md:py-32">
-      <div className="container mx-auto px-6">
+    <section id="pricing" className="w-full py-20 md:py-28">
+      <div className="container mx-auto px-4 sm:px-6">
         <ScrollReveal>
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-              Planos e Preços
+          <div className="text-center space-y-3 mb-12">
+            <SectionTag>Preços</SectionTag>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
+              R$97/mês pra ter um criativo que não cansa.
             </h2>
-            <p className="max-w-[700px] mx-auto text-muted-foreground md:text-lg">
-              Escolha o plano ideal para o seu negócio.
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Se não fizer sentido em 7 dias, você cancela e acabou.
             </p>
           </div>
         </ScrollReveal>
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+
+        <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {plans.map((plan, i) => (
             <ScrollReveal key={plan.name} delay={i * 0.15}>
               <motion.div
                 className={cn(
-                  "glass-card p-8 h-full relative",
+                  "glass-card p-8 h-full relative rounded-2xl",
                   plan.popular && "border-primary/50 shadow-glow"
                 )}
                 whileHover={{ y: -4 }}
               >
                 {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 gradient-primary text-primary-foreground text-xs font-medium px-4 py-1 rounded-full">
-                    Mais Popular
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 gradient-primary text-primary-foreground text-xs font-semibold px-4 py-1 rounded-full shadow-glow">
+                    Recomendado
                   </div>
                 )}
-                <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
+                <h3 className="text-xl font-bold mb-2 font-display">{plan.name}</h3>
                 <div className="flex items-baseline gap-1 mb-2">
                   <span className="text-4xl font-bold">{plan.price}</span>
                   <span className="text-muted-foreground text-sm">{plan.period}</span>
                 </div>
-                <p className="text-muted-foreground text-sm mb-6">{plan.description}</p>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2 text-sm">
+                <ul className="space-y-3 mb-8 mt-6">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-primary shrink-0" />
-                      {feature}
+                      {f}
                     </li>
                   ))}
                 </ul>
                 <Link
-                  to="/criar"
+                  to="/login"
                   className={cn(
-                    "block text-center py-3 rounded-lg font-medium transition-all w-full",
+                    "block text-center py-3 rounded-xl font-semibold transition-all w-full text-sm",
                     plan.popular
                       ? "gradient-primary text-primary-foreground shadow-glow hover:opacity-90"
                       : "bg-secondary text-foreground hover:bg-secondary/80"
@@ -427,89 +735,42 @@ function PricingSection() {
   );
 }
 
-/* ─── CTA ─── */
-function CtaSection() {
-  return (
-    <section className="w-full py-20 md:py-32 bg-gradient-to-br from-primary/10 to-blue-500/10">
-      <div className="container mx-auto px-6">
-        <ScrollReveal>
-          <div className="flex flex-col items-center justify-center space-y-6 text-center">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">
-              Deixe a IA Pensar Como um Criativo Milionário
-            </h2>
-            <p className="max-w-[900px] text-muted-foreground md:text-xl">
-              Assine por R$97/mês e tenha acesso ao cérebro de quem vive de vídeos virais. Comece a gerar vídeos que vendem em minutos.
-            </p>
-            <div className="flex flex-col gap-4 sm:flex-row sm:gap-4 mt-6">
-              <Link
-                to="/criar"
-                className="gradient-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow text-lg"
-              >
-                Começar Agora
-                <motion.span animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, repeatDelay: 2, duration: 1 }}>
-                  <ArrowRight className="h-4 w-4" />
-                </motion.span>
-              </Link>
-              <a
-                href="#features"
-                className="border border-border bg-background hover:bg-secondary text-foreground px-8 py-3 rounded-lg font-medium transition-colors"
-              >
-                Ver Frameworks
-              </a>
-            </div>
-          </div>
-        </ScrollReveal>
-      </div>
-    </section>
-  );
-}
+/* ═══════════════════════════════════════════
+   8) FAQ
+   ═══════════════════════════════════════════ */
 
-/* ─── FAQ ─── */
 function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const faqs = [
-    {
-      question: "Como a Viralize AI cria os vídeos?",
-      answer: "A Viralize AI usa frameworks de viralização comprovados, que foram responsáveis por mais de 500 milhões de impressões orgânicas. Nossa IA analisa seu prompt, aplica técnicas de copywriting, storytelling e edição estratégica para criar vídeos otimizados para engajamento.",
-    },
-    {
-      question: "Preciso ter experiência em edição de vídeo?",
-      answer: "Não! A Viralize AI foi criada justamente para quem não tem tempo ou conhecimento técnico. Nossa IA faz todo o trabalho pesado, desde o roteiro até a edição final. Você só precisa aprovar e publicar.",
-    },
-    {
-      question: "Qual é a diferença entre o plano Mensal e Trimestral?",
-      answer: "O plano Mensal (R$ 97/mês) oferece acesso ao Cérebro Viral com frameworks básicos, perfeito para começar. O plano Trimestral (R$ 197 a cada 3 meses) inclui todos os frameworks básicos e avançados, análise de conversão e suporte prioritário.",
-    },
-    {
-      question: "Posso usar os vídeos comercialmente?",
-      answer: "Sim! Todos os vídeos criados com a Viralize AI são 100% seus. Você pode usar em seus próprios canais, para clientes, revender ou como quiser.",
-    },
-    {
-      question: "Como funciona a garantia de 7 dias?",
-      answer: "Se você não ficar satisfeito com a Viralize AI nos primeiros 7 dias, devolvemos 100% do seu dinheiro, sem perguntas.",
-    },
+    { q: "A Viralize gera o vídeo pronto ou só o roteiro?", a: "Vídeo pronto. Com frames, copy visual, narração, legendas e edição. Você só exporta e posta." },
+    { q: "Preciso saber editar vídeo?", a: "Não. A Viralize faz tudo. Você escolhe o tema, a IA monta, você aprova e publica." },
+    { q: "O que são os frameworks de viralização?", a: "São estruturas testadas em +500M de views orgânicos. Cada uma define a ordem, ritmo e gatilhos do vídeo pra maximizar retenção e conversão." },
+    { q: "Posso usar os vídeos comercialmente?", a: "Sim. Tudo que você cria é 100% seu. Use em seus canais, para clientes ou revenda." },
+    { q: "Como funciona a garantia de 7 dias?", a: "Se não fizer sentido, pediu cancelamento em até 7 dias e devolvemos 100%. Sem perguntas." },
+    { q: "Quantos vídeos posso gerar por mês?", a: "Depende do seu plano. Consulte os limites de quota na seção de preços ou dentro da plataforma." },
   ];
 
   return (
-    <section id="faq" className="w-full py-20 md:py-32 bg-secondary/20">
-      <div className="container mx-auto px-6">
+    <section id="faq" className="w-full py-20 md:py-28 bg-secondary/20">
+      <div className="container mx-auto px-4 sm:px-6">
         <ScrollReveal>
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Perguntas Frequentes</h2>
-            <p className="max-w-[700px] mx-auto text-muted-foreground md:text-lg">
-              Tudo que você precisa saber sobre a Viralize AI.
-            </p>
+          <div className="text-center mb-12">
+            <SectionTag>FAQ</SectionTag>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
+              Perguntas que todo mundo faz
+            </h2>
           </div>
         </ScrollReveal>
-        <div className="max-w-3xl mx-auto space-y-3">
+
+        <div className="max-w-2xl mx-auto space-y-3">
           {faqs.map((faq, i) => (
             <ScrollReveal key={i} delay={i * 0.05}>
-              <motion.div className="glass-card overflow-hidden">
+              <motion.div className="glass-card overflow-hidden rounded-xl">
                 <button
                   onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                  className="w-full p-5 flex items-center justify-between text-left"
+                  className="w-full p-5 flex items-center justify-between text-left gap-4"
                 >
-                  <span className="font-medium">{faq.question}</span>
+                  <span className="font-medium text-sm">{faq.q}</span>
                   <motion.div animate={{ rotate: openIndex === i ? 180 : 0 }} transition={{ duration: 0.3 }}>
                     <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
                   </motion.div>
@@ -520,7 +781,7 @@ function FaqSection() {
                   transition={{ duration: 0.3 }}
                   className="overflow-hidden"
                 >
-                  <p className="px-5 pb-5 text-sm text-muted-foreground">{faq.answer}</p>
+                  <p className="px-5 pb-5 text-sm text-muted-foreground">{faq.a}</p>
                 </motion.div>
               </motion.div>
             </ScrollReveal>
@@ -531,27 +792,67 @@ function FaqSection() {
   );
 }
 
-/* ─── Footer ─── */
+/* ═══════════════════════════════════════════
+   9) CTA FINAL
+   ═══════════════════════════════════════════ */
+
+function CtaFinalSection() {
+  return (
+    <section className="w-full py-20 md:py-28 relative overflow-hidden">
+      <div className="absolute inset-0">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[140px]" />
+      </div>
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
+        <ScrollReveal>
+          <div className="flex flex-col items-center text-center space-y-6 max-w-2xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
+              Se você postar sem framework,{" "}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">tá jogando no escuro.</span>
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Entre agora e gere seu primeiro vídeo em minutos.
+            </p>
+            <Link
+              to="/login"
+              className="gradient-primary text-primary-foreground px-10 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow text-base"
+            >
+              Começar agora
+              <motion.span animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, repeatDelay: 2, duration: 1 }}>
+                <ArrowRight className="h-5 w-5" />
+              </motion.span>
+            </Link>
+          </div>
+        </ScrollReveal>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   10) FOOTER
+   ═══════════════════════════════════════════ */
+
 function Footer() {
   const { isDark } = useTheme();
   return (
     <footer className="w-full border-t border-border/50 py-12">
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div className="col-span-2 md:col-span-1">
-            <img src={isDark ? logoViralize : logoViralizeLight} alt="Viralize AI" className="h-10 mb-4" />
-            <p className="text-sm text-muted-foreground">
-              O cérebro por trás dos vídeos que viralizam.
-            </p>
+            <img src={isDark ? logoViralize : logoViralizeLight} alt="Viralize" className="h-9 mb-4" />
+            <p className="text-sm text-muted-foreground">Framework que transforma vídeos em resultado.</p>
           </div>
           <div>
             <h4 className="text-sm font-medium mb-3">Produto</h4>
             <ul className="space-y-2">
-              {["Recursos", "Preços", "Como Funciona", "FAQ"].map((item) => (
-                <li key={item}>
-                  <a href={`#${item.toLowerCase().replace(/ /g, "-")}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    {item}
-                  </a>
+              {[
+                { label: "Como funciona", href: "#tour" },
+                { label: "Vídeos", href: "#proof" },
+                { label: "Preços", href: "#pricing" },
+                { label: "FAQ", href: "#faq" },
+              ].map((item) => (
+                <li key={item.label}>
+                  <a href={item.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{item.label}</a>
                 </li>
               ))}
             </ul>
@@ -561,9 +862,7 @@ function Footer() {
             <ul className="space-y-2">
               {["Sobre", "Blog", "Contato"].map((item) => (
                 <li key={item}>
-                  <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    {item}
-                  </a>
+                  <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{item}</a>
                 </li>
               ))}
             </ul>
@@ -573,9 +872,7 @@ function Footer() {
             <ul className="space-y-2">
               {["Termos", "Privacidade"].map((item) => (
                 <li key={item}>
-                  <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    {item}
-                  </a>
+                  <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{item}</a>
                 </li>
               ))}
             </ul>
@@ -583,7 +880,7 @@ function Footer() {
         </div>
         <div className="border-t border-border/50 pt-6">
           <p className="text-sm text-muted-foreground text-center">
-            &copy; {new Date().getFullYear()} Viralize AI. Todos os direitos reservados.
+            &copy; {new Date().getFullYear()} Viralize. Todos os direitos reservados.
           </p>
         </div>
       </div>
@@ -591,17 +888,38 @@ function Footer() {
   );
 }
 
-/* ─── Landing Page ─── */
+/* ═══════════════════════════════════════════
+   MARQUEE KEYFRAMES (add via style tag)
+   ═══════════════════════════════════════════ */
+
+function MarqueeStyles() {
+  return (
+    <style>{`
+      @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+    `}</style>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   LANDING PAGE
+   ═══════════════════════════════════════════ */
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <MarqueeStyles />
       <Navbar />
       <HeroSection />
-      <FeaturesSection />
-      <HowItWorksSection />
+      <ProofSection />
+      <TourSection />
+      <WhatYouGetSection />
+      <AudienceSection />
       <PricingSection />
-      <CtaSection />
       <FaqSection />
+      <CtaFinalSection />
       <Footer />
     </div>
   );
