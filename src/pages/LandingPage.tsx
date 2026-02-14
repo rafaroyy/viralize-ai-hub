@@ -10,7 +10,7 @@ import logoViralize from "@/assets/logo-viralize.png";
 import logoViralizeLight from "@/assets/logo-viralize-light.png";
 import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
-import DisplayCards from "@/components/ui/display-cards";
+import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 
 /* ═══════════════════════════════════════════
    HELPERS
@@ -341,49 +341,78 @@ function HeroSection() {
    ═══════════════════════════════════════════ */
 
 function ProofSection() {
-  // Pick 3 featured videos for the stacked display
-  const featured = [viralGallery[0], viralGallery[1], viralGallery[2]];
-
-  const cards = featured.map((v, i) => {
-    const baseClass =
-      "[grid-area:stack] before:absolute before:w-[100%] before:outline-1 before:rounded-xl before:outline-border before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/50 before:transition-opacity before:duration-700 before:left-0 before:top-0";
-
-    const positions = [
-      `${baseClass} grayscale-[100%] hover:before:opacity-0 hover:grayscale-0 hover:-translate-y-10`,
-      `${baseClass} translate-x-12 sm:translate-x-16 translate-y-10 grayscale-[100%] hover:before:opacity-0 hover:grayscale-0 hover:-translate-y-1`,
-      "[grid-area:stack] translate-x-24 sm:translate-x-32 translate-y-20 hover:translate-y-10",
-    ];
-
-    return {
-      icon: <Play className="h-4 w-4" />,
-      title: v.platform + " · " + v.framework,
-      description: v.title,
-      date: v.views + " views · " + v.likes + " ❤",
-      iconClassName: "text-primary",
-      titleClassName: "text-primary",
-      className: positions[i],
-    };
-  });
+  const featured = viralGallery[0];
 
   return (
-    <section id="proof" className="w-full py-20 md:py-28 overflow-hidden">
-      <div className="container mx-auto px-4 sm:px-6 mb-12">
-        <ScrollReveal>
-          <div className="text-center space-y-3">
+    <section id="proof" className="w-full overflow-hidden">
+      <ContainerScroll
+        titleComponent={
+          <div className="space-y-4">
             <SectionTag>Prova real</SectionTag>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
-              Clique e assista. Isso aqui saiu da Viralize.
+              Clique e assista.{" "}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-400 to-primary">
+                Isso aqui saiu da Viralize.
+              </span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Zero teoria. Só entrega. Veja a estrutura do vídeo por trás do resultado.
             </p>
           </div>
-        </ScrollReveal>
-      </div>
+        }
+      >
+        {/* Video mock — vertical format */}
+        <div className="h-full w-full flex flex-col md:flex-row gap-4 md:gap-6 p-2 md:p-4">
+          {/* Left: video placeholder (vertical) */}
+          <div className="flex-1 flex items-center justify-center relative bg-background/60 rounded-xl border border-border/40 overflow-hidden min-h-[200px]">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5" />
+            <div className="relative z-10 flex flex-col items-center gap-3">
+              <div className="w-16 h-16 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center cursor-pointer hover:bg-primary/30 transition-colors">
+                <Play className="h-7 w-7 text-primary ml-1" />
+              </div>
+              <span className="text-xs text-muted-foreground">{featured.duration} · {featured.platform}</span>
+              <span className="text-sm font-semibold text-foreground text-center max-w-[250px] leading-snug">
+                {featured.title}
+              </span>
+              <div className="flex gap-3 text-xs text-muted-foreground mt-1">
+                <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{featured.views}</span>
+                <span>❤ {featured.likes}</span>
+              </div>
+            </div>
+          </div>
 
-      <div className="container mx-auto px-4 sm:px-6 flex justify-center">
-        <DisplayCards cards={cards} />
-      </div>
+          {/* Right: recipe breakdown */}
+          <div className="w-full md:w-72 lg:w-80 flex flex-col gap-3 justify-center shrink-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] font-medium bg-primary/20 text-primary px-2.5 py-1 rounded-full border border-primary/30">
+                Framework: {featured.framework}
+              </span>
+            </div>
+
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Hook</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">"{featured.hook}"</p>
+            </div>
+
+            <div className="space-y-1.5 mt-2">
+              <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Estrutura</p>
+              <div className="flex flex-col gap-1">
+                {featured.structure.map((s, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span className="w-5 h-5 rounded-md bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                    {s}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1.5 mt-2">
+              <p className="text-xs font-semibold text-foreground uppercase tracking-wider">CTA</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">"{featured.cta}"</p>
+            </div>
+          </div>
+        </div>
+      </ContainerScroll>
     </section>
   );
 }
