@@ -4,8 +4,8 @@ import { motion, useInView, useScroll, useTransform, AnimatePresence } from "fra
 import {
   ArrowRight, Check, ChevronDown, Play, X, Clock, Layers,
   Target, Cpu, LayoutGrid, RefreshCw, Download, User, ShoppingBag, Store, Mic,
-  Eye, Zap, Shield, Sparkles,
-} from "lucide-react";
+  Eye, Zap, Shield, Sparkles } from
+"lucide-react";
 import logoViralize from "@/assets/logo-viralize.png";
 import logoViralizeLight from "@/assets/logo-viralize-light.png";
 import { useTheme } from "@/hooks/use-theme";
@@ -18,7 +18,7 @@ import viralVideoProof from "@/assets/viral-video-proof.mp4";
    HELPERS
    ═══════════════════════════════════════════ */
 
-function ScrollReveal({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
+function ScrollReveal({ children, delay = 0, className }: {children: React.ReactNode;delay?: number;className?: string;}) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
   return (
@@ -27,19 +27,19 @@ function ScrollReveal({ children, delay = 0, className }: { children: React.Reac
       initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay, ease: "easeOut" }}
-      className={className}
-    >
+      className={className}>
+
       {children}
-    </motion.div>
-  );
+    </motion.div>);
+
 }
 
-function SectionTag({ children }: { children: React.ReactNode }) {
+function SectionTag({ children }: {children: React.ReactNode;}) {
   return (
     <span className="inline-block text-xs font-semibold tracking-widest uppercase text-primary mb-4 border border-primary/30 rounded-full px-4 py-1.5 bg-primary/5">
       {children}
-    </span>
-  );
+    </span>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -47,91 +47,91 @@ function SectionTag({ children }: { children: React.ReactNode }) {
    ═══════════════════════════════════════════ */
 
 const viralGallery = [
-  {
-    title: "Se você faz isso no TikTok, tá matando seu alcance",
-    platform: "TikTok", duration: "00:19", views: "2.3M", likes: "184k", framework: "HDC",
-    hook: "Você tá sabotando o algoritmo e nem percebe.",
-    structure: ["Choque (1ª frase)", "Prova rápida (1 dado)", "Virada (o que fazer)", "CTA simples"],
-    cta: "Comenta 'FRAMEWORK' que eu te mando o modelo.",
-  },
-  {
-    title: "O erro que faz teu Reels morrer em 3 segundos",
-    platform: "Instagram", duration: "00:23", views: "1.1M", likes: "77k", framework: "HDC",
-    hook: "Se você começa assim, acabou.",
-    structure: ["Negação do óbvio", "Exemplo visual", "Checklist 3 passos", "Fechamento com autoridade"],
-    cta: "Quer que eu gere 3 versões disso pro teu nicho? Clica em começar.",
-  },
-  {
-    title: "Como vender sem parecer vendedor (em 20s)",
-    platform: "TikTok", duration: "00:20", views: "860k", likes: "41k", framework: "PPMO",
-    hook: "Você não precisa convencer. Precisa encaixar a prova.",
-    structure: ["Problema", "Prova", "Mecanismo", "Oferta"],
-    cta: "Se quiser o roteiro, aperta gerar agora.",
-  },
-  {
-    title: "3 frases que seguram atenção instantânea",
-    platform: "YouTube Shorts", duration: "00:28", views: "540k", likes: "22k", framework: "Lista Ritmada",
-    hook: "Anota isso: são 3 frases que prendem qualquer um.",
-    structure: ["Setup rápido", "Lista com ritmo", "Mini payoff", "CTA discreto"],
-    cta: "Quer as variações? Gera na Viralize.",
-  },
-  {
-    title: "Por que seu anúncio não converte (a verdade)",
-    platform: "TikTok", duration: "00:22", views: "1.8M", likes: "130k", framework: "HDC",
-    hook: "Seu anúncio tá bonito. E é exatamente por isso que não vende.",
-    structure: ["Provocação", "Dado real", "Solução rápida", "CTA direto"],
-    cta: "Comenta 'COPY' pra receber o template.",
-  },
-  {
-    title: "Hook perfeito: 3 modelos pra copiar agora",
-    platform: "Instagram", duration: "00:18", views: "720k", likes: "55k", framework: "Lista Ritmada",
-    hook: "Salva esse vídeo. Sério.",
-    structure: ["Comando de ação", "Modelo 1", "Modelo 2", "Modelo 3", "CTA"],
-    cta: "Quer mais 10 modelos? Gera na Viralize.",
-  },
-  {
-    title: "Esse formato vendeu R$40k em 7 dias",
-    platform: "TikTok", duration: "00:25", views: "2.0M", likes: "160k", framework: "PPMO",
-    hook: "Não foi sorte. Foi estrutura.",
-    structure: ["Resultado", "Contexto", "Framework usado", "Prova social", "CTA"],
-    cta: "Quer o mesmo framework? Clica em começar.",
-  },
-  {
-    title: "A regra dos 3s que todo viral segue",
-    platform: "YouTube Shorts", duration: "00:30", views: "480k", likes: "29k", framework: "HDC",
-    hook: "Todo vídeo viral tem isso nos primeiros 3 segundos.",
-    structure: ["Afirmação forte", "Exemplo 1", "Exemplo 2", "Revelação", "CTA"],
-    cta: "Gera o teu agora na Viralize.",
-  },
-  {
-    title: "Pare de postar sem framework",
-    platform: "Instagram", duration: "00:15", views: "950k", likes: "68k", framework: "HDC",
-    hook: "Você posta todo dia e não cresce? O problema não é frequência.",
-    structure: ["Dor", "Diagnóstico", "Solução", "CTA"],
-    cta: "Comenta 'VIRAL' que eu te mostro como.",
-  },
-  {
-    title: "Copy que vende em vídeo curto (sem ser chato)",
-    platform: "TikTok", duration: "00:21", views: "1.4M", likes: "102k", framework: "PPMO",
-    hook: "Vender em vídeo curto não é sobre falar do produto.",
-    structure: ["Anti-padrão", "Exemplo real", "Técnica", "CTA natural"],
-    cta: "Quer o roteiro? Gera na Viralize.",
-  },
-  {
-    title: "Hack de retenção: como prender até o final",
-    platform: "YouTube Shorts", duration: "00:26", views: "630k", likes: "38k", framework: "Loop Aberto",
-    hook: "Fica até o final que eu provo.",
-    structure: ["Promessa", "Tensão", "Entrega parcial", "Entrega final + CTA"],
-    cta: "Gera variações desse formato agora.",
-  },
-  {
-    title: "Por que creators medianos faturam mais que bons",
-    platform: "TikTok", duration: "00:24", views: "1.6M", likes: "115k", framework: "Contraste",
-    hook: "Talento não paga boleto. Estrutura paga.",
-    structure: ["Tese contrária", "Prova", "Framework", "CTA"],
-    cta: "Quer a estrutura? Tá na Viralize.",
-  },
-];
+{
+  title: "Se você faz isso no TikTok, tá matando seu alcance",
+  platform: "TikTok", duration: "00:19", views: "2.3M", likes: "184k", framework: "HDC",
+  hook: "Você tá sabotando o algoritmo e nem percebe.",
+  structure: ["Choque (1ª frase)", "Prova rápida (1 dado)", "Virada (o que fazer)", "CTA simples"],
+  cta: "Comenta 'FRAMEWORK' que eu te mando o modelo."
+},
+{
+  title: "O erro que faz teu Reels morrer em 3 segundos",
+  platform: "Instagram", duration: "00:23", views: "1.1M", likes: "77k", framework: "HDC",
+  hook: "Se você começa assim, acabou.",
+  structure: ["Negação do óbvio", "Exemplo visual", "Checklist 3 passos", "Fechamento com autoridade"],
+  cta: "Quer que eu gere 3 versões disso pro teu nicho? Clica em começar."
+},
+{
+  title: "Como vender sem parecer vendedor (em 20s)",
+  platform: "TikTok", duration: "00:20", views: "860k", likes: "41k", framework: "PPMO",
+  hook: "Você não precisa convencer. Precisa encaixar a prova.",
+  structure: ["Problema", "Prova", "Mecanismo", "Oferta"],
+  cta: "Se quiser o roteiro, aperta gerar agora."
+},
+{
+  title: "3 frases que seguram atenção instantânea",
+  platform: "YouTube Shorts", duration: "00:28", views: "540k", likes: "22k", framework: "Lista Ritmada",
+  hook: "Anota isso: são 3 frases que prendem qualquer um.",
+  structure: ["Setup rápido", "Lista com ritmo", "Mini payoff", "CTA discreto"],
+  cta: "Quer as variações? Gera na Viralize."
+},
+{
+  title: "Por que seu anúncio não converte (a verdade)",
+  platform: "TikTok", duration: "00:22", views: "1.8M", likes: "130k", framework: "HDC",
+  hook: "Seu anúncio tá bonito. E é exatamente por isso que não vende.",
+  structure: ["Provocação", "Dado real", "Solução rápida", "CTA direto"],
+  cta: "Comenta 'COPY' pra receber o template."
+},
+{
+  title: "Hook perfeito: 3 modelos pra copiar agora",
+  platform: "Instagram", duration: "00:18", views: "720k", likes: "55k", framework: "Lista Ritmada",
+  hook: "Salva esse vídeo. Sério.",
+  structure: ["Comando de ação", "Modelo 1", "Modelo 2", "Modelo 3", "CTA"],
+  cta: "Quer mais 10 modelos? Gera na Viralize."
+},
+{
+  title: "Esse formato vendeu R$40k em 7 dias",
+  platform: "TikTok", duration: "00:25", views: "2.0M", likes: "160k", framework: "PPMO",
+  hook: "Não foi sorte. Foi estrutura.",
+  structure: ["Resultado", "Contexto", "Framework usado", "Prova social", "CTA"],
+  cta: "Quer o mesmo framework? Clica em começar."
+},
+{
+  title: "A regra dos 3s que todo viral segue",
+  platform: "YouTube Shorts", duration: "00:30", views: "480k", likes: "29k", framework: "HDC",
+  hook: "Todo vídeo viral tem isso nos primeiros 3 segundos.",
+  structure: ["Afirmação forte", "Exemplo 1", "Exemplo 2", "Revelação", "CTA"],
+  cta: "Gera o teu agora na Viralize."
+},
+{
+  title: "Pare de postar sem framework",
+  platform: "Instagram", duration: "00:15", views: "950k", likes: "68k", framework: "HDC",
+  hook: "Você posta todo dia e não cresce? O problema não é frequência.",
+  structure: ["Dor", "Diagnóstico", "Solução", "CTA"],
+  cta: "Comenta 'VIRAL' que eu te mostro como."
+},
+{
+  title: "Copy que vende em vídeo curto (sem ser chato)",
+  platform: "TikTok", duration: "00:21", views: "1.4M", likes: "102k", framework: "PPMO",
+  hook: "Vender em vídeo curto não é sobre falar do produto.",
+  structure: ["Anti-padrão", "Exemplo real", "Técnica", "CTA natural"],
+  cta: "Quer o roteiro? Gera na Viralize."
+},
+{
+  title: "Hack de retenção: como prender até o final",
+  platform: "YouTube Shorts", duration: "00:26", views: "630k", likes: "38k", framework: "Loop Aberto",
+  hook: "Fica até o final que eu provo.",
+  structure: ["Promessa", "Tensão", "Entrega parcial", "Entrega final + CTA"],
+  cta: "Gera variações desse formato agora."
+},
+{
+  title: "Por que creators medianos faturam mais que bons",
+  platform: "TikTok", duration: "00:24", views: "1.6M", likes: "115k", framework: "Contraste",
+  hook: "Talento não paga boleto. Estrutura paga.",
+  structure: ["Tese contrária", "Prova", "Framework", "CTA"],
+  cta: "Quer a estrutura? Tá na Viralize."
+}];
+
 
 /* ═══════════════════════════════════════════
    1) HEADER
@@ -149,20 +149,20 @@ function Navbar() {
   }, []);
 
   const navItems = [
-    { label: "Como funciona", href: "#tour" },
-    { label: "Vídeos", href: "#proof" },
-    { label: "Por dentro", href: "#tour" },
-    { label: "Preços", href: "#pricing" },
-    { label: "FAQ", href: "#faq" },
-  ];
+  { label: "Como funciona", href: "#tour" },
+  { label: "Vídeos", href: "#proof" },
+  { label: "Por dentro", href: "#tour" },
+  { label: "Preços", href: "#pricing" },
+  { label: "FAQ", href: "#faq" }];
+
 
   return (
     <motion.header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         scrolled ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg" : "bg-transparent"
-      )}
-    >
+      )}>
+
       <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <a href="#" className="flex items-center gap-2 shrink-0">
           <img src={isDark ? logoViralize : logoViralizeLight} alt="Viralize" className="h-9 object-contain" />
@@ -170,11 +170,11 @@ function Navbar() {
 
         {/* Desktop nav */}
         <nav className="hidden lg:flex items-center gap-7">
-          {navItems.map((item) => (
-            <a key={item.href + item.label} href={item.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          {navItems.map((item) =>
+          <a key={item.href + item.label} href={item.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               {item.label}
             </a>
-          ))}
+          )}
         </nav>
 
         <div className="flex items-center gap-3">
@@ -197,28 +197,28 @@ function Navbar() {
 
       {/* Mobile menu */}
       <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-background/95 backdrop-blur-xl border-b border-border/50 overflow-hidden"
-          >
+        {mobileOpen &&
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className="lg:hidden bg-background/95 backdrop-blur-xl border-b border-border/50 overflow-hidden">
+
             <nav className="container mx-auto px-6 py-4 flex flex-col gap-3">
-              {navItems.map((item) => (
-                <a key={item.href + item.label} href={item.href} onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground py-2">
+              {navItems.map((item) =>
+            <a key={item.href + item.label} href={item.href} onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground py-2">
                   {item.label}
                 </a>
-              ))}
+            )}
               <Link to="/login" onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground py-2">
                 Entrar
               </Link>
             </nav>
           </motion.div>
-        )}
+        }
       </AnimatePresence>
-    </motion.header>
-  );
+    </motion.header>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -251,8 +251,8 @@ function HeroSection() {
           <div className="flex flex-col sm:flex-row gap-3 mt-2">
             <Link
               to="/login"
-              className="gradient-primary text-primary-foreground px-7 py-3.5 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2 shadow-glow text-sm"
-            >
+              className="gradient-primary text-primary-foreground px-7 py-3.5 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2 shadow-glow text-sm">
+
               Gerar meu primeiro vídeo
               <motion.span animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, repeatDelay: 2, duration: 1 }}>
                 <ArrowRight className="h-4 w-4" />
@@ -260,8 +260,8 @@ function HeroSection() {
             </Link>
             <a
               href="#proof"
-              className="border border-border bg-secondary/50 hover:bg-secondary text-foreground px-7 py-3.5 rounded-xl font-semibold transition-colors inline-flex items-center justify-center gap-2 text-sm"
-            >
+              className="border border-border bg-secondary/50 hover:bg-secondary text-foreground px-7 py-3.5 rounded-xl font-semibold transition-colors inline-flex items-center justify-center gap-2 text-sm">
+
               <Play className="h-4 w-4" />
               Ver vídeos criados
             </a>
@@ -269,26 +269,26 @@ function HeroSection() {
 
           {/* Micro bullets */}
           <div className="flex flex-col sm:flex-row gap-4 text-sm text-muted-foreground mt-2">
-            {["Do prompt ao vídeo: 2–5 minutos", "Copy visual por frame (não é só roteiro)", "Garantia de 7 dias"].map((t) => (
-              <span key={t} className="flex items-center gap-2">
+            {["Do prompt ao vídeo: 2–5 minutos", "Copy visual por frame (não é só roteiro)", "Garantia de 7 dias"].map((t) =>
+            <span key={t} className="flex items-center gap-2">
                 <Check className="h-3.5 w-3.5 text-primary shrink-0" />
                 {t}
               </span>
-            ))}
+            )}
           </div>
 
           {/* Stat pills */}
           <div className="flex flex-wrap gap-3 mt-2">
             {[
-              { value: "+500M", label: "views orgânicos" },
-              { value: "3.5x", label: "mais engajamento" },
-              { value: "Frameworks", label: "reais de venda" },
-            ].map((s) => (
-              <div key={s.label} className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-full px-4 py-2">
+            { value: "+500M", label: "views orgânicos" },
+            { value: "3.5x", label: "mais engajamento" },
+            { value: "Frameworks", label: "reais de venda" }].
+            map((s) =>
+            <div key={s.label} className="flex items-center gap-2 bg-secondary/60 border border-border/50 rounded-full px-4 py-2">
                 <span className="text-sm font-bold text-foreground">{s.value}</span>
                 <span className="text-xs text-muted-foreground">{s.label}</span>
               </div>
-            ))}
+            )}
           </div>
         </motion.div>
 
@@ -297,8 +297,8 @@ function HeroSection() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="relative"
-        >
+          className="relative">
+
           <div className="glass-card p-4 sm:p-6 rounded-2xl border border-border/60 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
             <div className="relative z-10">
@@ -310,25 +310,25 @@ function HeroSection() {
               </div>
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {[
-                  { n: "01", label: "Hook", sub: "Choque inicial" },
-                  { n: "02", label: "Tensão", sub: "Dado + prova" },
-                  { n: "03", label: "Virada", sub: "Solução rápida" },
-                  { n: "04", label: "Prova", sub: "Social proof" },
-                  { n: "05", label: "CTA", sub: "Ação direta" },
-                  { n: "06", label: "Saída", sub: "Loop / replay" },
-                ].map((frame, i) => (
-                  <motion.div
-                    key={frame.n}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.5 + i * 0.1 }}
-                    className="bg-secondary/70 border border-border/50 rounded-xl p-3 sm:p-4 flex flex-col items-center gap-1 hover:border-primary/40 transition-colors group"
-                  >
+                { n: "01", label: "Hook", sub: "Choque inicial" },
+                { n: "02", label: "Tensão", sub: "Dado + prova" },
+                { n: "03", label: "Virada", sub: "Solução rápida" },
+                { n: "04", label: "Prova", sub: "Social proof" },
+                { n: "05", label: "CTA", sub: "Ação direta" },
+                { n: "06", label: "Saída", sub: "Loop / replay" }].
+                map((frame, i) =>
+                <motion.div
+                  key={frame.n}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 + i * 0.1 }}
+                  className="bg-secondary/70 border border-border/50 rounded-xl p-3 sm:p-4 flex flex-col items-center gap-1 hover:border-primary/40 transition-colors group">
+
                     <span className="text-lg sm:text-xl font-bold text-primary/80 group-hover:text-primary transition-colors">{frame.n}</span>
                     <span className="text-xs font-semibold text-foreground">{frame.label}</span>
                     <span className="text-[10px] text-muted-foreground">{frame.sub}</span>
                   </motion.div>
-                ))}
+                )}
               </div>
             </div>
           </div>
@@ -336,8 +336,8 @@ function HeroSection() {
           <div className="absolute -inset-4 bg-primary/10 rounded-3xl blur-3xl -z-10" />
         </motion.div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -350,14 +350,14 @@ function ProofSection() {
     platform: "TikTok", duration: "00:22", views: "1.8M", likes: "130k", framework: "HDC",
     hook: "Se você namora, veja esse vídeo. Ideia genial de date.",
     structure: ["Hook emocional (casal)", "Apresentação do conceito (Crime Night)", "Demonstração visual do jogo", "CTA com link no perfil"],
-    cta: "Link do jogo no meu perfil.",
+    cta: "Link do jogo no meu perfil."
   };
 
   return (
     <section id="proof" className="w-full overflow-hidden">
       <ContainerScroll
         titleComponent={
-          <div className="space-y-4">
+        <div className="space-y-4">
             <SectionTag>Prova real</SectionTag>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
               Clique e assista.{" "}
@@ -369,8 +369,8 @@ function ProofSection() {
               Zero teoria. Só entrega. Veja a estrutura do vídeo por trás do resultado.
             </p>
           </div>
-        }
-      >
+        }>
+
         <div className="h-full w-full flex flex-col md:flex-row gap-4 md:gap-6 p-2 md:p-4 overflow-auto">
           {/* Left: video vertical + stats below */}
           <div className="flex flex-col items-center gap-2 shrink-0">
@@ -382,8 +382,8 @@ function ProofSection() {
                 playsInline
                 muted
                 loop
-                preload="metadata"
-              />
+                preload="metadata" />
+
             </div>
             {/* Views/likes below player */}
             <div className="flex gap-3 text-xs text-muted-foreground">
@@ -408,12 +408,12 @@ function ProofSection() {
             <div className="space-y-1">
               <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Estrutura</p>
               <div className="flex flex-col gap-1">
-                {proofVideo.structure.map((s, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                {proofVideo.structure.map((s, i) =>
+                <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
                     <span className="w-5 h-5 rounded-md bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
                     {s}
                   </div>
-                ))}
+                )}
               </div>
             </div>
 
@@ -424,8 +424,8 @@ function ProofSection() {
           </div>
         </div>
       </ContainerScroll>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -433,12 +433,12 @@ function ProofSection() {
    ═══════════════════════════════════════════ */
 
 const tourSteps = [
-  { icon: Target, title: "Você escolhe o alvo", desc: "Produto, público e objetivo. Sem adivinhação.", mockLabel: "Configuração", mockSub: "Nicho: Infoproduto · Objetivo: Venda" },
-  { icon: Cpu, title: "A Viralize escolhe o framework", desc: "Estrutura baseada no objetivo: viralizar, vender ou captar.", mockLabel: "Framework", mockSub: "HDC — Hook, Dado, CTA" },
-  { icon: LayoutGrid, title: "Sai o vídeo quebrado em frames", desc: "Hook → tensão → prova → virada → CTA.", mockLabel: "Frames", mockSub: "5 frames · 22s · 9:16" },
-  { icon: RefreshCw, title: "Você gera variações em 1 clique", desc: "3 versões pra testar rápido.", mockLabel: "Variações", mockSub: "v1 · v2 · v3 geradas" },
-  { icon: Download, title: "Você exporta pronto pra postar", desc: "Formato otimizado por plataforma + legendas.", mockLabel: "Exportar", mockSub: "TikTok · Reels · Shorts" },
-];
+{ icon: Target, title: "Você escolhe o alvo", desc: "Produto, público e objetivo. Sem adivinhação.", mockLabel: "Configuração", mockSub: "Nicho: Infoproduto · Objetivo: Venda" },
+{ icon: Cpu, title: "A Viralize escolhe o framework", desc: "Estrutura baseada no objetivo: viralizar, vender ou captar.", mockLabel: "Framework", mockSub: "HDC — Hook, Dado, CTA" },
+{ icon: LayoutGrid, title: "Sai o vídeo quebrado em frames", desc: "Hook → tensão → prova → virada → CTA.", mockLabel: "Frames", mockSub: "5 frames · 22s · 9:16" },
+{ icon: RefreshCw, title: "Você gera variações em 1 clique", desc: "3 versões pra testar rápido.", mockLabel: "Variações", mockSub: "v1 · v2 · v3 geradas" },
+{ icon: Download, title: "Você exporta pronto pra postar", desc: "Formato otimizado por plataforma + legendas.", mockLabel: "Exportar", mockSub: "TikTok · Reels · Shorts" }];
+
 
 function TourSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -480,8 +480,8 @@ function TourSection() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.35 }}
-                  className="relative z-10 flex flex-col items-center text-center gap-4 min-h-[200px] justify-center"
-                >
+                  className="relative z-10 flex flex-col items-center text-center gap-4 min-h-[200px] justify-center">
+
                   <div className="w-14 h-14 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
                     <currentStep.icon className="h-7 w-7 text-primary-foreground" />
                   </div>
@@ -493,29 +493,29 @@ function TourSection() {
 
             {/* Steps (right) */}
             <div className="flex flex-col gap-4 order-1 lg:order-2">
-              {tourSteps.map((step, i) => (
-                <motion.div
-                  key={i}
-                  className={cn(
-                    "p-5 rounded-xl border transition-all duration-300 cursor-default",
-                    i === active
-                      ? "border-primary/50 bg-primary/5 shadow-glow"
-                      : "border-border/30 bg-secondary/20 opacity-50"
-                  )}
-                >
+              {tourSteps.map((step, i) =>
+              <motion.div
+                key={i}
+                className={cn(
+                  "p-5 rounded-xl border transition-all duration-300 cursor-default",
+                  i === active ?
+                  "border-primary/50 bg-primary/5 shadow-glow" :
+                  "border-border/30 bg-secondary/20 opacity-50"
+                )}>
+
                   <div className="flex items-center gap-3 mb-1">
                     <span className="text-xs font-bold text-primary">{String(i + 1).padStart(2, "0")}</span>
                     <h4 className="font-semibold text-sm">{step.title}</h4>
                   </div>
                   <p className="text-xs text-muted-foreground ml-7">{step.desc}</p>
                 </motion.div>
-              ))}
+              )}
             </div>
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -524,12 +524,12 @@ function TourSection() {
 
 function WhatYouGetSection() {
   const bullets = [
-    "3 hooks prontos (sem enrolação)",
-    "Copy visual por frame (texto + intenção)",
-    "Estrutura de retenção (ordem e tempo)",
-    "Gatilhos de venda sem parecer vendedor",
-    "Variações automáticas pra teste rápido",
-  ];
+  "3 hooks prontos (sem enrolação)",
+  "Copy visual por frame (texto + intenção)",
+  "Estrutura de retenção (ordem e tempo)",
+  "Gatilhos de venda sem parecer vendedor",
+  "Variações automáticas pra teste rápido"];
+
 
   return (
     <section className="w-full py-20 md:py-28">
@@ -544,14 +544,14 @@ function WhatYouGetSection() {
 
           <ScrollReveal delay={0.1}>
             <div className="grid sm:grid-cols-2 gap-3 text-left mt-8 mb-8">
-              {bullets.map((b, i) => (
-                <div key={i} className="flex items-center gap-3 glass-card p-4 rounded-xl">
+              {bullets.map((b, i) =>
+              <div key={i} className="flex items-center gap-3 glass-card p-4 rounded-xl">
                   <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0 shadow-glow">
                     <Check className="h-4 w-4 text-primary-foreground" />
                   </div>
                   <span className="text-sm font-medium text-foreground">{b}</span>
                 </div>
-              ))}
+              )}
             </div>
           </ScrollReveal>
 
@@ -564,8 +564,8 @@ function WhatYouGetSection() {
           </ScrollReveal>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -573,11 +573,11 @@ function WhatYouGetSection() {
    ═══════════════════════════════════════════ */
 
 const audiences = [
-  { icon: User, title: "Infoprodutor", desc: "Vídeos que vendem sem implorar." },
-  { icon: ShoppingBag, title: "Afiliado", desc: "Volume + estrutura: escala com consistência." },
-  { icon: Store, title: "Negócio local", desc: "Captação com criativos curtos que convertem." },
-  { icon: Mic, title: "Creator", desc: "Retenção, ritmo e gancho no lugar certo." },
-];
+{ icon: User, title: "Infoprodutor", desc: "Vídeos que vendem sem implorar." },
+{ icon: ShoppingBag, title: "Afiliado", desc: "Volume + estrutura: escala com consistência." },
+{ icon: Store, title: "Negócio local", desc: "Captação com criativos curtos que convertem." },
+{ icon: Mic, title: "Creator", desc: "Retenção, ritmo e gancho no lugar certo." }];
+
 
 function AudienceSection() {
   return (
@@ -593,13 +593,13 @@ function AudienceSection() {
         </ScrollReveal>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
-          {audiences.map((a, i) => (
-            <ScrollReveal key={a.title} delay={i * 0.1}>
+          {audiences.map((a, i) =>
+          <ScrollReveal key={a.title} delay={i * 0.1}>
               <motion.div
-                className="glass-card p-6 text-center h-full"
-                whileHover={{ y: -4, boxShadow: "0 0 30px hsl(var(--primary) / 0.15)" }}
-                transition={{ duration: 0.3 }}
-              >
+              className="glass-card p-6 text-center h-full"
+              whileHover={{ y: -4, boxShadow: "0 0 30px hsl(var(--primary) / 0.15)" }}
+              transition={{ duration: 0.3 }}>
+
                 <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-glow">
                   <a.icon className="h-6 w-6 text-primary-foreground" />
                 </div>
@@ -607,11 +607,11 @@ function AudienceSection() {
                 <p className="text-sm text-muted-foreground">{a.desc}</p>
               </motion.div>
             </ScrollReveal>
-          ))}
+          )}
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -620,95 +620,95 @@ function AudienceSection() {
 
 function PricingSection() {
   const plans = [
-    {
-      name: "Mensal",
-      price: "R$ 97",
-      period: "/mês",
-      features: [
-        "Acesso completo ao motor de vídeos",
-        "Frameworks de viralização",
-        "Copy visual por frame",
-        "Variações automáticas",
-        "Suporte por email",
-        "Garantia de 7 dias",
-      ],
-      popular: true,
-    },
-    {
-      name: "Trimestral",
-      price: "R$ 197",
-      period: "/trimestre",
-      features: [
-        "Tudo do plano Mensal",
-        "Frameworks avançados",
-        "Relatórios de performance",
-        "Suporte prioritário",
-      ],
-      popular: false,
-    },
-  ];
+  {
+    name: "Mensal",
+    price: "R$ 97",
+    period: "/mês",
+    features: [
+    "Acesso completo ao motor de vídeos",
+    "Frameworks de viralização",
+    "Copy visual por frame",
+    "Variações automáticas",
+    "Suporte por email",
+    "Garantia de 7 dias"],
 
-  return (
-    <section id="pricing" className="w-full py-20 md:py-28">
-      <div className="container mx-auto px-4 sm:px-6">
-        <ScrollReveal>
-          <div className="text-center space-y-3 mb-12">
-            <SectionTag>Preços</SectionTag>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
-              R$97/mês pra ter um criativo que não cansa.
-            </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              Se não fizer sentido em 7 dias, você cancela e acabou.
-            </p>
-          </div>
-        </ScrollReveal>
+    popular: true
+  },
+  {
+    name: "Trimestral",
+    price: "R$ 197",
+    period: "/trimestre",
+    features: [
+    "Tudo do plano Mensal",
+    "Frameworks avançados",
+    "Relatórios de performance",
+    "Suporte prioritário"],
 
-        <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-          {plans.map((plan, i) => (
-            <ScrollReveal key={plan.name} delay={i * 0.15}>
-              <motion.div
-                className={cn(
-                  "glass-card p-8 h-full relative rounded-2xl",
-                  plan.popular && "border-primary/50 shadow-glow"
-                )}
-                whileHover={{ y: -4 }}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 gradient-primary text-primary-foreground text-xs font-semibold px-4 py-1 rounded-full shadow-glow">
-                    Recomendado
-                  </div>
-                )}
-                <h3 className="text-xl font-bold mb-2 font-display">{plan.name}</h3>
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className="text-muted-foreground text-sm">{plan.period}</span>
-                </div>
-                <ul className="space-y-3 mb-8 mt-6">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-primary shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to="/login"
-                  className={cn(
-                    "block text-center py-3 rounded-xl font-semibold transition-all w-full text-sm",
-                    plan.popular
-                      ? "gradient-primary text-primary-foreground shadow-glow hover:opacity-90"
-                      : "bg-secondary text-foreground hover:bg-secondary/80"
-                  )}
-                >
-                  Começar Agora
-                </Link>
-              </motion.div>
-            </ScrollReveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+    popular: false
+  }];
+
+
+  return;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 /* ═══════════════════════════════════════════
@@ -718,13 +718,13 @@ function PricingSection() {
 function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const faqs = [
-    { q: "A Viralize gera o vídeo pronto ou só o roteiro?", a: "Vídeo pronto. Com frames, copy visual, narração, legendas e edição. Você só exporta e posta." },
-    { q: "Preciso saber editar vídeo?", a: "Não. A Viralize faz tudo. Você escolhe o tema, a IA monta, você aprova e publica." },
-    { q: "O que são os frameworks de viralização?", a: "São estruturas testadas em +500M de views orgânicos. Cada uma define a ordem, ritmo e gatilhos do vídeo pra maximizar retenção e conversão." },
-    { q: "Posso usar os vídeos comercialmente?", a: "Sim. Tudo que você cria é 100% seu. Use em seus canais, para clientes ou revenda." },
-    { q: "Como funciona a garantia de 7 dias?", a: "Se não fizer sentido, pediu cancelamento em até 7 dias e devolvemos 100%. Sem perguntas." },
-    { q: "Quantos vídeos posso gerar por mês?", a: "Depende do seu plano. Consulte os limites de quota na seção de preços ou dentro da plataforma." },
-  ];
+  { q: "A Viralize gera o vídeo pronto ou só o roteiro?", a: "Vídeo pronto. Com frames, copy visual, narração, legendas e edição. Você só exporta e posta." },
+  { q: "Preciso saber editar vídeo?", a: "Não. A Viralize faz tudo. Você escolhe o tema, a IA monta, você aprova e publica." },
+  { q: "O que são os frameworks de viralização?", a: "São estruturas testadas em +500M de views orgânicos. Cada uma define a ordem, ritmo e gatilhos do vídeo pra maximizar retenção e conversão." },
+  { q: "Posso usar os vídeos comercialmente?", a: "Sim. Tudo que você cria é 100% seu. Use em seus canais, para clientes ou revenda." },
+  { q: "Como funciona a garantia de 7 dias?", a: "Se não fizer sentido, pediu cancelamento em até 7 dias e devolvemos 100%. Sem perguntas." },
+  { q: "Quantos vídeos posso gerar por mês?", a: "Depende do seu plano. Consulte os limites de quota na seção de preços ou dentro da plataforma." }];
+
 
   return (
     <section id="faq" className="w-full py-20 md:py-28 bg-secondary/20">
@@ -739,33 +739,33 @@ function FaqSection() {
         </ScrollReveal>
 
         <div className="max-w-2xl mx-auto space-y-3">
-          {faqs.map((faq, i) => (
-            <ScrollReveal key={i} delay={i * 0.05}>
+          {faqs.map((faq, i) =>
+          <ScrollReveal key={i} delay={i * 0.05}>
               <motion.div className="glass-card overflow-hidden rounded-xl">
                 <button
-                  onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                  className="w-full p-5 flex items-center justify-between text-left gap-4"
-                >
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                className="w-full p-5 flex items-center justify-between text-left gap-4">
+
                   <span className="font-medium text-sm">{faq.q}</span>
                   <motion.div animate={{ rotate: openIndex === i ? 180 : 0 }} transition={{ duration: 0.3 }}>
                     <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
                   </motion.div>
                 </button>
                 <motion.div
-                  initial={false}
-                  animate={{ height: openIndex === i ? "auto" : 0, opacity: openIndex === i ? 1 : 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
-                >
+                initial={false}
+                animate={{ height: openIndex === i ? "auto" : 0, opacity: openIndex === i ? 1 : 0 }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden">
+
                   <p className="px-5 pb-5 text-sm text-muted-foreground">{faq.a}</p>
                 </motion.div>
               </motion.div>
             </ScrollReveal>
-          ))}
+          )}
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -790,8 +790,8 @@ function CtaFinalSection() {
             </p>
             <Link
               to="/login"
-              className="gradient-primary text-primary-foreground px-10 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow text-base"
-            >
+              className="gradient-primary text-primary-foreground px-10 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow text-base">
+
               Começar agora
               <motion.span animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, repeatDelay: 2, duration: 1 }}>
                 <ArrowRight className="h-5 w-5" />
@@ -800,8 +800,8 @@ function CtaFinalSection() {
           </div>
         </ScrollReveal>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -822,35 +822,35 @@ function Footer() {
             <h4 className="text-sm font-medium mb-3">Produto</h4>
             <ul className="space-y-2">
               {[
-                { label: "Como funciona", href: "#tour" },
-                { label: "Vídeos", href: "#proof" },
-                { label: "Preços", href: "#pricing" },
-                { label: "FAQ", href: "#faq" },
-              ].map((item) => (
-                <li key={item.label}>
+              { label: "Como funciona", href: "#tour" },
+              { label: "Vídeos", href: "#proof" },
+              { label: "Preços", href: "#pricing" },
+              { label: "FAQ", href: "#faq" }].
+              map((item) =>
+              <li key={item.label}>
                   <a href={item.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{item.label}</a>
                 </li>
-              ))}
+              )}
             </ul>
           </div>
           <div>
             <h4 className="text-sm font-medium mb-3">Empresa</h4>
             <ul className="space-y-2">
-              {["Sobre", "Blog", "Contato"].map((item) => (
-                <li key={item}>
+              {["Sobre", "Blog", "Contato"].map((item) =>
+              <li key={item}>
                   <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{item}</a>
                 </li>
-              ))}
+              )}
             </ul>
           </div>
           <div>
             <h4 className="text-sm font-medium mb-3">Legal</h4>
             <ul className="space-y-2">
-              {["Termos", "Privacidade"].map((item) => (
-                <li key={item}>
+              {["Termos", "Privacidade"].map((item) =>
+              <li key={item}>
                   <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{item}</a>
                 </li>
-              ))}
+              )}
             </ul>
           </div>
         </div>
@@ -860,8 +860,8 @@ function Footer() {
           </p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -875,8 +875,8 @@ function MarqueeStyles() {
         0% { transform: translateX(0); }
         100% { transform: translateX(-50%); }
       }
-    `}</style>
-  );
+    `}</style>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -897,6 +897,6 @@ export default function LandingPage() {
       <FaqSection />
       <CtaFinalSection />
       <Footer />
-    </div>
-  );
+    </div>);
+
 }
