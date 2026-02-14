@@ -292,43 +292,104 @@ function HeroSection() {
           </div>
         </motion.div>
 
-        {/* Right — Video Builder mock */}
+        {/* Right — TikTok Dashboard mock */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
           className="relative">
 
-          <div className="glass-card p-4 sm:p-6 rounded-2xl border border-border/60 relative overflow-hidden">
+          <div className="glass-card p-5 sm:p-7 rounded-2xl border border-border/60 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-semibold text-foreground tracking-wide uppercase">Video Builder</span>
+            <div className="relative z-10 flex flex-col gap-5">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
+                    <Eye className="h-4 w-4 text-primary-foreground" />
+                  </div>
+                  <span className="text-xs font-semibold text-foreground tracking-wide uppercase">Analytics — Últimos 30 dias</span>
+                </div>
                 <span className="text-[10px] font-medium bg-primary/20 text-primary px-2.5 py-1 rounded-full border border-primary/30">
-                  Framework aplicado: HDC
+                  ● Ao vivo
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                {[
-                { n: "01", label: "Hook", sub: "Choque inicial" },
-                { n: "02", label: "Tensão", sub: "Dado + prova" },
-                { n: "03", label: "Virada", sub: "Solução rápida" },
-                { n: "04", label: "Prova", sub: "Social proof" },
-                { n: "05", label: "CTA", sub: "Ação direta" },
-                { n: "06", label: "Saída", sub: "Loop / replay" }].
-                map((frame, i) =>
-                <motion.div
-                  key={frame.n}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5 + i * 0.1 }}
-                  className="bg-secondary/70 border border-border/50 rounded-xl p-3 sm:p-4 flex flex-col items-center gap-1 hover:border-primary/40 transition-colors group">
 
-                    <span className="text-lg sm:text-xl font-bold text-primary/80 group-hover:text-primary transition-colors">{frame.n}</span>
-                    <span className="text-xs font-semibold text-foreground">{frame.label}</span>
-                    <span className="text-[10px] text-muted-foreground">{frame.sub}</span>
+              {/* Big number */}
+              <div className="flex flex-col gap-1">
+                <span className="text-muted-foreground text-xs font-medium">Total de visualizações</span>
+                <div className="flex items-end gap-3">
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.6, type: "spring" }}
+                    className="text-4xl sm:text-5xl font-bold text-foreground font-display tracking-tight">
+                    12.4M
+                  </motion.span>
+                  <span className="text-sm font-semibold text-green-500 mb-1.5">↑ 340%</span>
+                </div>
+              </div>
+
+              {/* Mini chart bars */}
+              <div className="flex items-end gap-1.5 h-20">
+                {[35, 42, 28, 55, 70, 48, 62, 80, 95, 75, 88, 100, 92, 78, 85, 97, 90, 82, 70, 95, 88, 100, 85, 92, 78, 88, 95, 100, 90, 85].map((h, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ height: 0 }}
+                    animate={{ height: `${h}%` }}
+                    transition={{ delay: 0.7 + i * 0.03, duration: 0.4, ease: "easeOut" }}
+                    className={cn(
+                      "flex-1 rounded-sm min-w-[4px]",
+                      h >= 90 ? "gradient-primary" : "bg-primary/30"
+                    )}
+                  />
+                ))}
+              </div>
+
+              {/* Stats row */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: "Curtidas", value: "1.2M", icon: "❤️" },
+                  { label: "Compartilhamentos", value: "340k", icon: "🔁" },
+                  { label: "Novos seguidores", value: "+89k", icon: "👥" },
+                ].map((stat, i) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.9 + i * 0.1 }}
+                    className="bg-secondary/70 border border-border/50 rounded-xl p-3 flex flex-col gap-1">
+                    <span className="text-sm">{stat.icon}</span>
+                    <span className="text-lg font-bold text-foreground">{stat.value}</span>
+                    <span className="text-[10px] text-muted-foreground">{stat.label}</span>
                   </motion.div>
-                )}
+                ))}
+              </div>
+
+              {/* Top videos mini list */}
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Top vídeos do mês</span>
+                {[
+                  { title: "Se você namora veja esse vídeo", views: "1.8M", growth: "+580%" },
+                  { title: "Esse formato vendeu R$40k em 7 dias", views: "2.0M", growth: "+420%" },
+                  { title: "Por que creators medianos faturam mais", views: "1.6M", growth: "+310%" },
+                ].map((v, i) => (
+                  <motion.div
+                    key={v.title}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1.1 + i * 0.1 }}
+                    className="flex items-center justify-between bg-secondary/40 rounded-lg px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-primary">{`#${i + 1}`}</span>
+                      <span className="text-xs text-foreground truncate max-w-[180px] sm:max-w-[220px]">{v.title}</span>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs font-semibold text-foreground">{v.views}</span>
+                      <span className="text-[10px] text-green-500 font-medium">{v.growth}</span>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </div>
           </div>
@@ -648,7 +709,7 @@ function PricingSection() {
   }];
 
 
-  return;
+  return null;
 
 
 
