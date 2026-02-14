@@ -4,7 +4,7 @@ import { motion, useInView, useScroll, useTransform, AnimatePresence } from "fra
 import {
   ArrowRight, Check, ChevronDown, Play, X, Clock, Layers,
   Target, Cpu, LayoutGrid, RefreshCw, Download, User, ShoppingBag, Store, Mic,
-  Eye, Zap, Shield, Sparkles } from
+  Eye, Zap, Shield, Sparkles, Wand2, PenLine, Loader2, CheckCircle, Video } from
 "lucide-react";
 import logoViralize from "@/assets/logo-viralize.png";
 import logoViralizeLight from "@/assets/logo-viralize-light.png";
@@ -495,23 +495,39 @@ function ProofSection() {
 
 function TourSection() {
   const [step, setStep] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [processingText, setProcessingText] = useState("Gerando roteiro...");
 
-  const mockNiche = "Casal / Relacionamento";
-  const mockObjective = "Venda com link no perfil";
-  const mockFramework = "HDC — Hook, Dado, CTA";
+  // Animate progress bar on step 2
+  useEffect(() => {
+    if (step === 2) {
+      setProgress(0);
+      setProcessingText("Gerando roteiro...");
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return prev + 4;
+        });
+      }, 120);
+      return () => clearInterval(interval);
+    }
+  }, [step]);
 
-  const mockFrames = [
-    { n: "01", label: "Hook", text: "\"Se você namora, veja esse vídeo.\"", time: "0–3s" },
-    { n: "02", label: "Contexto", text: "\"Ideia genial de date que ninguém faz.\"", time: "3–8s" },
-    { n: "03", label: "Demonstração", text: "Mostrar o jogo Crime Night na mesa", time: "8–16s" },
-    { n: "04", label: "CTA", text: "\"Link do jogo no meu perfil.\"", time: "16–22s" },
-  ];
+  // Change processing text at midpoint
+  useEffect(() => {
+    if (step === 2 && progress >= 50 && progress < 55) {
+      setProcessingText("Renderizando cenas...");
+    }
+    if (step === 2 && progress >= 100) {
+      const timeout = setTimeout(() => setStep(3), 600);
+      return () => clearTimeout(timeout);
+    }
+  }, [step, progress]);
 
-  const mockVariations = [
-    { id: "v1", hook: "Se você namora, veja isso.", style: "Direto" },
-    { id: "v2", hook: "Date perfeito existe e custa menos de R$50.", style: "Curiosidade" },
-    { id: "v3", hook: "O date que salvou meu relacionamento.", style: "Storytelling" },
-  ];
+  const stepLabels = ["Escolher Modo", "Configurar", "Processando", "Pronto!"];
 
   return (
     <section id="tour" className="w-full py-20 md:py-28">
@@ -533,15 +549,17 @@ function TourSection() {
 
         {/* Step tabs */}
         <div className="flex justify-center gap-2 mb-8 flex-wrap">
-          {["Configurar", "Framework", "Frames", "Variações"].map((label, i) => (
+          {stepLabels.map((label, i) => (
             <button
               key={label}
-              onClick={() => setStep(i)}
+              onClick={() => { if (i <= step) setStep(i); }}
               className={cn(
                 "px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200",
                 i === step
                   ? "gradient-primary text-primary-foreground shadow-glow"
-                  : "bg-secondary/60 text-muted-foreground hover:text-foreground border border-border/50"
+                  : i < step
+                    ? "bg-primary/15 text-primary border border-primary/30 cursor-pointer"
+                    : "bg-secondary/60 text-muted-foreground border border-border/50 cursor-default opacity-50"
               )}>
               <span className="mr-1.5 opacity-60">{String(i + 1).padStart(2, "0")}</span>
               {label}
@@ -564,114 +582,130 @@ function TourSection() {
 
             <div className="p-5 sm:p-7 min-h-[340px]">
               <AnimatePresence mode="wait">
-                {/* Step 0 — Config */}
+                {/* Step 0 — Escolher Modo */}
                 {step === 0 && (
-                  <motion.div key="s0" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col gap-5">
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Nicho / Tema</label>
-                      <div className="bg-secondary/60 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground">{mockNiche}</div>
+                  <motion.div key="s0" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col gap-6">
+                    <div className="text-center">
+                      <p className="text-sm font-bold text-foreground mb-1">Como você quer criar seu vídeo?</p>
+                      <p className="text-xs text-muted-foreground">Escolha o modo que combina com você</p>
                     </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Objetivo do vídeo</label>
-                      <div className="bg-secondary/60 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground">{mockObjective}</div>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider">Produto / Serviço</label>
-                      <div className="bg-secondary/60 border border-border/50 rounded-lg px-4 py-3 text-sm text-foreground">Crime Night — Jogo de casal</div>
-                    </div>
-                    <button onClick={() => setStep(1)} className="gradient-primary text-primary-foreground px-5 py-3 rounded-xl font-semibold text-sm self-end hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2">
-                      Gerar framework <ArrowRight className="h-4 w-4" />
-                    </button>
-                  </motion.div>
-                )}
-
-                {/* Step 1 — Framework */}
-                {step === 1 && (
-                  <motion.div key="s1" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col gap-5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
-                        <Cpu className="h-5 w-5 text-primary-foreground" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-foreground">Framework selecionado pela IA</p>
-                        <p className="text-xs text-muted-foreground">Baseado no seu objetivo e nicho</p>
-                      </div>
-                    </div>
-                    <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 flex flex-col gap-2">
-                      <span className="text-lg font-bold text-foreground font-display">{mockFramework}</span>
-                      <p className="text-sm text-muted-foreground">Estrutura agressiva para venda direta em vídeo curto. Prende nos 3 primeiros segundos, mostra dado/prova e fecha com ação clara.</p>
-                      <div className="flex gap-2 mt-1">
-                        {["Retenção alta", "Venda direta", "9:16"].map(tag => (
-                          <span key={tag} className="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full font-medium border border-primary/20">{tag}</span>
-                        ))}
-                      </div>
-                    </div>
-                    <button onClick={() => setStep(2)} className="gradient-primary text-primary-foreground px-5 py-3 rounded-xl font-semibold text-sm self-end hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2">
-                      Montar frames <ArrowRight className="h-4 w-4" />
-                    </button>
-                  </motion.div>
-                )}
-
-                {/* Step 2 — Frames */}
-                {step === 2 && (
-                  <motion.div key="s2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col gap-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-foreground uppercase tracking-wider">Frames gerados — 4 blocos · 22s</span>
-                      <span className="text-[10px] bg-primary/20 text-primary px-2.5 py-1 rounded-full border border-primary/30 font-medium">9:16 · TikTok</span>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {mockFrames.map((frame, i) => (
-                        <motion.div
-                          key={frame.n}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: i * 0.1 }}
-                          className="bg-secondary/70 border border-border/50 rounded-xl p-4 flex flex-col gap-2 hover:border-primary/40 transition-colors group">
-                          <div className="flex items-center justify-between">
-                            <span className="text-lg font-bold text-primary/80 group-hover:text-primary transition-colors">{frame.n}</span>
-                            <span className="text-[10px] text-muted-foreground font-mono">{frame.time}</span>
-                          </div>
-                          <span className="text-xs font-semibold text-foreground">{frame.label}</span>
-                          <span className="text-[11px] text-muted-foreground leading-snug">{frame.text}</span>
-                        </motion.div>
-                      ))}
-                    </div>
-                    <button onClick={() => setStep(3)} className="gradient-primary text-primary-foreground px-5 py-3 rounded-xl font-semibold text-sm self-end hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2">
-                      Gerar variações <ArrowRight className="h-4 w-4" />
-                    </button>
-                  </motion.div>
-                )}
-
-                {/* Step 3 — Variations */}
-                {step === 3 && (
-                  <motion.div key="s3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col gap-4">
-                    <span className="text-xs font-semibold text-foreground uppercase tracking-wider">3 variações de hook prontas</span>
-                    <div className="flex flex-col gap-3">
-                      {mockVariations.map((v, i) => (
-                        <motion.div
-                          key={v.id}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.12 }}
-                          className={cn(
-                            "border rounded-xl p-4 flex items-start gap-3 transition-colors",
-                            i === 0 ? "border-primary/50 bg-primary/5" : "border-border/50 bg-secondary/40"
-                          )}>
-                          <span className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0 text-xs font-bold text-primary-foreground shadow-glow">{v.id.toUpperCase()}</span>
-                          <div className="flex flex-col gap-1">
-                            <span className="text-sm font-semibold text-foreground">"{v.hook}"</span>
-                            <span className="text-[10px] text-muted-foreground">Estilo: {v.style}</span>
-                          </div>
-                          {i === 0 && <span className="ml-auto text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full border border-primary/30 font-medium shrink-0">Recomendado</span>}
-                        </motion.div>
-                      ))}
-                    </div>
-                    <div className="flex gap-3 justify-end">
-                      <button onClick={() => setStep(0)} className="border border-border bg-secondary/50 hover:bg-secondary text-foreground px-5 py-3 rounded-xl font-semibold text-sm transition-colors flex items-center gap-2">
-                        <RefreshCw className="h-4 w-4" /> Recomeçar
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <button
+                        onClick={() => setStep(1)}
+                        className="border border-primary/40 bg-primary/5 hover:bg-primary/10 rounded-xl p-6 flex flex-col items-center gap-3 transition-colors group">
+                        <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center shadow-glow group-hover:scale-110 transition-transform">
+                          <Wand2 className="h-6 w-6 text-primary-foreground" />
+                        </div>
+                        <span className="text-sm font-bold text-foreground">Assistente IA</span>
+                        <span className="text-[11px] text-muted-foreground text-center leading-snug">A IA cria o roteiro, escolhe as cenas e monta o vídeo completo pra você</span>
                       </button>
-                      <Link to="/login" className="gradient-primary text-primary-foreground px-5 py-3 rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2">
-                        Quero criar o meu <ArrowRight className="h-4 w-4" />
+                      <div className="border border-border/50 bg-secondary/40 rounded-xl p-6 flex flex-col items-center gap-3 opacity-60 cursor-default">
+                        <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center border border-border/50">
+                          <PenLine className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                        <span className="text-sm font-bold text-muted-foreground">Script Manual</span>
+                        <span className="text-[11px] text-muted-foreground text-center leading-snug">Você escreve o roteiro e envia seus próprios vídeos</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Step 1 — Configurar */}
+                {step === 1 && (
+                  <motion.div key="s1" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Nicho</label>
+                        <div className="bg-secondary/60 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground">Casal / Relacionamento</div>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Objetivo</label>
+                        <div className="bg-secondary/60 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground">Venda com link no perfil</div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Tema do vídeo</label>
+                      <div className="bg-secondary/60 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground">Date criativo com jogo de casal</div>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Duração</label>
+                      <div className="bg-secondary/60 border border-border/50 rounded-lg px-3 py-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-bold text-foreground">24s · 3 cenas</span>
+                          <span className="text-[10px] text-muted-foreground">8s – 30s</span>
+                        </div>
+                        <div className="relative h-2 w-full rounded-full bg-secondary overflow-hidden">
+                          <div className="absolute h-full rounded-full gradient-primary" style={{ width: "73%" }} />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Fonte de vídeo</label>
+                        <div className="bg-primary/5 border border-primary/30 rounded-lg px-3 py-2.5 text-sm text-foreground flex items-center gap-2">
+                          <Sparkles className="h-3.5 w-3.5 text-primary" /> Sora (IA)
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Estilo de legenda</label>
+                        <div className="bg-primary/5 border border-primary/30 rounded-lg px-3 py-2.5 text-sm text-foreground">🎤 Karaoke</div>
+                      </div>
+                    </div>
+                    <button onClick={() => setStep(2)} className="gradient-primary text-primary-foreground px-5 py-3 rounded-xl font-semibold text-sm self-end hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2 mt-1">
+                      <Video className="h-4 w-4" /> Gerar Vídeo
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Step 2 — Processando */}
+                {step === 2 && (
+                  <motion.div key="s2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col items-center justify-center gap-6 min-h-[280px]">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                      className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center shadow-glow">
+                      <Loader2 className="h-8 w-8 text-primary-foreground" />
+                    </motion.div>
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-foreground mb-1">Criando seu vídeo...</p>
+                      <p className="text-sm text-muted-foreground">{processingText}</p>
+                    </div>
+                    <div className="w-full max-w-xs">
+                      <div className="relative h-3 w-full rounded-full bg-secondary overflow-hidden">
+                        <motion.div
+                          className="absolute h-full rounded-full gradient-primary"
+                          style={{ width: `${progress}%` }}
+                          transition={{ duration: 0.1 }}
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground text-center mt-2">{progress}%</p>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Step 3 — Pronto! */}
+                {step === 3 && (
+                  <motion.div key="s3" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4 }} className="flex flex-col items-center justify-center gap-5 min-h-[280px]">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+                      className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center border-2 border-green-500/40">
+                      <CheckCircle className="h-10 w-10 text-green-500" />
+                    </motion.div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-foreground font-display">Vídeo Pronto!</p>
+                      <p className="text-sm text-muted-foreground mt-1">24s · 3 cenas · Formato 9:16</p>
+                    </div>
+                    <button className="border border-border bg-secondary/60 hover:bg-secondary text-foreground px-6 py-3 rounded-xl font-semibold text-sm transition-colors flex items-center gap-2">
+                      <Download className="h-4 w-4" /> Baixar Vídeo
+                    </button>
+                    <div className="flex gap-3 mt-2">
+                      <button onClick={() => { setStep(0); setProgress(0); }} className="border border-border bg-secondary/50 hover:bg-secondary text-foreground px-5 py-2.5 rounded-xl font-semibold text-xs transition-colors flex items-center gap-2">
+                        <RefreshCw className="h-3.5 w-3.5" /> Recomeçar
+                      </button>
+                      <Link to="/login" className="gradient-primary text-primary-foreground px-5 py-2.5 rounded-xl font-semibold text-xs hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2">
+                        Quero criar o meu <ArrowRight className="h-3.5 w-3.5" />
                       </Link>
                     </div>
                   </motion.div>
