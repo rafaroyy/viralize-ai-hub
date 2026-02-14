@@ -10,6 +10,7 @@ import logoViralize from "@/assets/logo-viralize.png";
 import logoViralizeLight from "@/assets/logo-viralize-light.png";
 import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
+import { VideoDisplayCard } from "@/components/ui/display-cards";
 
 /* ═══════════════════════════════════════════
    HELPERS
@@ -340,8 +341,18 @@ function HeroSection() {
    ═══════════════════════════════════════════ */
 
 function ProofSection() {
-  const [selected, setSelected] = useState<typeof viralGallery[0] | null>(null);
-  const doubled = [...viralGallery, ...viralGallery];
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [showModal, setShowModal] = useState(false);
+  const selected = viralGallery[selectedIndex];
+
+  const handleCardClick = useCallback((index: number) => {
+    setSelectedIndex(index);
+  }, []);
+
+  const handleCardDoubleClick = useCallback((index: number) => {
+    setSelectedIndex(index);
+    setShowModal(true);
+  }, []);
 
   return (
     <section id="proof" className="w-full py-20 md:py-28 overflow-hidden">
@@ -353,100 +364,71 @@ function ProofSection() {
               Clique e assista. Isso aqui saiu da Viralize.
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Zero teoria. Só entrega. Veja a estrutura do vídeo por trás do resultado.
+              Zero teoria. Só entrega. Clique em um vídeo para ver a receita por trás.
             </p>
           </div>
         </ScrollReveal>
       </div>
 
-      {/* Marquee row 1 */}
-      <div className="relative mb-3">
-        <div className="flex animate-[marquee_60s_linear_infinite] hover:[animation-play-state:paused] w-max gap-3">
-          {doubled.map((v, i) => (
-            <button
+      {/* Display Cards - scrollable horizontal */}
+      <div className="relative px-4 sm:px-6">
+        <div className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide justify-start lg:justify-center">
+          {viralGallery.map((v, i) => (
+            <VideoDisplayCard
               key={i}
-              onClick={() => setSelected(v)}
-              className="glass-card shrink-0 w-72 p-4 text-left hover:border-primary/40 transition-all group cursor-pointer"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-[10px] font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">{v.platform}</span>
-                <span className="text-[10px] text-muted-foreground">{v.duration}</span>
-              </div>
-              <p className="text-sm font-semibold text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">{v.title}</p>
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{v.views}</span>
-                <span>❤ {v.likes}</span>
-                <span className="ml-auto text-primary/70 text-[10px] font-medium">{v.framework}</span>
-              </div>
-            </button>
+              video={v}
+              isActive={selectedIndex === i}
+              onClick={() => handleCardClick(i)}
+              className="snap-center"
+            />
           ))}
         </div>
       </div>
 
-      {/* Modal */}
-      <AnimatePresence>
-        {selected && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-background/80 backdrop-blur-md"
-            onClick={() => setSelected(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="glass-card border border-border/60 rounded-2xl p-6 sm:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
+      {/* Active card detail preview */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={selectedIndex}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="container mx-auto px-4 sm:px-6 mt-8"
+        >
+          <div className="glass-card max-w-2xl mx-auto p-6 rounded-2xl border border-primary/20">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-[10px] font-medium bg-primary/20 text-primary px-2.5 py-0.5 rounded-full border border-primary/20">{selected.platform}</span>
+              <span className="text-[10px] text-muted-foreground">{selected.duration}</span>
+              <span className="text-[10px] font-bold text-primary/80 ml-auto">{selected.framework}</span>
+            </div>
+            <h3 className="text-base sm:text-lg font-bold font-display mb-2">{selected.title}</h3>
+            <div className="grid sm:grid-cols-3 gap-3 text-sm">
+              <div>
+                <p className="text-[10px] font-semibold text-primary uppercase tracking-wide mb-1">Hook</p>
+                <p className="text-xs text-muted-foreground italic">"{selected.hook}"</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold text-primary uppercase tracking-wide mb-1">Estrutura</p>
+                <ol className="space-y-0.5">
+                  {selected.structure.map((s, i) => (
+                    <li key={i} className="text-xs text-muted-foreground">{i + 1}. {s}</li>
+                  ))}
+                </ol>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold text-primary uppercase tracking-wide mb-1">CTA</p>
+                <p className="text-xs text-muted-foreground">"{selected.cta}"</p>
+              </div>
+            </div>
+            <Link
+              to="/login"
+              className="gradient-primary text-primary-foreground mt-4 py-2.5 px-6 rounded-xl font-semibold text-xs inline-flex items-center gap-2 shadow-glow hover:opacity-90 transition-opacity"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <span className="text-[10px] font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">{selected.platform}</span>
-                  <span className="text-[10px] text-muted-foreground ml-2">{selected.duration}</span>
-                </div>
-                <button onClick={() => setSelected(null)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
-              </div>
-
-              {/* Video placeholder */}
-              <div className="aspect-[9/16] max-h-48 bg-secondary/60 rounded-xl flex items-center justify-center mb-6 border border-border/40">
-                <Play className="h-10 w-10 text-primary/60" />
-              </div>
-
-              <h3 className="text-lg font-bold mb-4 font-display">{selected.title}</h3>
-
-              <div className="space-y-4">
-                <div>
-                  <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-1">Hook</p>
-                  <p className="text-sm text-muted-foreground italic">"{selected.hook}"</p>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-1">Estrutura</p>
-                  <ol className="space-y-1">
-                    {selected.structure.map((s, i) => (
-                      <li key={i} className="text-sm text-muted-foreground flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-primary/70 w-4">{i + 1}.</span>
-                        {s}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-1">CTA</p>
-                  <p className="text-sm text-muted-foreground">"{selected.cta}"</p>
-                </div>
-              </div>
-
-              <Link
-                to="/login"
-                className="gradient-primary text-primary-foreground w-full mt-6 py-3 rounded-xl font-semibold text-sm inline-flex items-center justify-center gap-2 shadow-glow hover:opacity-90 transition-opacity"
-              >
-                Gerar variações desse vídeo
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </motion.div>
-          </motion.div>
-        )}
+              Gerar variações desse vídeo
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </motion.div>
       </AnimatePresence>
     </section>
   );
