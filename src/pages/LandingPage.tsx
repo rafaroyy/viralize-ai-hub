@@ -10,7 +10,7 @@ import logoViralize from "@/assets/logo-viralize.png";
 import logoViralizeLight from "@/assets/logo-viralize-light.png";
 import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
-import { VideoDisplayCard } from "@/components/ui/display-cards";
+import DisplayCards from "@/components/ui/display-cards";
 
 /* ═══════════════════════════════════════════
    HELPERS
@@ -341,18 +341,29 @@ function HeroSection() {
    ═══════════════════════════════════════════ */
 
 function ProofSection() {
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
-  const [showModal, setShowModal] = useState(false);
-  const selected = viralGallery[selectedIndex];
+  // Pick 3 featured videos for the stacked display
+  const featured = [viralGallery[0], viralGallery[1], viralGallery[2]];
 
-  const handleCardClick = useCallback((index: number) => {
-    setSelectedIndex(index);
-  }, []);
+  const cards = featured.map((v, i) => {
+    const baseClass =
+      "[grid-area:stack] before:absolute before:w-[100%] before:outline-1 before:rounded-xl before:outline-border before:h-[100%] before:content-[''] before:bg-blend-overlay before:bg-background/50 before:transition-opacity before:duration-700 before:left-0 before:top-0";
 
-  const handleCardDoubleClick = useCallback((index: number) => {
-    setSelectedIndex(index);
-    setShowModal(true);
-  }, []);
+    const positions = [
+      `${baseClass} grayscale-[100%] hover:before:opacity-0 hover:grayscale-0 hover:-translate-y-10`,
+      `${baseClass} translate-x-12 sm:translate-x-16 translate-y-10 grayscale-[100%] hover:before:opacity-0 hover:grayscale-0 hover:-translate-y-1`,
+      "[grid-area:stack] translate-x-24 sm:translate-x-32 translate-y-20 hover:translate-y-10",
+    ];
+
+    return {
+      icon: <Play className="h-4 w-4" />,
+      title: v.platform + " · " + v.framework,
+      description: v.title,
+      date: v.views + " views · " + v.likes + " ❤",
+      iconClassName: "text-primary",
+      titleClassName: "text-primary",
+      className: positions[i],
+    };
+  });
 
   return (
     <section id="proof" className="w-full py-20 md:py-28 overflow-hidden">
@@ -364,72 +375,15 @@ function ProofSection() {
               Clique e assista. Isso aqui saiu da Viralize.
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Zero teoria. Só entrega. Clique em um vídeo para ver a receita por trás.
+              Zero teoria. Só entrega. Veja a estrutura do vídeo por trás do resultado.
             </p>
           </div>
         </ScrollReveal>
       </div>
 
-      {/* Display Cards - scrollable horizontal */}
-      <div className="relative px-4 sm:px-6">
-        <div className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide justify-start lg:justify-center">
-          {viralGallery.map((v, i) => (
-            <VideoDisplayCard
-              key={i}
-              video={v}
-              isActive={selectedIndex === i}
-              onClick={() => handleCardClick(i)}
-              className="snap-center"
-            />
-          ))}
-        </div>
+      <div className="container mx-auto px-4 sm:px-6 flex justify-center">
+        <DisplayCards cards={cards} />
       </div>
-
-      {/* Active card detail preview */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={selectedIndex}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.3 }}
-          className="container mx-auto px-4 sm:px-6 mt-8"
-        >
-          <div className="glass-card max-w-2xl mx-auto p-6 rounded-2xl border border-primary/20">
-            <div className="flex items-center gap-3 mb-3">
-              <span className="text-[10px] font-medium bg-primary/20 text-primary px-2.5 py-0.5 rounded-full border border-primary/20">{selected.platform}</span>
-              <span className="text-[10px] text-muted-foreground">{selected.duration}</span>
-              <span className="text-[10px] font-bold text-primary/80 ml-auto">{selected.framework}</span>
-            </div>
-            <h3 className="text-base sm:text-lg font-bold font-display mb-2">{selected.title}</h3>
-            <div className="grid sm:grid-cols-3 gap-3 text-sm">
-              <div>
-                <p className="text-[10px] font-semibold text-primary uppercase tracking-wide mb-1">Hook</p>
-                <p className="text-xs text-muted-foreground italic">"{selected.hook}"</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-semibold text-primary uppercase tracking-wide mb-1">Estrutura</p>
-                <ol className="space-y-0.5">
-                  {selected.structure.map((s, i) => (
-                    <li key={i} className="text-xs text-muted-foreground">{i + 1}. {s}</li>
-                  ))}
-                </ol>
-              </div>
-              <div>
-                <p className="text-[10px] font-semibold text-primary uppercase tracking-wide mb-1">CTA</p>
-                <p className="text-xs text-muted-foreground">"{selected.cta}"</p>
-              </div>
-            </div>
-            <Link
-              to="/login"
-              className="gradient-primary text-primary-foreground mt-4 py-2.5 px-6 rounded-xl font-semibold text-xs inline-flex items-center gap-2 shadow-glow hover:opacity-90 transition-opacity"
-            >
-              Gerar variações desse vídeo
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-        </motion.div>
-      </AnimatePresence>
     </section>
   );
 }
