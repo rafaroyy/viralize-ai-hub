@@ -332,54 +332,54 @@ function HeroSection() {
 
               {/* Mini chart bars */}
               <div className="flex items-end gap-1.5 h-20">
-                {[35, 42, 28, 55, 70, 48, 62, 80, 95, 75, 88, 100, 92, 78, 85, 97, 90, 82, 70, 95, 88, 100, 85, 92, 78, 88, 95, 100, 90, 85].map((h, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ height: 0 }}
-                    animate={{ height: `${h}%` }}
-                    transition={{ delay: 0.7 + i * 0.03, duration: 0.4, ease: "easeOut" }}
-                    className={cn(
-                      "flex-1 rounded-sm min-w-[4px]",
-                      h >= 90 ? "gradient-primary" : "bg-primary/30"
-                    )}
-                  />
-                ))}
+                {[35, 42, 28, 55, 70, 48, 62, 80, 95, 75, 88, 100, 92, 78, 85, 97, 90, 82, 70, 95, 88, 100, 85, 92, 78, 88, 95, 100, 90, 85].map((h, i) =>
+                <motion.div
+                  key={i}
+                  initial={{ height: 0 }}
+                  animate={{ height: `${h}%` }}
+                  transition={{ delay: 0.7 + i * 0.03, duration: 0.4, ease: "easeOut" }}
+                  className={cn(
+                    "flex-1 rounded-sm min-w-[4px]",
+                    h >= 90 ? "gradient-primary" : "bg-primary/30"
+                  )} />
+
+                )}
               </div>
 
               {/* Stats row */}
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { label: "Curtidas", value: "1.2M", icon: "❤️" },
-                  { label: "Compartilhamentos", value: "340k", icon: "🔁" },
-                  { label: "Novos seguidores", value: "+89k", icon: "👥" },
-                ].map((stat, i) => (
-                  <motion.div
-                    key={stat.label}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.9 + i * 0.1 }}
-                    className="bg-secondary/70 border border-border/50 rounded-xl p-3 flex flex-col gap-1">
+                { label: "Curtidas", value: "1.2M", icon: "❤️" },
+                { label: "Compartilhamentos", value: "340k", icon: "🔁" },
+                { label: "Novos seguidores", value: "+89k", icon: "👥" }].
+                map((stat, i) =>
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9 + i * 0.1 }}
+                  className="bg-secondary/70 border border-border/50 rounded-xl p-3 flex flex-col gap-1">
                     <span className="text-sm">{stat.icon}</span>
                     <span className="text-lg font-bold text-foreground">{stat.value}</span>
                     <span className="text-[10px] text-muted-foreground">{stat.label}</span>
                   </motion.div>
-                ))}
+                )}
               </div>
 
               {/* Top videos mini list */}
               <div className="flex flex-col gap-2">
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Top vídeos do mês</span>
                 {[
-                  { title: "Se você namora veja esse vídeo", views: "1.8M", growth: "+580%" },
-                  { title: "Esse formato vendeu R$40k em 7 dias", views: "2.0M", growth: "+420%" },
-                  { title: "Por que creators medianos faturam mais", views: "1.6M", growth: "+310%" },
-                ].map((v, i) => (
-                  <motion.div
-                    key={v.title}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1.1 + i * 0.1 }}
-                    className="flex items-center justify-between bg-secondary/40 rounded-lg px-3 py-2">
+                { title: "Se você namora veja esse vídeo", views: "1.8M", growth: "+580%" },
+                { title: "Esse formato vendeu R$40k em 7 dias", views: "2.0M", growth: "+420%" },
+                { title: "Por que creators medianos faturam mais", views: "1.6M", growth: "+310%" }].
+                map((v, i) =>
+                <motion.div
+                  key={v.title}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.1 + i * 0.1 }}
+                  className="flex items-center justify-between bg-secondary/40 rounded-lg px-3 py-2">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-primary">{`#${i + 1}`}</span>
                       <span className="text-xs text-foreground truncate max-w-[180px] sm:max-w-[220px]">{v.title}</span>
@@ -389,7 +389,7 @@ function HeroSection() {
                       <span className="text-[10px] text-green-500 font-medium">{v.growth}</span>
                     </div>
                   </motion.div>
-                ))}
+                )}
               </div>
             </div>
           </div>
@@ -549,22 +549,22 @@ function TourSection() {
 
         {/* Step tabs */}
         <div className="flex justify-center gap-2 mb-8 flex-wrap">
-          {stepLabels.map((label, i) => (
-            <button
-              key={label}
-              onClick={() => { if (i <= step) setStep(i); }}
-              className={cn(
-                "px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200",
-                i === step
-                  ? "gradient-primary text-primary-foreground shadow-glow"
-                  : i < step
-                    ? "bg-primary/15 text-primary border border-primary/30 cursor-pointer"
-                    : "bg-secondary/60 text-muted-foreground border border-border/50 cursor-default opacity-50"
-              )}>
+          {stepLabels.map((label, i) =>
+          <button
+            key={label}
+            onClick={() => {if (i <= step) setStep(i);}}
+            className={cn(
+              "px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200",
+              i === step ?
+              "gradient-primary text-primary-foreground shadow-glow" :
+              i < step ?
+              "bg-primary/15 text-primary border border-primary/30 cursor-pointer" :
+              "bg-secondary/60 text-muted-foreground border border-border/50 cursor-default opacity-50"
+            )}>
               <span className="mr-1.5 opacity-60">{String(i + 1).padStart(2, "0")}</span>
               {label}
             </button>
-          ))}
+          )}
         </div>
 
         {/* Mock UI card */}
@@ -583,16 +583,16 @@ function TourSection() {
             <div className="p-5 sm:p-7 min-h-[340px]">
               <AnimatePresence mode="wait">
                 {/* Step 0 — Escolher Modo */}
-                {step === 0 && (
-                  <motion.div key="s0" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col gap-6">
+                {step === 0 &&
+                <motion.div key="s0" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col gap-6">
                     <div className="text-center">
                       <p className="text-sm font-bold text-foreground mb-1">Como você quer criar seu vídeo?</p>
                       <p className="text-xs text-muted-foreground">Escolha o modo que combina com você</p>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <button
-                        onClick={() => setStep(1)}
-                        className="border border-primary/40 bg-primary/5 hover:bg-primary/10 rounded-xl p-6 flex flex-col items-center gap-3 transition-colors group">
+                      onClick={() => setStep(1)}
+                      className="border border-primary/40 bg-primary/5 hover:bg-primary/10 rounded-xl p-6 flex flex-col items-center gap-3 transition-colors group">
                         <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center shadow-glow group-hover:scale-110 transition-transform">
                           <Wand2 className="h-6 w-6 text-primary-foreground" />
                         </div>
@@ -608,11 +608,11 @@ function TourSection() {
                       </div>
                     </div>
                   </motion.div>
-                )}
+                }
 
                 {/* Step 1 — Configurar */}
-                {step === 1 && (
-                  <motion.div key="s1" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col gap-4">
+                {step === 1 &&
+                <motion.div key="s1" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col gap-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="flex flex-col gap-1">
                         <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Nicho</label>
@@ -655,15 +655,15 @@ function TourSection() {
                       <Video className="h-4 w-4" /> Gerar Vídeo
                     </button>
                   </motion.div>
-                )}
+                }
 
                 {/* Step 2 — Processando */}
-                {step === 2 && (
-                  <motion.div key="s2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col items-center justify-center gap-6 min-h-[280px]">
+                {step === 2 &&
+                <motion.div key="s2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="flex flex-col items-center justify-center gap-6 min-h-[280px]">
                     <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-                      className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center shadow-glow">
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                    className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center shadow-glow">
                       <Loader2 className="h-8 w-8 text-primary-foreground" />
                     </motion.div>
                     <div className="text-center">
@@ -673,24 +673,24 @@ function TourSection() {
                     <div className="w-full max-w-xs">
                       <div className="relative h-3 w-full rounded-full bg-secondary overflow-hidden">
                         <motion.div
-                          className="absolute h-full rounded-full gradient-primary"
-                          style={{ width: `${progress}%` }}
-                          transition={{ duration: 0.1 }}
-                        />
+                        className="absolute h-full rounded-full gradient-primary"
+                        style={{ width: `${progress}%` }}
+                        transition={{ duration: 0.1 }} />
+
                       </div>
                       <p className="text-xs text-muted-foreground text-center mt-2">{progress}%</p>
                     </div>
                   </motion.div>
-                )}
+                }
 
                 {/* Step 3 — Pronto! */}
-                {step === 3 && (
-                  <motion.div key="s3" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4 }} className="flex flex-col items-center justify-center gap-5 min-h-[280px]">
+                {step === 3 &&
+                <motion.div key="s3" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4 }} className="flex flex-col items-center justify-center gap-5 min-h-[280px]">
                     <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-                      className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center border-2 border-green-500/40">
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+                    className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center border-2 border-green-500/40">
                       <CheckCircle className="h-10 w-10 text-green-500" />
                     </motion.div>
                     <div className="text-center">
@@ -701,7 +701,7 @@ function TourSection() {
                       <Download className="h-4 w-4" /> Baixar Vídeo
                     </button>
                     <div className="flex gap-3 mt-2">
-                      <button onClick={() => { setStep(0); setProgress(0); }} className="border border-border bg-secondary/50 hover:bg-secondary text-foreground px-5 py-2.5 rounded-xl font-semibold text-xs transition-colors flex items-center gap-2">
+                      <button onClick={() => {setStep(0);setProgress(0);}} className="border border-border bg-secondary/50 hover:bg-secondary text-foreground px-5 py-2.5 rounded-xl font-semibold text-xs transition-colors flex items-center gap-2">
                         <RefreshCw className="h-3.5 w-3.5" /> Recomeçar
                       </button>
                       <Link to="/login" className="gradient-primary text-primary-foreground px-5 py-2.5 rounded-xl font-semibold text-xs hover:opacity-90 transition-opacity shadow-glow flex items-center gap-2">
@@ -709,14 +709,14 @@ function TourSection() {
                       </Link>
                     </div>
                   </motion.div>
-                )}
+                }
               </AnimatePresence>
             </div>
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -732,40 +732,40 @@ function WhatYouGetSection() {
   "Variações automáticas pra teste rápido"];
 
 
-  return (
-    <section className="w-full py-20 md:py-28">
-      <div className="container mx-auto px-4 sm:px-6">
-        <div className="max-w-3xl mx-auto text-center">
-          <ScrollReveal>
-            <SectionTag>Entrega</SectionTag>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display mb-6">
-              Você aperta um botão. Sai um vídeo pronto pra ganhar feed.
-            </h2>
-          </ScrollReveal>
+  return;
 
-          <ScrollReveal delay={0.1}>
-            <div className="grid sm:grid-cols-2 gap-3 text-left mt-8 mb-8">
-              {bullets.map((b, i) =>
-              <div key={i} className="flex items-center gap-3 glass-card p-4 rounded-xl">
-                  <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0 shadow-glow">
-                    <Check className="h-4 w-4 text-primary-foreground" />
-                  </div>
-                  <span className="text-sm font-medium text-foreground">{b}</span>
-                </div>
-              )}
-            </div>
-          </ScrollReveal>
 
-          <ScrollReveal delay={0.2}>
-            <div className="bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20 rounded-xl p-6">
-              <p className="text-lg font-bold font-display bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">
-                Não é inspiração. É execução.
-              </p>
-            </div>
-          </ScrollReveal>
-        </div>
-      </div>
-    </section>);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
