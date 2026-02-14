@@ -345,7 +345,13 @@ function HeroSection() {
    ═══════════════════════════════════════════ */
 
 function ProofSection() {
-  const featured = viralGallery[4]; // 1.8M views
+  const proofVideo = {
+    title: "Se você namora veja esse vídeo",
+    platform: "TikTok", duration: "00:22", views: "1.8M", likes: "130k", framework: "HDC",
+    hook: "Se você namora, veja esse vídeo. Ideia genial de date.",
+    structure: ["Hook emocional (casal)", "Apresentação do conceito (Crime Night)", "Demonstração visual do jogo", "CTA com link no perfil"],
+    cta: "Link do jogo no meu perfil.",
+  };
 
   return (
     <section id="proof" className="w-full overflow-hidden">
@@ -365,47 +371,49 @@ function ProofSection() {
           </div>
         }
       >
-        {/* Video mock — vertical format */}
-        <div className="h-full w-full flex flex-col md:flex-row gap-4 md:gap-6 p-2 md:p-4">
-          {/* Left: real video */}
-          <div className="flex-1 flex items-center justify-center relative bg-background/60 rounded-xl border border-border/40 overflow-hidden min-h-[200px]">
-            <video
-              src={viralVideoProof}
-              className="h-full w-full object-cover rounded-xl"
-              controls
-              playsInline
-              muted
-              loop
-              preload="metadata"
-            />
-            {/* Overlay stats */}
-            <div className="absolute bottom-3 left-3 flex gap-2 z-10">
-              <span className="text-[10px] font-medium bg-background/70 backdrop-blur-sm text-foreground px-2 py-1 rounded-full border border-border/30 flex items-center gap-1">
-                <Eye className="h-3 w-3" />{featured.views}
-              </span>
-              <span className="text-[10px] font-medium bg-background/70 backdrop-blur-sm text-foreground px-2 py-1 rounded-full border border-border/30">
-                ❤ {featured.likes}
-              </span>
+        <div className="h-full w-full flex flex-col md:flex-row gap-4 md:gap-6 p-2 md:p-4 overflow-auto">
+          {/* Video vertical */}
+          <div className="w-full md:w-auto md:h-full flex items-center justify-center shrink-0">
+            <div className="relative w-[220px] sm:w-[240px] md:w-[260px] aspect-[9/16] rounded-2xl border border-border/40 overflow-hidden bg-background/60 shadow-lg mx-auto">
+              <video
+                src={viralVideoProof}
+                className="h-full w-full object-cover"
+                controls
+                playsInline
+                muted
+                loop
+                preload="metadata"
+              />
+              <div className="absolute bottom-2 left-2 flex gap-1.5 z-10">
+                <span className="text-[9px] font-medium bg-background/70 backdrop-blur-sm text-foreground px-2 py-0.5 rounded-full border border-border/30 flex items-center gap-1">
+                  <Eye className="h-2.5 w-2.5" />{proofVideo.views}
+                </span>
+                <span className="text-[9px] font-medium bg-background/70 backdrop-blur-sm text-foreground px-2 py-0.5 rounded-full border border-border/30">
+                  ❤ {proofVideo.likes}
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Right: recipe breakdown */}
-          <div className="w-full md:w-72 lg:w-80 flex flex-col gap-3 justify-center shrink-0">
-            <div className="flex items-center gap-2 mb-1">
+          {/* Info breakdown */}
+          <div className="flex-1 flex flex-col gap-3 justify-center min-w-0">
+            <h3 className="text-base font-bold text-foreground font-display leading-snug">{proofVideo.title}</h3>
+            <div className="flex items-center gap-2">
               <span className="text-[10px] font-medium bg-primary/20 text-primary px-2.5 py-1 rounded-full border border-primary/30">
-                Framework: {featured.framework}
+                Framework: {proofVideo.framework}
               </span>
+              <span className="text-[10px] text-muted-foreground">{proofVideo.platform} · {proofVideo.duration}</span>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Hook</p>
-              <p className="text-sm text-muted-foreground leading-relaxed">"{featured.hook}"</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">"{proofVideo.hook}"</p>
             </div>
 
-            <div className="space-y-1.5 mt-2">
+            <div className="space-y-1">
               <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Estrutura</p>
               <div className="flex flex-col gap-1">
-                {featured.structure.map((s, i) => (
+                {proofVideo.structure.map((s, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
                     <span className="w-5 h-5 rounded-md bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
                     {s}
@@ -414,9 +422,9 @@ function ProofSection() {
               </div>
             </div>
 
-            <div className="space-y-1.5 mt-2">
+            <div className="space-y-1">
               <p className="text-xs font-semibold text-foreground uppercase tracking-wider">CTA</p>
-              <p className="text-sm text-muted-foreground leading-relaxed">"{featured.cta}"</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">"{proofVideo.cta}"</p>
             </div>
           </div>
         </div>
