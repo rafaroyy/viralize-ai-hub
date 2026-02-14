@@ -667,13 +667,13 @@ const CriarVideo = () => {
                   value={[Number(duration)]}
                   onValueChange={([v]) => setDuration(String(v))}
                   min={8}
-                  max={60}
+                  max={30}
                   step={1}
                   className="w-full"
                 />
                 <div className="flex justify-between text-[10px] text-muted-foreground">
                   <span>8s (1 cena)</span>
-                  <span>60s ({Math.ceil(60 / 8)} cenas)</span>
+                  <span>30s ({Math.ceil(30 / 8)} cenas)</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Cada cena tem ~8 segundos. A quantidade de cenas é calculada automaticamente.
