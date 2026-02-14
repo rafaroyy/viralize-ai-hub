@@ -371,48 +371,56 @@ function ProofSection() {
           </div>
         }
       >
-        <div className="h-full w-full flex flex-col items-center gap-4 p-2 md:p-4 overflow-auto">
-          {/* Video vertical */}
-          <div className="relative w-[220px] sm:w-[240px] md:w-[260px] aspect-[9/16] rounded-2xl border border-border/40 overflow-hidden bg-background/60 shadow-lg mx-auto shrink-0">
-            <video
-              src={viralVideoProof}
-              className="h-full w-full object-cover"
-              controls
-              playsInline
-              muted
-              loop
-              preload="metadata"
-            />
-            <div className="absolute bottom-2 left-2 flex gap-1.5 z-10">
-              <span className="text-[9px] font-medium bg-background/70 backdrop-blur-sm text-foreground px-2 py-0.5 rounded-full border border-border/30 flex items-center gap-1">
-                <Eye className="h-2.5 w-2.5" />{proofVideo.views}
-              </span>
-              <span className="text-[9px] font-medium bg-background/70 backdrop-blur-sm text-foreground px-2 py-0.5 rounded-full border border-border/30">
-                ❤ {proofVideo.likes}
-              </span>
+        <div className="h-full w-full flex flex-col md:flex-row gap-4 md:gap-6 p-2 md:p-4 overflow-auto">
+          {/* Left: video vertical + stats below */}
+          <div className="flex flex-col items-center gap-2 shrink-0">
+            <div className="relative w-[220px] sm:w-[240px] md:w-[260px] aspect-[9/16] rounded-2xl border border-border/40 overflow-hidden bg-background/60 shadow-lg">
+              <video
+                src={viralVideoProof}
+                className="h-full w-full object-cover"
+                controls
+                playsInline
+                muted
+                loop
+                preload="metadata"
+              />
+            </div>
+            {/* Views/likes below player */}
+            <div className="flex gap-3 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{proofVideo.views}</span>
+              <span>❤ {proofVideo.likes}</span>
+              <span>{proofVideo.platform} · {proofVideo.duration}</span>
             </div>
           </div>
 
-          {/* Info below player */}
-          <div className="w-full max-w-lg flex flex-col gap-2 text-left">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-sm font-bold text-foreground font-display leading-snug">{proofVideo.title}</h3>
-              <span className="text-[10px] font-medium bg-primary/20 text-primary px-2.5 py-0.5 rounded-full border border-primary/30">
-                {proofVideo.framework}
-              </span>
-              <span className="text-[10px] text-muted-foreground">{proofVideo.platform} · {proofVideo.duration}</span>
+          {/* Right: recipe breakdown */}
+          <div className="flex-1 flex flex-col gap-3 justify-center min-w-0">
+            <h3 className="text-base font-bold text-foreground font-display leading-snug">{proofVideo.title}</h3>
+            <span className="text-[10px] font-medium bg-primary/20 text-primary px-2.5 py-1 rounded-full border border-primary/30 w-fit">
+              Framework: {proofVideo.framework}
+            </span>
+
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Hook</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">"{proofVideo.hook}"</p>
             </div>
-            <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
-              <span><span className="font-semibold text-foreground">Hook:</span> "{proofVideo.hook}"</span>
+
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Estrutura</p>
+              <div className="flex flex-col gap-1">
+                {proofVideo.structure.map((s, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span className="w-5 h-5 rounded-md bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                    {s}
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {proofVideo.structure.map((s, i) => (
-                <span key={i} className="text-[11px] text-muted-foreground bg-secondary/60 border border-border/40 rounded-md px-2 py-0.5 flex items-center gap-1">
-                  <span className="text-primary font-bold">{i + 1}</span> {s}
-                </span>
-              ))}
+
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-foreground uppercase tracking-wider">CTA</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">"{proofVideo.cta}"</p>
             </div>
-            <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">CTA:</span> "{proofVideo.cta}"</p>
           </div>
         </div>
       </ContainerScroll>
