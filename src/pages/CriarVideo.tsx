@@ -257,16 +257,14 @@ const CriarVideo = () => {
         script_mode: "manual",
         manual_script: manualScript.trim(),
         duracao: Number(duration),
+        idioma,
         cenas: scenesCount,
         aspect_ratio: "9:16",
-        idioma,
         usar_legenda_e_fala: true,
         caption_style: captionStyle,
+        video_source: "custom",
       };
       const files = manualFiles.length > 0 ? manualFiles : undefined;
-      if (files && files.length > 0) {
-        payload.video_source = "custom";
-      }
       const res = await api.renderVideo(payload, files);
       setJobId(res.job_id);
       setJobStatus({ job_id: res.job_id, status: "pending", progress: 0, message: res.message, created_at: res.created_at, updated_at: res.created_at });
