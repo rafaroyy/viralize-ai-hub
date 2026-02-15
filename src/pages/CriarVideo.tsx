@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle, Clock, Layers, Eye, RotateCcw } from "lucide-react";
+import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { api, CaptionStyle, JobStatus, VideoListItem } from "@/lib/api";
+import { api, CaptionStyle, JobStatus } from "@/lib/api";
 import { Slider } from "@/components/ui/slider";
 import { VideoUploadCard } from "@/components/ui/video-upload-card";
 
@@ -116,9 +116,7 @@ const CriarVideo = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Video history
-  const [videoHistory, setVideoHistory] = useState<VideoListItem[]>([]);
-  const [loadingHistory, setLoadingHistory] = useState(false);
+  // Preview state
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewJobId, setPreviewJobId] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
@@ -129,29 +127,6 @@ const CriarVideo = () => {
       setCaptionStyles(data.styles);
       setCaptionStyle(data.default);
     }).catch(() => {});
-  }, []);
-
-  // Fetch video history on mount
-  useEffect(() => {
-    const fetchHistory = async () => {
-      setLoadingHistory(true);
-      try {
-        const list = await api.videoList(0, 20);
-        setVideoHistory(Array.isArray(list) ? list : []);
-      } catch {
-        // silently fail
-      } finally {
-        setLoadingHistory(false);
-      }
-    };
-    fetchHistory();
-  }, []);
-
-  const refreshHistory = useCallback(async () => {
-    try {
-      const list = await api.videoList(0, 20);
-      setVideoHistory(Array.isArray(list) ? list : []);
-    } catch {}
   }, []);
 
   const handlePreview = useCallback(async (jobId: string) => {
@@ -309,7 +284,7 @@ const CriarVideo = () => {
     setJobId(null);
     setJobStatus(null);
     if (pollRef.current) clearInterval(pollRef.current);
-    refreshHistory();
+    // history now lives on /meus-videos
   };
 
   const videosRemaining = quota?.total?.remaining ?? null;
@@ -367,7 +342,34 @@ const CriarVideo = () => {
     </Dialog>
   );
 
-  // Caption style selector component
+  // Preview dialog (single instance shared across modes)
+  const previewDialog = (
+    <Dialog open={!!previewJobId} onOpenChange={(open) => { if (!open) closePreview(); }}>
+      <DialogContent className="sm:max-w-lg glass-card border-border p-0 overflow-hidden">
+        <DialogTitle className="sr-only">Preview do Vídeo</DialogTitle>
+        <div className="p-4 border-b border-border flex items-center justify-between">
+          <h3 className="font-display font-semibold text-sm">Preview do Vídeo</h3>
+          <div className="flex gap-2">
+            {previewJobId && (
+              <Button size="sm" onClick={() => { api.downloadVideo(previewJobId); }} className="gradient-primary text-primary-foreground">
+                <Download className="w-3.5 h-3.5 mr-1" />
+                Baixar
+              </Button>
+            )}
+          </div>
+        </div>
+        <div className="aspect-[9/16] max-h-[70vh] bg-black flex items-center justify-center mx-auto">
+          {loadingPreview ? (
+            <Loader2 className="w-8 h-8 text-primary-foreground animate-spin" />
+          ) : previewUrl ? (
+            <video src={previewUrl} controls autoPlay playsInline className="w-full h-full object-contain" />
+          ) : null}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
+
   const CaptionStyleSelector = () => (
     <div className="space-y-2">
       <Label>Estilo de Legenda</Label>
@@ -471,30 +473,7 @@ const CriarVideo = () => {
           </div>
         </div>
 
-        {/* Preview Dialog */}
-        <Dialog open={!!previewJobId} onOpenChange={(open) => { if (!open) closePreview(); }}>
-          <DialogContent className="sm:max-w-lg glass-card border-border p-0 overflow-hidden">
-            <DialogTitle className="sr-only">Preview do Vídeo</DialogTitle>
-            <div className="p-4 border-b border-border flex items-center justify-between">
-              <h3 className="font-display font-semibold text-sm">Preview do Vídeo</h3>
-              <div className="flex gap-2">
-                {previewJobId && (
-                  <Button size="sm" onClick={() => { api.downloadVideo(previewJobId); }} className="gradient-primary text-primary-foreground">
-                    <Download className="w-3.5 h-3.5 mr-1" />
-                    Baixar
-                  </Button>
-                )}
-              </div>
-            </div>
-            <div className="aspect-[9/16] max-h-[70vh] bg-black flex items-center justify-center mx-auto">
-              {loadingPreview ? (
-                <Loader2 className="w-8 h-8 text-primary-foreground animate-spin" />
-              ) : previewUrl ? (
-                <video src={previewUrl} controls autoPlay playsInline className="w-full h-full object-contain" />
-              ) : null}
-            </div>
-          </DialogContent>
-        </Dialog>
+        {previewDialog}
 
         {jobDialog}
       </div>
@@ -637,30 +616,7 @@ const CriarVideo = () => {
         <ManualPreview script={manualScript} duration={duration} narrationMode={narrationMode} />
         {jobDialog}
 
-        {/* Preview Dialog */}
-        <Dialog open={!!previewJobId} onOpenChange={(open) => { if (!open) closePreview(); }}>
-          <DialogContent className="sm:max-w-lg glass-card border-border p-0 overflow-hidden">
-            <DialogTitle className="sr-only">Preview do Vídeo</DialogTitle>
-            <div className="p-4 border-b border-border flex items-center justify-between">
-              <h3 className="font-display font-semibold text-sm">Preview do Vídeo</h3>
-              <div className="flex gap-2">
-                {previewJobId && (
-                  <Button size="sm" onClick={() => { api.downloadVideo(previewJobId); }} className="gradient-primary text-primary-foreground">
-                    <Download className="w-3.5 h-3.5 mr-1" />
-                    Baixar
-                  </Button>
-                )}
-              </div>
-            </div>
-            <div className="aspect-[9/16] max-h-[70vh] bg-black flex items-center justify-center mx-auto">
-              {loadingPreview ? (
-                <Loader2 className="w-8 h-8 text-primary-foreground animate-spin" />
-              ) : previewUrl ? (
-                <video src={previewUrl} controls autoPlay playsInline className="w-full h-full object-contain" />
-              ) : null}
-            </div>
-          </DialogContent>
-        </Dialog>
+        {previewDialog}
       </div>
     );
   }
@@ -766,13 +722,11 @@ const CriarVideo = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-primary" />
                     Duração do Vídeo
                   </Label>
                   <div className="flex items-center gap-2">
                     <span className="text-2xl font-bold font-display text-primary">{duration}s</span>
-                    <span className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Layers className="w-3 h-3" />
+                    <span className="text-xs text-muted-foreground">
                       {scenesCount} {scenesCount === 1 ? "cena" : "cenas"}
                     </span>
                   </div>
@@ -961,59 +915,6 @@ const CriarVideo = () => {
           )}
         </div>
 
-        {/* Video history in sidebar */}
-        <div className="border-t border-border">
-          <div className="px-5 py-3 flex items-center justify-between">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Meus Vídeos</h4>
-            <Button variant="ghost" size="sm" onClick={refreshHistory} disabled={loadingHistory} className="h-6 w-6 p-0">
-              <RotateCcw className={`w-3 h-3 ${loadingHistory ? "animate-spin" : ""}`} />
-            </Button>
-          </div>
-          <div className="max-h-[200px] overflow-auto px-5 pb-4 space-y-2">
-            {loadingHistory ? (
-              <div className="flex justify-center py-4">
-                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-              </div>
-            ) : videoHistory.length === 0 ? (
-              <p className="text-[10px] text-muted-foreground text-center py-4">Nenhum vídeo criado</p>
-            ) : (
-              videoHistory.map((item) => (
-                <div
-                  key={item.job_id}
-                  className={`flex items-center gap-3 p-2 rounded-lg border transition-all cursor-pointer hover:border-primary/30 ${
-                    previewJobId === item.job_id ? "border-primary bg-primary/5" : "border-border"
-                  }`}
-                  onClick={() => item.status === "completed" && handlePreview(item.job_id)}
-                >
-                  <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shrink-0">
-                    {item.status === "completed" ? (
-                      <Play className="w-3.5 h-3.5 text-primary" />
-                    ) : (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-medium truncate">{(item as any).video_title || item.job_id}</p>
-                    <p className="text-[9px] text-muted-foreground">
-                      {new Date(item.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
-                    </p>
-                  </div>
-                  {item.status === "completed" && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 shrink-0"
-                      onClick={(e) => { e.stopPropagation(); api.downloadVideo(item.job_id); }}
-                    >
-                      <Download className="w-3 h-3" />
-                    </Button>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
         <div className="px-5 py-4 border-t border-border space-y-2">
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">Duração</span>
@@ -1034,10 +935,6 @@ const CriarVideo = () => {
         </div>
       </div>
 
-      {/* Preview Dialog (fallback for mobile) */}
-      <Dialog open={!!previewJobId && !previewUrl && !loadingPreview ? false : false} onOpenChange={() => {}}>
-        <DialogContent className="hidden" />
-      </Dialog>
 
       {jobDialog}
     </div>
