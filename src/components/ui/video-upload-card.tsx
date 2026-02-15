@@ -59,6 +59,7 @@ function VideoComponent({
     e.stopPropagation();
     setIsRemoving(true);
     setIsPlaying(false);
+    setShouldShow(false);
   };
 
   const handleRemoveComplete = () => {
