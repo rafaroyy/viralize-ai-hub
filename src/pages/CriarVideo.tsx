@@ -271,8 +271,13 @@ const CriarVideo = () => {
       setJobId(res.job_id);
       setJobStatus({ job_id: res.job_id, status: "pending", progress: 0, message: res.message, created_at: res.created_at, updated_at: res.created_at });
       startPolling(res.job_id);
-    } catch (e) {
-      toast({ title: "Erro ao gerar vídeo", description: e instanceof Error ? e.message : "Erro desconhecido", variant: "destructive" });
+    } catch (e: any) {
+      const errMsg = String(e?.message || "");
+      const is413 = errMsg.includes("413") || (errMsg.includes("Failed to fetch") && manualFiles.length > 0);
+      const msg = is413
+        ? "Os arquivos enviados são muito grandes. Reduza o tamanho dos vídeos e tente novamente."
+        : errMsg || "Erro desconhecido";
+      toast({ title: "Erro ao gerar vídeo", description: msg, variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }

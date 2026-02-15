@@ -55,7 +55,8 @@ function VideoComponent({
 
   const displayName = truncateFilename(filename);
 
-  const handleRemove = () => {
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsRemoving(true);
     setIsPlaying(false);
   };
@@ -66,7 +67,8 @@ function VideoComponent({
     onRemove?.();
   };
 
-  const handlePlayClick = () => {
+  const handlePlayClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
