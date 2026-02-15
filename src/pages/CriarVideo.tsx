@@ -137,7 +137,7 @@ const CriarVideo = () => {
       setLoadingHistory(true);
       try {
         const list = await api.videoList(0, 20);
-        setVideoHistory(list);
+        setVideoHistory(Array.isArray(list) ? list : []);
       } catch {
         // silently fail
       } finally {
@@ -150,7 +150,7 @@ const CriarVideo = () => {
   const refreshHistory = useCallback(async () => {
     try {
       const list = await api.videoList(0, 20);
-      setVideoHistory(list);
+      setVideoHistory(Array.isArray(list) ? list : []);
     } catch {}
   }, []);
 
