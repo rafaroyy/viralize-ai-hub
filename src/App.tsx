@@ -42,6 +42,7 @@ const App = () => (
               <Route path="/meus-videos" element={<MeusVideos />} />
               <Route path="/perfil" element={<Perfil />} />
             </Route>
+            <Route path="/:affiliateSlug" element={<LandingPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

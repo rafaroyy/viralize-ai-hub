@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import {
   ArrowRight, Check, ChevronDown, Play, X, Clock, Layers,
@@ -820,7 +821,7 @@ function AudienceSection() {
    7) PREÇOS
    ═══════════════════════════════════════════ */
 
-function PricingSection() {
+function PricingSection({ checkoutMonthly, checkoutLifetime }: { checkoutMonthly?: string; checkoutLifetime?: string }) {
   const [activeTab, setActiveTab] = useState<'monthly' | 'lifetime'>('lifetime');
   const [timer, setTimer] = useState({ min: 37, sec: 0 });
 
@@ -960,7 +961,7 @@ function PricingSection() {
 
                 {/* CTA */}
                 <a
-                  href={activeTab === 'monthly' ? 'https://go.perfectpay.com.br/PPU38CQ4E1A' : 'https://checkout.centerpag.com/PPU38CQ6M3E'}
+                  href={activeTab === 'monthly' ? (checkoutMonthly || 'https://go.perfectpay.com.br/PPU38CQ4E1A') : (checkoutLifetime || 'https://checkout.centerpag.com/PPU38CQ6M3E')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full gradient-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-glow text-sm mb-6">
@@ -1167,6 +1168,31 @@ function MarqueeStyles() {
    ═══════════════════════════════════════════ */
 
 export default function LandingPage() {
+  const { affiliateSlug } = useParams<{ affiliateSlug?: string }>();
+  const navigate = useNavigate();
+  const [affiliateLinks, setAffiliateLinks] = useState<{ checkout_monthly: string; checkout_lifetime: string } | null>(null);
+
+  useEffect(() => {
+    if (!affiliateSlug) return;
+    
+    const fetchAffiliate = async () => {
+      const { data, error } = await supabase
+        .from('affiliates')
+        .select('checkout_monthly, checkout_lifetime')
+        .eq('slug', affiliateSlug)
+        .eq('active', true)
+        .maybeSingle();
+
+      if (error || !data) {
+        navigate('/', { replace: true });
+        return;
+      }
+      setAffiliateLinks(data);
+    };
+
+    fetchAffiliate();
+  }, [affiliateSlug, navigate]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <MarqueeStyles />
@@ -1176,7 +1202,10 @@ export default function LandingPage() {
       <TourSection />
       <WhatYouGetSection />
       <AudienceSection />
-      <PricingSection />
+      <PricingSection
+        checkoutMonthly={affiliateLinks?.checkout_monthly}
+        checkoutLifetime={affiliateLinks?.checkout_lifetime}
+      />
       <FaqSection />
       <CtaFinalSection />
       <Footer />
