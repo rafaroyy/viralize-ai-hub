@@ -152,6 +152,18 @@ export const api = {
     return URL.createObjectURL(blob);
   },
 
-  videoList: (skip = 0, limit = 20) =>
-    apiFetch<VideoListItem[]>(`/videos/list?skip=${skip}&limit=${limit}`),
+  videoList: async (skip = 0, limit = 100) => {
+    const res = await apiFetch<unknown>(`/videos/list?skip=${skip}&limit=${limit}`);
+    console.log("[videoList] raw response:", res);
+    // Handle both array and object responses
+    if (Array.isArray(res)) return res as VideoListItem[];
+    if (res && typeof res === "object") {
+      // Try common wrapper keys
+      const obj = res as Record<string, unknown>;
+      for (const key of ["videos", "items", "data", "results"]) {
+        if (Array.isArray(obj[key])) return obj[key] as VideoListItem[];
+      }
+    }
+    return [];
+  },
 };
