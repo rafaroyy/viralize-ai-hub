@@ -933,22 +933,29 @@ function PricingSection() {
                 </p>
 
                 {/* Price */}
-                <div className="flex items-end gap-1 mb-6">
+                <div className="mb-6">
                   {activeTab === 'lifetime' && (
-                    <span className="text-sm text-muted-foreground/60 line-through mr-2 mb-1.5">R$ 697,00</span>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-base text-muted-foreground/50 line-through">De R$ 697,00</span>
+                      <span className="text-xs font-bold bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full border border-green-500/30">
+                        -65% OFF
+                      </span>
+                    </div>
                   )}
-                  <span className="text-sm text-muted-foreground">R$</span>
-                  <motion.span
-                    key={activeTab}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="text-5xl font-bold text-foreground font-display tracking-tight"
-                  >
-                    {activeTab === 'monthly' ? '147' : '247'}
-                  </motion.span>
-                  <span className="text-sm text-muted-foreground mb-1.5">
-                    {activeTab === 'monthly' ? '/mês' : ' único'}
-                  </span>
+                  <div className="flex items-end gap-1">
+                    <span className="text-sm text-muted-foreground">R$</span>
+                    <motion.span
+                      key={activeTab}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="text-5xl font-bold text-foreground font-display tracking-tight"
+                    >
+                      {activeTab === 'monthly' ? '147' : '247'}
+                    </motion.span>
+                    <span className="text-sm text-muted-foreground mb-1.5">
+                      {activeTab === 'monthly' ? '/mês' : ' único'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* CTA */}
