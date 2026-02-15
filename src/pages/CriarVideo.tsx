@@ -257,11 +257,11 @@ const CriarVideo = () => {
         script_mode: "manual",
         manual_script: manualScript.trim(),
         idioma,
-        cenas: 3,
         aspect_ratio: "9:16",
+        cenas: manualVideoCount,
         usar_legenda_e_fala: narrationMode === "narrated",
         caption_style: captionStyle,
-        video_source: manualFiles.length > 0 ? "custom" : "sora",
+        videos_usuario: [],
       };
       const files = manualFiles.length > 0 ? manualFiles : undefined;
       const res = await api.renderVideo(payload, files);
