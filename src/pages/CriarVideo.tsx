@@ -515,13 +515,6 @@ const CriarVideo = () => {
                       <p className="text-xs text-muted-foreground">IA narra e exibe legendas</p>
                     </div>
                   </label>
-                  <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${narrationMode === "muted" ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
-                    <RadioGroupItem value="muted" />
-                    <div>
-                      <p className="font-medium text-sm">Mudo com texto central</p>
-                      <p className="text-xs text-muted-foreground">Texto no centro sem áudio</p>
-                    </div>
-                  </label>
                 </RadioGroup>
                 {narrationMode === "narrated" && <CaptionStyleSelector />}
               </motion.section>
