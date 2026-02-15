@@ -934,6 +934,9 @@ function PricingSection() {
 
                 {/* Price */}
                 <div className="flex items-end gap-1 mb-6">
+                  {activeTab === 'lifetime' && (
+                    <span className="text-sm text-muted-foreground/60 line-through mr-2 mb-1.5">R$ 697,00</span>
+                  )}
                   <span className="text-sm text-muted-foreground">R$</span>
                   <motion.span
                     key={activeTab}
