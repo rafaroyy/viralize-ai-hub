@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { VideoUploadCard } from "@/components/ui/video-upload-card";
 
 interface PCRScore {
   score: number;
@@ -225,36 +226,15 @@ const AnaliseRoteiro = () => {
           </TabsContent>
 
           <TabsContent value="video">
-            <label
-              htmlFor="video-upload"
-              className="border-2 border-dashed border-border rounded-xl p-12 text-center hover:border-primary/50 transition-colors cursor-pointer block"
-            >
-              {videoFile ? (
-                <div className="space-y-2">
-                  <FileText className="w-10 h-10 text-primary mx-auto" />
-                  <p className="text-sm font-medium">{videoFile.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {(videoFile.size / (1024 * 1024)).toFixed(1)} MB — Clique para trocar
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">Arraste seu vídeo ou clique para selecionar</p>
-                  <p className="text-xs text-muted-foreground mt-1">A IA vai transcrever e analisar automaticamente</p>
-                </>
-              )}
-              <input
-                id="video-upload"
-                type="file"
+            <div className="max-w-xs mx-auto">
+              <VideoUploadCard
+                title="Upload de Vídeo"
+                description="A IA vai transcrever e analisar automaticamente"
                 accept="video/*,audio/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) setVideoFile(file);
-                }}
+                onFileSelect={(file) => setVideoFile(file)}
+                onFileRemove={() => setVideoFile(null)}
               />
-            </label>
+            </div>
           </TabsContent>
         </Tabs>
 

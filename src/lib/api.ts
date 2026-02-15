@@ -142,6 +142,16 @@ export const api = {
     URL.revokeObjectURL(url);
   },
 
+  previewVideoUrl: (jobId: string) => {
+    const token = getToken();
+    return `${API_BASE}/videos/download/${jobId}${token ? `?token=${token}` : ""}`;
+  },
+
+  previewVideoBlob: async (jobId: string) => {
+    const blob = await apiFetch<Blob>(`/videos/download/${jobId}`);
+    return URL.createObjectURL(blob);
+  },
+
   videoList: (skip = 0, limit = 20) =>
     apiFetch<VideoListItem[]>(`/videos/list?skip=${skip}&limit=${limit}`),
 };

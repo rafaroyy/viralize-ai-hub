@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle, Clock, Layers } from "lucide-react";
+import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle, Clock, Layers, Eye, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,8 +13,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { api, CaptionStyle, JobStatus } from "@/lib/api";
+import { api, CaptionStyle, JobStatus, VideoListItem } from "@/lib/api";
 import { Slider } from "@/components/ui/slider";
+import { VideoUploadCard } from "@/components/ui/video-upload-card";
 
 const MAX_WORDS = 25;
 
@@ -115,6 +116,13 @@ const CriarVideo = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Video history
+  const [videoHistory, setVideoHistory] = useState<VideoListItem[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewJobId, setPreviewJobId] = useState<string | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
+
   // Fetch caption styles on mount
   useEffect(() => {
     api.captionStyles().then((data) => {
@@ -122,6 +130,48 @@ const CriarVideo = () => {
       setCaptionStyle(data.default);
     }).catch(() => {});
   }, []);
+
+  // Fetch video history on mount
+  useEffect(() => {
+    const fetchHistory = async () => {
+      setLoadingHistory(true);
+      try {
+        const list = await api.videoList(0, 20);
+        setVideoHistory(list);
+      } catch {
+        // silently fail
+      } finally {
+        setLoadingHistory(false);
+      }
+    };
+    fetchHistory();
+  }, []);
+
+  const refreshHistory = useCallback(async () => {
+    try {
+      const list = await api.videoList(0, 20);
+      setVideoHistory(list);
+    } catch {}
+  }, []);
+
+  const handlePreview = useCallback(async (jobId: string) => {
+    setPreviewJobId(jobId);
+    setLoadingPreview(true);
+    try {
+      const url = await api.previewVideoBlob(jobId);
+      setPreviewUrl(url);
+    } catch {
+      toast({ title: "Erro ao carregar preview", variant: "destructive" });
+    } finally {
+      setLoadingPreview(false);
+    }
+  }, [toast]);
+
+  const closePreview = useCallback(() => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
+    setPreviewJobId(null);
+  }, [previewUrl]);
 
   // Cleanup polling on unmount
   useEffect(() => {
@@ -259,6 +309,7 @@ const CriarVideo = () => {
     setJobId(null);
     setJobStatus(null);
     if (pollRef.current) clearInterval(pollRef.current);
+    refreshHistory();
   };
 
   const videosRemaining = quota?.total?.remaining ?? null;
@@ -288,10 +339,16 @@ const CriarVideo = () => {
                 </div>
                 <h3 className="font-display text-xl font-bold">Vídeo Pronto!</h3>
                 <p className="text-sm text-muted-foreground">{jobStatus.message}</p>
-                <Button onClick={handleDownload} className="gradient-primary text-primary-foreground shadow-glow">
-                  <Download className="w-4 h-4 mr-2" />
-                  Baixar Vídeo
-                </Button>
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => { resetJob(); handlePreview(jobStatus.job_id); }} className="border-primary/30 text-primary hover:bg-primary/10">
+                    <Eye className="w-4 h-4 mr-2" />
+                    Preview
+                  </Button>
+                  <Button onClick={handleDownload} className="gradient-primary text-primary-foreground shadow-glow">
+                    <Download className="w-4 h-4 mr-2" />
+                    Baixar Vídeo
+                  </Button>
+                </div>
               </>
             ) : (
               <>
@@ -409,8 +466,114 @@ const CriarVideo = () => {
                 </div>
               </motion.button>
             </div>
+
+            {/* Meus Vídeos */}
+            <div className="mt-12">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-display text-xl font-semibold flex items-center gap-2">
+                  <Video className="w-5 h-5 text-primary" />
+                  Meus Vídeos
+                </h2>
+                <Button variant="ghost" size="sm" onClick={refreshHistory} disabled={loadingHistory}>
+                  <RotateCcw className={`w-4 h-4 mr-1 ${loadingHistory ? "animate-spin" : ""}`} />
+                  Atualizar
+                </Button>
+              </div>
+
+              {loadingHistory ? (
+                <div className="glass-card p-8 flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : videoHistory.length === 0 ? (
+                <div className="glass-card p-8 text-center">
+                  <Video className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">Nenhum vídeo criado ainda</p>
+                  <p className="text-xs text-muted-foreground mt-1">Seus vídeos aparecerão aqui após serem gerados</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {videoHistory.map((item) => (
+                    <div key={item.job_id} className="glass-card p-4 space-y-3 hover:border-primary/30 transition-all">
+                      <div className="flex items-center justify-between">
+                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
+                          item.status === "completed"
+                            ? "bg-green-500/10 text-green-500"
+                            : item.status === "failed"
+                            ? "bg-destructive/10 text-destructive"
+                            : "bg-primary/10 text-primary"
+                        }`}>
+                          {item.status === "completed" ? "Pronto" : item.status === "failed" ? "Erro" : "Processando"}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {new Date(item.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                      <div className="aspect-video bg-secondary rounded-lg flex items-center justify-center overflow-hidden">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Play className="w-5 h-5 text-primary" />
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        {item.status === "completed" && (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex-1 border-primary/30 text-primary hover:bg-primary/10"
+                              onClick={() => handlePreview(item.job_id)}
+                            >
+                              <Eye className="w-3.5 h-3.5 mr-1" />
+                              Preview
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="flex-1 gradient-primary text-primary-foreground"
+                              onClick={() => api.downloadVideo(item.job_id)}
+                            >
+                              <Download className="w-3.5 h-3.5 mr-1" />
+                              Baixar
+                            </Button>
+                          </>
+                        )}
+                        {(item.status === "pending" || item.status === "processing") && (
+                          <div className="flex-1 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            Processando...
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Preview Dialog */}
+        <Dialog open={!!previewJobId} onOpenChange={(open) => { if (!open) closePreview(); }}>
+          <DialogContent className="sm:max-w-lg glass-card border-border p-0 overflow-hidden">
+            <div className="p-4 border-b border-border flex items-center justify-between">
+              <h3 className="font-display font-semibold text-sm">Preview do Vídeo</h3>
+              <div className="flex gap-2">
+                {previewJobId && (
+                  <Button size="sm" onClick={() => { api.downloadVideo(previewJobId); }} className="gradient-primary text-primary-foreground">
+                    <Download className="w-3.5 h-3.5 mr-1" />
+                    Baixar
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="aspect-[9/16] max-h-[70vh] bg-black flex items-center justify-center mx-auto">
+              {loadingPreview ? (
+                <Loader2 className="w-8 h-8 text-primary-foreground animate-spin" />
+              ) : previewUrl ? (
+                <video src={previewUrl} controls autoPlay playsInline className="w-full h-full object-contain" />
+              ) : null}
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {jobDialog}
       </div>
     );
@@ -504,25 +667,29 @@ const CriarVideo = () => {
                 <p className="text-xs text-muted-foreground">
                   Para melhores resultados, envie <strong className="text-foreground">4 vídeos de 5 segundos</strong> cada. Se não enviar, a IA usará vídeos gerados (Sora).
                 </p>
-                <div
-                  className="border-2 border-dashed border-border rounded-xl p-10 text-center hover:border-primary/50 transition-colors cursor-pointer group"
-                  onClick={() => manualFileInputRef.current?.click()}
-                >
-                  <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                  <p className="text-sm font-medium mb-1">Arraste ou clique para adicionar</p>
-                  <p className="text-xs text-muted-foreground">MP4, MOV, AVI — até 100MB</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[0, 1, 2, 3].map((i) => (
+                    <VideoUploadCard
+                      key={i}
+                      title={`Vídeo ${i + 1}`}
+                      description="~5 segundos"
+                      onFileSelect={(file) => {
+                        setManualFiles((prev) => {
+                          const next = [...prev];
+                          next[i] = file;
+                          return next;
+                        });
+                      }}
+                      onFileRemove={() => {
+                        setManualFiles((prev) => {
+                          const next = [...prev];
+                          next.splice(i, 1);
+                          return next;
+                        });
+                      }}
+                    />
+                  ))}
                 </div>
-                <input
-                  ref={manualFileInputRef}
-                  type="file"
-                  accept="video/*"
-                  multiple
-                  className="hidden"
-                  onChange={(e) => handleFileSelect(e.target.files, true)}
-                />
-                <FileList files={manualFiles} isManual />
               </motion.section>
 
               {/* CTA */}
@@ -729,23 +896,29 @@ const CriarVideo = () => {
                 <p className="text-xs text-muted-foreground">
                   Envie <strong className="text-foreground">{scenesCount}</strong> {scenesCount === 1 ? "vídeo" : "vídeos"} — um para cada cena de 8 segundos.
                 </p>
-                <div
-                  className="border-2 border-dashed border-border rounded-xl p-10 text-center hover:border-primary/50 transition-colors cursor-pointer group"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors mx-auto mb-2" />
-                  <p className="text-sm font-medium mb-1">Arraste ou clique para adicionar</p>
-                  <p className="text-xs text-muted-foreground">MP4, MOV, AVI — até 100MB</p>
+                <div className={`grid gap-3 ${scenesCount <= 2 ? "grid-cols-2" : scenesCount <= 3 ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-4"}`}>
+                  {Array.from({ length: scenesCount }, (_, i) => (
+                    <VideoUploadCard
+                      key={i}
+                      title={`Cena ${i + 1}`}
+                      description="~8 segundos"
+                      onFileSelect={(file) => {
+                        setUploadedFiles((prev) => {
+                          const next = [...prev];
+                          next[i] = file;
+                          return next;
+                        });
+                      }}
+                      onFileRemove={() => {
+                        setUploadedFiles((prev) => {
+                          const next = [...prev];
+                          next.splice(i, 1);
+                          return next;
+                        });
+                      }}
+                    />
+                  ))}
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="video/*"
-                  multiple
-                  className="hidden"
-                  onChange={(e) => handleFileSelect(e.target.files)}
-                />
-                <FileList files={uploadedFiles} />
               </section>
             )}
 
