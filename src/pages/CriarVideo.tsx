@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle, Eye } from "lucide-react";
+import { AiLoader } from "@/components/ui/ai-loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -161,7 +162,12 @@ const CriarVideo = () => {
       try {
         const status = await api.jobStatus(id);
         setJobStatus(status);
-        if (status.status === "completed" || status.status === "failed") {
+        if (status.status === "completed") {
+          if (pollRef.current) clearInterval(pollRef.current);
+          pollRef.current = null;
+          // Auto-load preview into the card
+          handlePreview(id);
+        } else if (status.status === "failed") {
           if (pollRef.current) clearInterval(pollRef.current);
           pollRef.current = null;
         }
@@ -169,7 +175,7 @@ const CriarVideo = () => {
         // keep polling
       }
     }, 3000);
-  }, []);
+  }, [handlePreview]);
 
   const handleLogout = () => {
     logout();
@@ -289,58 +295,25 @@ const CriarVideo = () => {
 
   const videosRemaining = quota?.total?.remaining ?? null;
 
-  // Job status dialog
-  const jobDialog = (
-    <Dialog open={!!jobId} onOpenChange={(open) => { if (!open) resetJob(); }}>
+  const isGenerating = !!jobStatus && (jobStatus.status === "pending" || jobStatus.status === "processing");
+  const jobFailed = !!jobStatus && jobStatus.status === "failed";
+
+  // Job status dialog - only for errors now
+  const jobDialog = jobFailed ? (
+    <Dialog open={true} onOpenChange={() => resetJob()}>
       <DialogContent className="sm:max-w-md glass-card border-border">
-        <DialogTitle className="sr-only">Status do Vídeo</DialogTitle>
-        {jobStatus && (
-          <div className="flex flex-col items-center py-6 text-center space-y-4">
-            {jobStatus.status === "pending" || jobStatus.status === "processing" ? (
-              <>
-                <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center animate-pulse-glow">
-                  <Loader2 className="w-8 h-8 text-primary-foreground animate-spin" />
-                </div>
-                <h3 className="font-display text-xl font-bold">
-                  {jobStatus.status === "pending" ? "Na fila..." : "Processando..."}
-                </h3>
-                <p className="text-sm text-muted-foreground">{jobStatus.message}</p>
-                <Progress value={jobStatus.progress} className="w-full" />
-                <p className="text-xs text-muted-foreground">{jobStatus.progress}%</p>
-              </>
-            ) : jobStatus.status === "completed" ? (
-              <>
-                <div className="w-16 h-16 rounded-2xl bg-green-500/20 flex items-center justify-center">
-                  <CheckCircle className="w-8 h-8 text-green-500" />
-                </div>
-                <h3 className="font-display text-xl font-bold">Vídeo Pronto!</h3>
-                <p className="text-sm text-muted-foreground">{jobStatus.message}</p>
-                <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => { resetJob(); handlePreview(jobStatus.job_id); }} className="border-primary/30 text-primary hover:bg-primary/10">
-                    <Eye className="w-4 h-4 mr-2" />
-                    Preview
-                  </Button>
-                  <Button onClick={handleDownload} className="gradient-primary text-primary-foreground shadow-glow">
-                    <Download className="w-4 h-4 mr-2" />
-                    Baixar Vídeo
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="w-16 h-16 rounded-2xl bg-destructive/20 flex items-center justify-center">
-                  <AlertCircle className="w-8 h-8 text-destructive" />
-                </div>
-                <h3 className="font-display text-xl font-bold">Erro</h3>
-                <p className="text-sm text-destructive">{jobStatus.error || jobStatus.message}</p>
-                <Button variant="outline" onClick={resetJob}>Fechar</Button>
-              </>
-            )}
+        <DialogTitle className="sr-only">Erro</DialogTitle>
+        <div className="flex flex-col items-center py-6 text-center space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-destructive/20 flex items-center justify-center">
+            <AlertCircle className="w-8 h-8 text-destructive" />
           </div>
-        )}
+          <h3 className="font-display text-xl font-bold">Erro</h3>
+          <p className="text-sm text-destructive">{jobStatus?.error || jobStatus?.message}</p>
+          <Button variant="outline" onClick={resetJob}>Fechar</Button>
+        </div>
       </DialogContent>
     </Dialog>
-  );
+  ) : null;
 
   // Preview dialog (single instance shared across modes)
   const previewDialog = (
@@ -613,10 +586,8 @@ const CriarVideo = () => {
           </div>
         </div>
 
-        <ManualPreview script={manualScript} duration={duration} narrationMode={narrationMode} />
+        <ManualPreview script={manualScript} duration={duration} narrationMode={narrationMode} isGenerating={isGenerating} jobStatus={jobStatus} previewUrl={previewUrl} loadingPreview={loadingPreview} />
         {jobDialog}
-
-        {previewDialog}
       </div>
     );
   }
@@ -860,6 +831,16 @@ const CriarVideo = () => {
                 <video src={previewUrl} controls autoPlay playsInline className="w-full h-full object-contain" />
               </div>
             </div>
+          ) : isGenerating ? (
+            <div className="relative w-[220px]">
+              <div className="bg-background rounded-2xl border-2 border-border overflow-hidden aspect-[9/16] shadow-card">
+                <div className="h-full flex flex-col items-center justify-center gap-4 px-4">
+                  <AiLoader />
+                  <Progress value={jobStatus?.progress ?? 0} className="w-full" />
+                  <p className="text-[10px] text-muted-foreground text-center">{jobStatus?.message || "Preparando..."}</p>
+                </div>
+              </div>
+            </div>
           ) : loadingPreview ? (
             <div className="flex flex-col items-center gap-3">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -941,7 +922,7 @@ const CriarVideo = () => {
   );
 };
 
-function ManualPreview({ script, duration, narrationMode }: { script: string; duration: string; narrationMode: string }) {
+function ManualPreview({ script, duration, narrationMode, isGenerating, jobStatus, previewUrl, loadingPreview }: { script: string; duration: string; narrationMode: string; isGenerating: boolean; jobStatus: JobStatus | null; previewUrl: string | null; loadingPreview: boolean }) {
   return (
     <div className="relative z-10 w-[380px] border-l border-border bg-secondary/30 backdrop-blur-sm flex flex-col shrink-0">
       <div className="flex items-center px-5 py-4 border-b border-border">
@@ -949,60 +930,67 @@ function ManualPreview({ script, duration, narrationMode }: { script: string; du
       </div>
 
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="relative w-[220px]">
-          <div className="bg-background rounded-2xl border-2 border-border overflow-hidden aspect-[9/16] shadow-card">
-            <div className="h-full flex flex-col relative">
-              <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background to-background" />
-
-              <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center">
-                <AnimatePresence mode="wait">
-                  {script.trim() ? (
-                    <motion.div
-                      key="script"
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      className="space-y-3"
-                    >
-                      {narrationMode === "narrated" ? (
-                        <>
-                          <p className="text-xs font-bold font-display leading-tight">{script}</p>
-                          <div className="bg-background/80 backdrop-blur-sm rounded-lg p-2">
-                            <p className="text-[9px] font-medium text-muted-foreground italic">"{script}"</p>
-                          </div>
-                        </>
-                      ) : (
-                        <p className="text-sm font-bold text-primary leading-tight">{script}</p>
-                      )}
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="empty"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="space-y-3"
-                    >
-                      <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mx-auto">
-                        <PenLine className="w-5 h-5 text-muted-foreground" />
-                      </div>
-                      <p className="text-[10px] text-muted-foreground">
-                        Seu roteiro aparecerá aqui...
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <div className="relative z-10 flex items-center gap-3 px-3 pb-3">
-                <div className="h-1 flex-1 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full w-0 bg-primary rounded-full" />
-                </div>
-                <span className="text-[8px] text-muted-foreground">0:00/{duration}s</span>
+        {previewUrl ? (
+          <div className="relative w-[220px]">
+            <div className="bg-black rounded-2xl border-2 border-border overflow-hidden aspect-[9/16] shadow-card">
+              <video src={previewUrl} controls autoPlay playsInline className="w-full h-full object-contain" />
+            </div>
+          </div>
+        ) : isGenerating ? (
+          <div className="relative w-[220px]">
+            <div className="bg-background rounded-2xl border-2 border-border overflow-hidden aspect-[9/16] shadow-card">
+              <div className="h-full flex flex-col items-center justify-center gap-4 px-4">
+                <AiLoader />
+                <Progress value={jobStatus?.progress ?? 0} className="w-full" />
+                <p className="text-[10px] text-muted-foreground text-center">{jobStatus?.message || "Preparando..."}</p>
               </div>
             </div>
           </div>
-        </div>
+        ) : loadingPreview ? (
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <p className="text-xs text-muted-foreground">Carregando preview...</p>
+          </div>
+        ) : (
+          <div className="relative w-[220px]">
+            <div className="bg-background rounded-2xl border-2 border-border overflow-hidden aspect-[9/16] shadow-card">
+              <div className="h-full flex flex-col relative">
+                <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background to-background" />
+                <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center">
+                  <AnimatePresence mode="wait">
+                    {script.trim() ? (
+                      <motion.div key="script" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-3">
+                        {narrationMode === "narrated" ? (
+                          <>
+                            <p className="text-xs font-bold font-display leading-tight">{script}</p>
+                            <div className="bg-background/80 backdrop-blur-sm rounded-lg p-2">
+                              <p className="text-[9px] font-medium text-muted-foreground italic">"{script}"</p>
+                            </div>
+                          </>
+                        ) : (
+                          <p className="text-sm font-bold text-primary leading-tight">{script}</p>
+                        )}
+                      </motion.div>
+                    ) : (
+                      <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
+                        <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mx-auto">
+                          <PenLine className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">Seu roteiro aparecerá aqui...</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <div className="relative z-10 flex items-center gap-3 px-3 pb-3">
+                  <div className="h-1 flex-1 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full w-0 bg-primary rounded-full" />
+                  </div>
+                  <span className="text-[8px] text-muted-foreground">0:00/{duration}s</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="px-5 py-4 border-t border-border space-y-2">
@@ -1026,5 +1014,4 @@ function ManualPreview({ script, duration, narrationMode }: { script: string; du
     </div>
   );
 }
-
 export default CriarVideo;
