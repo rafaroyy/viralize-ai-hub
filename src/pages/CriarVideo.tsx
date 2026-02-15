@@ -110,6 +110,7 @@ const CriarVideo = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const manualFileInputRef = useRef<HTMLInputElement>(null);
   const [manualFiles, setManualFiles] = useState<File[]>([]);
+  const [manualVideoCount, setManualVideoCount] = useState(4);
 
   // Job state
   const [jobId, setJobId] = useState<string | null>(null);
@@ -537,10 +538,27 @@ const CriarVideo = () => {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Para melhores resultados, envie <strong className="text-foreground">4 vídeos de 5 segundos</strong> cada. Se não enviar, a IA usará vídeos gerados (Sora).
+                  Para melhores resultados, envie vídeos de <strong className="text-foreground">~5 segundos</strong> cada. Se não enviar, a IA usará vídeos gerados (Sora).
                 </p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {[0, 1, 2, 3].map((i) => (
+                <div className="space-y-2">
+                  <Label>Quantidade de vídeos</Label>
+                  <div className="flex items-center gap-3">
+                    <Slider
+                      min={1}
+                      max={6}
+                      step={1}
+                      value={[manualVideoCount]}
+                      onValueChange={([v]) => {
+                        setManualVideoCount(v);
+                        setManualFiles((prev) => prev.slice(0, v));
+                      }}
+                      className="flex-1"
+                    />
+                    <span className="text-sm font-bold text-primary w-6 text-center">{manualVideoCount}</span>
+                  </div>
+                </div>
+                <div className={`grid gap-3 ${manualVideoCount <= 3 ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"}`}>
+                  {Array.from({ length: manualVideoCount }).map((_, i) => (
                     <VideoUploadCard
                       key={i}
                       title={`Vídeo ${i + 1}`}
