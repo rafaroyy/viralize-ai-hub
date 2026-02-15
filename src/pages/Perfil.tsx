@@ -17,7 +17,7 @@ const Perfil = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-auto p-8 animate-fade-in">
+    <div className="min-h-screen overflow-auto p-8 animate-fade-in bg-background text-foreground">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-8">
