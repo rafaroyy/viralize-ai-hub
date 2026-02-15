@@ -408,11 +408,11 @@ function HeroSection() {
 
 function ProofSection() {
   const proofVideo = {
-    title: "Se você namora veja esse vídeo",
-    platform: "TikTok", duration: "00:22", views: "1.8M", likes: "130k", framework: "HDC",
-    hook: "Se você namora, veja esse vídeo. Ideia genial de date.",
-    structure: ["Hook emocional (casal)", "Apresentação do conceito (Crime Night)", "Demonstração visual do jogo", "CTA com link no perfil"],
-    cta: "Link do jogo no meu perfil."
+    title: "Como tirou 980 na redação do Enem",
+    platform: "TikTok", duration: "00:18", views: "1.2M", likes: "98k", framework: "P-C-R",
+    hook: "Convenci minha amiga a me falar como que ela tirou 980 na redação do Enem ano passado.",
+    structure: ["Hook com prova social (nota real)", "Revelação do método (IA no WhatsApp)", "CTA com link na bio"],
+    cta: "Deixei o link na minha bio para você testar."
   };
 
   return (
