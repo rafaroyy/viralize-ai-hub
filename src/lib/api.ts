@@ -160,7 +160,7 @@ export const api = {
     if (res && typeof res === "object") {
       // Try common wrapper keys
       const obj = res as Record<string, unknown>;
-      for (const key of ["videos", "items", "data", "results"]) {
+      for (const key of ["jobs", "videos", "items", "data", "results"]) {
         if (Array.isArray(obj[key])) return obj[key] as VideoListItem[];
       }
     }

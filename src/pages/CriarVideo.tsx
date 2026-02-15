@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -318,6 +318,7 @@ const CriarVideo = () => {
   const jobDialog = (
     <Dialog open={!!jobId} onOpenChange={(open) => { if (!open) resetJob(); }}>
       <DialogContent className="sm:max-w-md glass-card border-border">
+        <DialogTitle className="sr-only">Status do Vídeo</DialogTitle>
         {jobStatus && (
           <div className="flex flex-col items-center py-6 text-center space-y-4">
             {jobStatus.status === "pending" || jobStatus.status === "processing" ? (
@@ -553,6 +554,7 @@ const CriarVideo = () => {
         {/* Preview Dialog */}
         <Dialog open={!!previewJobId} onOpenChange={(open) => { if (!open) closePreview(); }}>
           <DialogContent className="sm:max-w-lg glass-card border-border p-0 overflow-hidden">
+            <DialogTitle className="sr-only">Preview do Vídeo</DialogTitle>
             <div className="p-4 border-b border-border flex items-center justify-between">
               <h3 className="font-display font-semibold text-sm">Preview do Vídeo</h3>
               <div className="flex gap-2">
@@ -714,6 +716,31 @@ const CriarVideo = () => {
 
         <ManualPreview script={manualScript} duration={duration} narrationMode={narrationMode} />
         {jobDialog}
+
+        {/* Preview Dialog */}
+        <Dialog open={!!previewJobId} onOpenChange={(open) => { if (!open) closePreview(); }}>
+          <DialogContent className="sm:max-w-lg glass-card border-border p-0 overflow-hidden">
+            <DialogTitle className="sr-only">Preview do Vídeo</DialogTitle>
+            <div className="p-4 border-b border-border flex items-center justify-between">
+              <h3 className="font-display font-semibold text-sm">Preview do Vídeo</h3>
+              <div className="flex gap-2">
+                {previewJobId && (
+                  <Button size="sm" onClick={() => { api.downloadVideo(previewJobId); }} className="gradient-primary text-primary-foreground">
+                    <Download className="w-3.5 h-3.5 mr-1" />
+                    Baixar
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="aspect-[9/16] max-h-[70vh] bg-black flex items-center justify-center mx-auto">
+              {loadingPreview ? (
+                <Loader2 className="w-8 h-8 text-primary-foreground animate-spin" />
+              ) : previewUrl ? (
+                <video src={previewUrl} controls autoPlay playsInline className="w-full h-full object-contain" />
+              ) : null}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -942,56 +969,128 @@ const CriarVideo = () => {
 
       {/* Right: Preview */}
       <div className="relative z-10 w-[380px] border-l border-border bg-secondary/30 backdrop-blur-sm flex flex-col shrink-0">
-        <div className="flex items-center px-5 py-4 border-b border-border">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <h3 className="font-display font-semibold text-sm">Preview</h3>
+          {previewUrl && (
+            <Button variant="ghost" size="sm" onClick={closePreview} className="text-xs h-7 px-2">
+              <X className="w-3 h-3 mr-1" />
+              Fechar
+            </Button>
+          )}
         </div>
 
         <div className="flex-1 flex items-center justify-center p-6">
-          <div className="relative w-[220px]">
-            <div className="bg-background rounded-2xl border-2 border-border overflow-hidden aspect-[9/16] shadow-card">
-              <div className="h-full flex flex-col relative">
-                <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background to-background" />
-                <div className="relative z-10 flex gap-1 px-3 pt-3">
-                  {Array.from({ length: scenesCount }, (_, i) => (
-                    <div key={i} className={`h-1 flex-1 rounded-full ${i === 0 ? "bg-primary" : "bg-muted"}`} />
-                  ))}
-                </div>
-                <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center">
-                  <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center mb-3 animate-pulse-glow">
-                    <Play className="w-5 h-5 text-primary-foreground" />
+          {previewUrl ? (
+            <div className="relative w-[220px]">
+              <div className="bg-black rounded-2xl border-2 border-border overflow-hidden aspect-[9/16] shadow-card">
+                <video src={previewUrl} controls autoPlay playsInline className="w-full h-full object-contain" />
+              </div>
+            </div>
+          ) : loadingPreview ? (
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <p className="text-xs text-muted-foreground">Carregando preview...</p>
+            </div>
+          ) : (
+            <div className="relative w-[220px]">
+              <div className="bg-background rounded-2xl border-2 border-border overflow-hidden aspect-[9/16] shadow-card">
+                <div className="h-full flex flex-col relative">
+                  <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background to-background" />
+                  <div className="relative z-10 flex gap-1 px-3 pt-3">
+                    {Array.from({ length: scenesCount }, (_, i) => (
+                      <div key={i} className={`h-1 flex-1 rounded-full ${i === 0 ? "bg-primary" : "bg-muted"}`} />
+                    ))}
                   </div>
-                  <p className="text-xs font-bold font-display leading-tight mb-1">
-                    {tema.trim() || "Seu tema aparecerá aqui"}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    Cena 1 de {scenesCount} • {duration}s
-                  </p>
-                </div>
-                {narrationMode === "narrated" && (
-                  <div className="relative z-10 px-3 pb-4">
-                    <div className="bg-background/80 backdrop-blur-sm rounded-lg p-2 text-center">
-                      <p className="text-[9px] font-medium">
-                        "Descubra os 3 métodos que vão transformar sua produtividade..."
-                      </p>
+                  <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center">
+                    <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center mb-3 animate-pulse-glow">
+                      <Play className="w-5 h-5 text-primary-foreground" />
                     </div>
+                    <p className="text-xs font-bold font-display leading-tight mb-1">
+                      {tema.trim() || "Seu tema aparecerá aqui"}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Cena 1 de {scenesCount} • {duration}s
+                    </p>
                   </div>
-                )}
-                {narrationMode === "muted" && (
-                  <div className="relative z-10 px-3 pb-4">
-                    <div className="text-center">
-                      <p className="text-xs font-bold text-primary">3 MÉTODOS COMPROVADOS</p>
-                      <p className="text-[9px] text-muted-foreground">que vão mudar sua rotina</p>
+                  {narrationMode === "narrated" && (
+                    <div className="relative z-10 px-3 pb-4">
+                      <div className="bg-background/80 backdrop-blur-sm rounded-lg p-2 text-center">
+                        <p className="text-[9px] font-medium">
+                          "Descubra os 3 métodos que vão transformar sua produtividade..."
+                        </p>
+                      </div>
                     </div>
+                  )}
+                  {narrationMode === "muted" && (
+                    <div className="relative z-10 px-3 pb-4">
+                      <div className="text-center">
+                        <p className="text-xs font-bold text-primary">3 MÉTODOS COMPROVADOS</p>
+                        <p className="text-[9px] text-muted-foreground">que vão mudar sua rotina</p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="relative z-10 flex items-center gap-3 px-3 pb-3">
+                    <div className="h-1 flex-1 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full w-1/3 bg-primary rounded-full" />
+                    </div>
+                    <span className="text-[8px] text-muted-foreground">0:10/{duration}s</span>
                   </div>
-                )}
-                <div className="relative z-10 flex items-center gap-3 px-3 pb-3">
-                  <div className="h-1 flex-1 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full w-1/3 bg-primary rounded-full" />
-                  </div>
-                  <span className="text-[8px] text-muted-foreground">0:10/{duration}s</span>
                 </div>
               </div>
             </div>
+          )}
+        </div>
+
+        {/* Video history in sidebar */}
+        <div className="border-t border-border">
+          <div className="px-5 py-3 flex items-center justify-between">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Meus Vídeos</h4>
+            <Button variant="ghost" size="sm" onClick={refreshHistory} disabled={loadingHistory} className="h-6 w-6 p-0">
+              <RotateCcw className={`w-3 h-3 ${loadingHistory ? "animate-spin" : ""}`} />
+            </Button>
+          </div>
+          <div className="max-h-[200px] overflow-auto px-5 pb-4 space-y-2">
+            {loadingHistory ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              </div>
+            ) : videoHistory.length === 0 ? (
+              <p className="text-[10px] text-muted-foreground text-center py-4">Nenhum vídeo criado</p>
+            ) : (
+              videoHistory.map((item) => (
+                <div
+                  key={item.job_id}
+                  className={`flex items-center gap-3 p-2 rounded-lg border transition-all cursor-pointer hover:border-primary/30 ${
+                    previewJobId === item.job_id ? "border-primary bg-primary/5" : "border-border"
+                  }`}
+                  onClick={() => item.status === "completed" && handlePreview(item.job_id)}
+                >
+                  <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                    {item.status === "completed" ? (
+                      <Play className="w-3.5 h-3.5 text-primary" />
+                    ) : (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] font-medium truncate">{(item as any).video_title || item.job_id}</p>
+                    <p className="text-[9px] text-muted-foreground">
+                      {new Date(item.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+                    </p>
+                  </div>
+                  {item.status === "completed" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 shrink-0"
+                      onClick={(e) => { e.stopPropagation(); api.downloadVideo(item.job_id); }}
+                    >
+                      <Download className="w-3 h-3" />
+                    </Button>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -1012,12 +1111,14 @@ const CriarVideo = () => {
             <span className="text-muted-foreground">Fonte</span>
             <span className="font-medium">{videoSource === "sora" ? "IA (Sora)" : "Upload"}</span>
           </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-muted-foreground">Idioma</span>
-            <span className="font-medium">{idioma === "pt-BR" ? "🇧🇷 Português" : idioma === "en" ? "🇺🇸 English" : "🇪🇸 Español"}</span>
-          </div>
         </div>
       </div>
+
+      {/* Preview Dialog (fallback for mobile) */}
+      <Dialog open={!!previewJobId && !previewUrl && !loadingPreview ? false : false} onOpenChange={() => {}}>
+        <DialogContent className="hidden" />
+      </Dialog>
+
       {jobDialog}
     </div>
   );
