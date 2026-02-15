@@ -531,7 +531,7 @@ const CriarVideo = () => {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Para melhores resultados, envie vídeos de <strong className="text-foreground">~5 segundos</strong> cada. Se não enviar, a IA usará vídeos gerados (Sora).
+                  Para melhores resultados, envie vídeos de <strong className="text-foreground">~5 segundos</strong> cada. Se não enviar, a IA da Viralize gerará os vídeos automaticamente.
                 </p>
                 <div className="space-y-2">
                   <Label>Quantidade de vídeos</Label>
@@ -747,7 +747,7 @@ const CriarVideo = () => {
                   <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${videoSource === "sora" ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
                     <RadioGroupItem value="sora" />
                     <div>
-                      <p className="font-medium text-sm">Gerados pela IA (Sora)</p>
+                      <p className="font-medium text-sm">Gerados pela IA da Viralize</p>
                       <p className="text-xs text-muted-foreground">A IA cria os vídeos automaticamente</p>
                     </div>
                   </label>
@@ -920,7 +920,7 @@ const CriarVideo = () => {
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">Fonte</span>
-            <span className="font-medium">{videoSource === "sora" ? "IA (Sora)" : "Upload"}</span>
+            <span className="font-medium">{videoSource === "sora" ? "IA Viralize" : "Upload"}</span>
           </div>
         </div>
       </div>
