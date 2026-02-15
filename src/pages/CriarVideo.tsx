@@ -237,7 +237,6 @@ const CriarVideo = () => {
       setJobId(res.job_id);
       setJobStatus({ job_id: res.job_id, status: "pending", progress: 0, message: res.message, created_at: res.created_at, updated_at: res.created_at });
       startPolling(res.job_id);
-      toast({ title: "Vídeo enviado!", description: res.message });
     } catch (e) {
       toast({ title: "Erro ao gerar vídeo", description: e instanceof Error ? e.message : "Erro desconhecido", variant: "destructive" });
     } finally {
@@ -268,7 +267,6 @@ const CriarVideo = () => {
       setJobId(res.job_id);
       setJobStatus({ job_id: res.job_id, status: "pending", progress: 0, message: res.message, created_at: res.created_at, updated_at: res.created_at });
       startPolling(res.job_id);
-      toast({ title: "Vídeo enviado!", description: res.message });
     } catch (e) {
       toast({ title: "Erro ao gerar vídeo", description: e instanceof Error ? e.message : "Erro desconhecido", variant: "destructive" });
     } finally {
