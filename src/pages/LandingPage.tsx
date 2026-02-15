@@ -949,13 +949,15 @@ function PricingSection() {
                 </div>
 
                 {/* CTA */}
-                <Link
-                  to="/login"
+                <a
+                  href={activeTab === 'monthly' ? 'https://go.perfectpay.com.br/PPU38CQ4E1A' : 'https://checkout.centerpag.com/PPU38CQ6M3E'}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-full gradient-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-glow text-sm mb-6"
                 >
                   {activeTab === 'monthly' ? 'Começar agora' : 'Garantir acesso vitalício'}
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </a>
 
                 {/* Features */}
                 <ul className="space-y-3">
