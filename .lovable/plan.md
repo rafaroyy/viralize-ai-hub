@@ -1,56 +1,75 @@
 
-# Refazer o Test Drive com o fluxo real da Viralize
 
-## Problema atual
-O Test Drive mostra um fluxo ficticio ("Framework HDC", "Frames", "Variacoes de hook") que nao existe na Viralize. O app real funciona de forma diferente.
+## Plano: Sistema de Paginas de Afiliados
 
-## Fluxo real da Viralize (que sera mockado)
+### Como funciona
 
-A Viralize tem 3 ferramentas principais:
-1. **Criar Video** - Escolhe modo (Assistente IA ou Script Manual), configura tema/nicho/objetivo/duracao, e a IA gera o video completo
-2. **Analise de Roteiro** - Cola um roteiro, a IA avalia com metodologia P-C-R (Pergunta, Conflito, Resposta) e da scores
-3. **Chat IA** - Chat com especialista em videos virais
+Cada afiliado tera uma URL unica como `viralizeia.com/julio` ou `viralizeia.com/maria`. Essa pagina mostra a mesma landing page, mas com os links de checkout personalizados do afiliado. Quem acessar sem slug de afiliado (so `viralizeia.com`) ve a pagina padrao com seus links originais.
 
-## Novo Test Drive - 4 Steps
+### Arquitetura
 
-Mantendo a estrutura visual atual (browser mockup, tabs numeradas, animacoes), os steps serao:
+1. **Tabela no banco de dados** para cadastrar afiliados com:
+   - `slug` (ex: "julio") - identificador unico na URL
+   - `name` (nome do afiliado)
+   - `checkout_monthly` (link de checkout mensal do afiliado)
+   - `checkout_lifetime` (link de checkout vitalicio do afiliado)
+   - `active` (para desativar se necessario)
 
-### Step 1 - "Escolher Modo"
-Mock da tela de escolha entre "Assistente IA" e "Script Manual" (dois cards identicos ao app real). O usuario clica em "Assistente IA" para avancar.
+2. **Rota dinamica** no React Router: `/:affiliateSlug` que carrega a mesma LandingPage, mas busca os dados do afiliado no banco e substitui os links de checkout.
 
-### Step 2 - "Configurar"
-Mock do formulario do Assistente IA com os campos reais preenchidos:
-- Nicho: "Casal / Relacionamento"
-- Objetivo: "Venda com link no perfil"
-- Tema: "Date criativo com jogo de casal"
-- Duracao: Slider mockado mostrando "24s · 3 cenas"
-- Fonte de video: "Sora (IA)" selecionado
-- Estilo de legenda: "Karaoke"
-- Botao "Gerar Video"
+3. **Logica na LandingPage**: O componente recebe opcionalmente os links do afiliado via parametro de rota. Se existir um slug valido, usa os links do afiliado. Se nao, usa os links padrao (PerfectPay/CenterPag atuais).
 
-### Step 3 - "Processando"
-Mock do modal de processamento com:
-- Icone animado (spinning)
-- Barra de progresso animada que vai ate 100%
-- Mensagem "Gerando roteiro... Renderizando cenas..."
-- Transicao automatica ou por clique para o proximo step
+### Detalhes Tecnicos
 
-### Step 4 - "Video Pronto"
-Mock da tela de sucesso:
-- Icone de check verde
-- "Video Pronto!" com botao "Baixar Video" (nao funcional)
-- Botoes "Recomecar" e CTA "Quero criar o meu" (leva ao /login)
+**1. Criar tabela `affiliates`**
+```sql
+CREATE TABLE public.affiliates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  checkout_monthly TEXT NOT NULL,
+  checkout_lifetime TEXT NOT NULL,
+  active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
 
-## Detalhes tecnicos
+-- Permitir leitura publica (landing page nao exige login)
+ALTER TABLE public.affiliates ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can read active affiliates"
+  ON public.affiliates FOR SELECT
+  USING (active = true);
+```
 
-### Arquivo modificado
-- `src/pages/LandingPage.tsx` - apenas a funcao `TourSection`
+**2. Nova rota no App.tsx**
+```
+<Route path="/:affiliateSlug" element={<LandingPage />} />
+```
+Essa rota precisa ficar antes do `*` (NotFound) e depois das rotas fixas.
 
-### Mudancas
-- Atualizar os labels dos tabs: "Escolher Modo", "Configurar", "Processando", "Pronto!"
-- Reescrever o conteudo de cada step com dados mockados que refletem o app real
-- Adicionar animacao na barra de progresso do step 3 (usando `useEffect` + `setInterval` para incrementar o valor)
-- Manter todas as animacoes existentes (framer-motion, AnimatePresence)
-- Manter a estrutura do browser mockup (title bar com bolinhas, url bar)
-- Usar os mesmos icones que o app real usa (Wand2, PenLine, Video, Loader2, CheckCircle, Download)
-- O step de processamento tera uma barra de progresso que anima automaticamente de 0 a 100% em ~3 segundos
+**3. Modificar LandingPage.tsx**
+- Usar `useParams()` para capturar o `affiliateSlug`
+- Se houver slug, buscar o afiliado no banco via Supabase
+- Se o afiliado existir e estiver ativo, usar seus links de checkout
+- Se nao existir, redirecionar para `/` (pagina padrao)
+- Os links padrao atuais (PerfectPay/CenterPag) continuam como fallback
+
+**4. Cadastro de afiliados**
+Para adicionar afiliados, voce podera:
+- Inserir direto pelo painel do backend (Lovable Cloud)
+- Ou podemos criar uma tela admin futuramente
+
+### Exemplo de uso
+
+| Afiliado | URL | Link Mensal | Link Vitalicio |
+|----------|-----|-------------|----------------|
+| Julio | viralizeia.com/julio | link-do-julio-mensal | link-do-julio-vitalicio |
+| Maria | viralizeia.com/maria | link-da-maria-mensal | link-da-maria-vitalicio |
+| (padrao) | viralizeia.com | PPU38CQ4E1A | PPU38CQ6M3E |
+
+### Ordem de implementacao
+
+1. Criar a tabela `affiliates` no banco
+2. Adicionar a rota dinamica no App.tsx
+3. Atualizar LandingPage.tsx para ler o slug e buscar links do afiliado
+4. Testar com um afiliado de exemplo
+
