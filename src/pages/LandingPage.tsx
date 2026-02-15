@@ -836,16 +836,16 @@ function PricingSection() {
   }, []);
 
   const features = [
-    "Acesso completo ao motor de vídeos",
-    "Frameworks de viralização (HDC, PPMO, etc.)",
-    "Copy visual por frame",
-    "Variações automáticas de roteiro",
-    "Análise de roteiro com metodologia P-C-R",
-    "Chat IA especializado em vídeos virais",
-    "Upload de vídeos personalizados",
-    "Suporte prioritário",
-    "Garantia de 7 dias",
-  ];
+  "Acesso completo ao motor de vídeos",
+  "Frameworks de viralização (HDC, PPMO, etc.)",
+  "Copy visual por frame",
+  "Variações automáticas de roteiro",
+  "Análise de roteiro com metodologia P-C-R",
+  "Chat IA especializado em vídeos virais",
+  "Upload de vídeos personalizados",
+  "Suporte prioritário",
+  "Garantia de 7 dias"];
+
 
   return (
     <section id="pricing" className="w-full py-20 md:py-28 relative overflow-hidden">
@@ -874,25 +874,25 @@ function PricingSection() {
                   onClick={() => setActiveTab('monthly')}
                   className={cn(
                     "px-5 py-2 rounded-full text-sm font-medium transition-all",
-                    activeTab === 'monthly'
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
+                    activeTab === 'monthly' ?
+                    "bg-primary text-primary-foreground shadow-md" :
+                    "text-muted-foreground hover:text-foreground"
+                  )}>
+
                   Mensal
                 </button>
                 <button
                   onClick={() => setActiveTab('lifetime')}
                   className={cn(
                     "px-5 py-2 rounded-full text-sm font-medium transition-all",
-                    activeTab === 'lifetime'
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
+                    activeTab === 'lifetime' ?
+                    "bg-primary text-primary-foreground shadow-md" :
+                    "text-muted-foreground hover:text-foreground"
+                  )}>
+
                   Vitalício
-                  <span className="ml-1.5 text-[10px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded-full border border-green-500/30">
-                    -67%
+                  <span className="ml-1.5 text-[10px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded-full border border-green-500/30">-65%
+
                   </span>
                 </button>
               </div>
@@ -904,13 +904,13 @@ function PricingSection() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="relative glass-card rounded-2xl border border-border/60 p-8 overflow-hidden"
-            >
+              className="relative glass-card rounded-2xl border border-border/60 p-8 overflow-hidden">
+
               <BorderTrail
                 className="bg-gradient-to-l from-primary via-primary/50 to-transparent"
                 size={80}
-                transition={{ repeat: Infinity, duration: 4, ease: 'linear' }}
-              />
+                transition={{ repeat: Infinity, duration: 4, ease: 'linear' }} />
+
 
               <div className="relative z-10">
                 {/* Header */}
@@ -918,38 +918,38 @@ function PricingSection() {
                   <h3 className="text-lg font-semibold text-foreground">
                     {activeTab === 'monthly' ? 'Mensal' : 'Vitalício'}
                   </h3>
-                  {activeTab === 'lifetime' && (
-                    <span className="text-[10px] font-semibold bg-destructive/20 text-destructive px-2.5 py-1 rounded-full border border-destructive/30 flex items-center gap-1">
+                  {activeTab === 'lifetime' &&
+                  <span className="text-[10px] font-semibold bg-destructive/20 text-destructive px-2.5 py-1 rounded-full border border-destructive/30 flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {String(timer.min).padStart(2, '0')}:{String(timer.sec).padStart(2, '0')}
                     </span>
-                  )}
+                  }
                 </div>
 
                 <p className="text-sm text-muted-foreground mb-6">
-                  {activeTab === 'monthly'
-                    ? 'Acesso completo, cancele quando quiser.'
-                    : 'Pague uma vez, use para sempre!'}
+                  {activeTab === 'monthly' ?
+                  'Acesso completo, cancele quando quiser.' :
+                  'Pague uma vez, use para sempre!'}
                 </p>
 
                 {/* Price */}
                 <div className="mb-6">
-                  {activeTab === 'lifetime' && (
-                    <div className="flex items-center gap-2 mb-1">
+                  {activeTab === 'lifetime' &&
+                  <div className="flex items-center gap-2 mb-1">
                       <span className="text-base text-muted-foreground/50 line-through">De R$ 697,00</span>
                       <span className="text-xs font-bold bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full border border-green-500/30">
                         -65% OFF
                       </span>
                     </div>
-                  )}
+                  }
                   <div className="flex items-end gap-1">
                     <span className="text-sm text-muted-foreground">R$</span>
                     <motion.span
                       key={activeTab}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="text-5xl font-bold text-foreground font-display tracking-tight"
-                    >
+                      className="text-5xl font-bold text-foreground font-display tracking-tight">
+
                       {activeTab === 'monthly' ? '147' : '247'}
                     </motion.span>
                     <span className="text-sm text-muted-foreground mb-1.5">
@@ -963,20 +963,20 @@ function PricingSection() {
                   href={activeTab === 'monthly' ? 'https://go.perfectpay.com.br/PPU38CQ4E1A' : 'https://checkout.centerpag.com/PPU38CQ6M3E'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full gradient-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-glow text-sm mb-6"
-                >
+                  className="w-full gradient-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-glow text-sm mb-6">
+
                   {activeTab === 'monthly' ? 'Começar agora' : 'Garantir acesso vitalício'}
                   <ArrowRight className="h-4 w-4" />
                 </a>
 
                 {/* Features */}
                 <ul className="space-y-3">
-                  {features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                  {features.map((f) =>
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
                       <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                       {f}
                     </li>
-                  ))}
+                  )}
                 </ul>
 
                 {/* Shield */}
@@ -989,8 +989,8 @@ function PricingSection() {
           </div>
         </ScrollReveal>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
