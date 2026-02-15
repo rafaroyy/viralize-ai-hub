@@ -11,6 +11,7 @@ import CriarVideo from "./pages/CriarVideo";
 import AnaliseRoteiro from "./pages/AnaliseRoteiro";
 import Modelos from "./pages/Modelos";
 import ChatIA from "./pages/ChatIA";
+import MeusVideos from "./pages/MeusVideos";
 import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/analise" element={<AnaliseRoteiro />} />
               <Route path="/modelos" element={<Modelos />} />
               <Route path="/chat" element={<ChatIA />} />
+              <Route path="/meus-videos" element={<MeusVideos />} />
               <Route path="/perfil" element={<Perfil />} />
             </Route>
             <Route path="*" element={<NotFound />} />

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/animated-sidebar";
-import { Video, FileSearch, LayoutGrid, MessageCircle } from "lucide-react";
+import { Video, FileSearch, LayoutGrid, MessageCircle, Film } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import logoViralize from "@/assets/logo-viralize.png";
@@ -30,6 +30,11 @@ const navLinks = [
     label: "Chat IA",
     href: "/chat",
     icon: <MessageCircle className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+  },
+  {
+    label: "Meus Vídeos",
+    href: "/meus-videos",
+    icon: <Film className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
   },
 ];
 
