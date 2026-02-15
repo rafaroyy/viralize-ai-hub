@@ -654,11 +654,24 @@ const CriarVideo = () => {
                 <div className="space-y-2">
                   <Label>Palavra-chave *</Label>
                   <Input placeholder="Ex: productivity hacks" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+                  {keyword.trim() && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-xs text-primary flex items-center gap-1"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      Dica: use o botão abaixo para buscar referências no TikTok!
+                    </motion.p>
+                  )}
                 </div>
               </div>
               <Button
-                variant="outline"
-                className="border-primary/30 text-primary hover:bg-primary/10"
+                variant={keyword.trim() ? "default" : "outline"}
+                className={keyword.trim()
+                  ? "gradient-primary text-primary-foreground shadow-glow hover:opacity-90 transition-all"
+                  : "border-primary/30 text-primary hover:bg-primary/10"
+                }
                 onClick={() => {
                   const q = encodeURIComponent(keyword.trim());
                   if (q) window.open(`https://www.tiktok.com/search?q=${q}`, "_blank");
