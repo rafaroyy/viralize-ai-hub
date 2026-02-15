@@ -76,7 +76,7 @@ export function MemberCard({
       }}
     >
       <motion.div
-        className="relative w-[380px] rounded-2xl overflow-hidden border border-border/50"
+        className="relative w-[380px] rounded-2xl overflow-hidden border border-border shadow-card"
         style={{
           rotateX: springRotateX,
           rotateY: springRotateY,
@@ -88,8 +88,8 @@ export function MemberCard({
         transition={{ duration: 0.4, ease: "easeInOut" }}
       >
         {/* Background gradient layers */}
-        <div className="absolute inset-0 bg-gradient-to-br from-card via-card to-card" />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-primary/5" />
+        <div className="absolute inset-0 bg-gradient-to-br from-card via-card to-card border-0" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent" />
 
         {/* Holographic shimmer effect */}
         <motion.div
@@ -133,7 +133,7 @@ export function MemberCard({
             {/* Status badge */}
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
               <motion.div
-                className="w-1.5 h-1.5 rounded-full bg-green-400"
+                className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-green-400"
                 animate={{ opacity: [1, 0.4, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
               />
