@@ -643,7 +643,7 @@ function TourSection() {
                       <div className="flex flex-col gap-1">
                         <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Fonte de vídeo</label>
                         <div className="bg-primary/5 border border-primary/30 rounded-lg px-3 py-2.5 text-sm text-foreground flex items-center gap-2">
-                          <Sparkles className="h-3.5 w-3.5 text-primary" /> Sora (IA)
+                          <Sparkles className="h-3.5 w-3.5 text-primary" /> IA Viralize
                         </div>
                       </div>
                       <div className="flex flex-col gap-1">
@@ -920,7 +920,7 @@ function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const faqs = [
   { q: "A Viralize gera o vídeo pronto ou só o roteiro?", a: "Vídeo pronto. Você escolhe o modo (Assistente IA ou Script Manual), configura nicho, objetivo e duração, e a IA gera o vídeo completo com legendas, cenas e edição. Só baixar e postar." },
-  { q: "Preciso saber editar vídeo?", a: "Não. A Viralize faz tudo. Você pode usar vídeos gerados por IA (Sora) ou fazer upload dos seus próprios clipes. A plataforma monta, edita e adiciona legendas automaticamente." },
+  { q: "Preciso saber editar vídeo?", a: "Não. A Viralize faz tudo. Você pode usar vídeos gerados pela IA da Viralize ou fazer upload dos seus próprios clipes. A plataforma monta, edita e adiciona legendas automaticamente." },
   { q: "Como funciona o Assistente IA?", a: "Você define o nicho, objetivo e tema. A IA gera o roteiro e monta o vídeo automaticamente, dividindo em cenas proporcionais à duração escolhida (1 cena a cada 8 segundos). Suporta vídeos de 8s a 30s." },
   { q: "O que é a Análise de Roteiro?", a: "É uma ferramenta que avalia seu roteiro usando a metodologia P–C–R (Pergunta, Conflito, Resposta). Você recebe scores de retenção, pico emocional e insights práticos para melhorar seu conteúdo antes de gravar." },
   { q: "Posso usar meus próprios vídeos?", a: "Sim! No modo de vídeos personalizados, recomendamos enviar 4 clipes de 5 segundos cada. A IA faz a montagem, roteiro e edição. Dica: use o botão 'Buscar Inspiração' para encontrar referências no TikTok e o SnapTik para remover marcas d'água." },

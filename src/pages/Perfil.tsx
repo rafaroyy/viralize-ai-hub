@@ -61,7 +61,7 @@ const Perfil = () => {
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold font-display">{quota.sora.remaining}</p>
-                <p className="text-xs text-muted-foreground">Sora restante</p>
+                <p className="text-xs text-muted-foreground">IA Viralize</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold font-display">{quota.custom.remaining}</p>
