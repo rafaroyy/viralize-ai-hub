@@ -256,9 +256,8 @@ const CriarVideo = () => {
       const payload: Record<string, unknown> = {
         script_mode: "manual",
         manual_script: manualScript.trim(),
-        duracao: Number(duration),
         idioma,
-        cenas: scenesCount,
+        cenas: Number(scenesCount),
         aspect_ratio: "9:16",
         usar_legenda_e_fala: true,
         caption_style: captionStyle,
