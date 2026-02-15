@@ -138,6 +138,7 @@ function VideoThumbnail({
   disabled?: boolean;
 }) {
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const isCompleted = video.status === "completed";
 
   useEffect(() => {
@@ -146,9 +147,11 @@ function VideoThumbnail({
     api.previewVideoBlob(video.job_id).then((url) => {
       revoke = url;
       setThumbUrl(url);
-    }).catch(() => {});
+    }).catch(() => { setLoadFailed(true); });
     return () => { if (revoke) URL.revokeObjectURL(revoke); };
   }, [video.job_id, isCompleted]);
+
+  if (loadFailed) return null;
 
   const dateStr = video.created_at
     ? new Date(video.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
