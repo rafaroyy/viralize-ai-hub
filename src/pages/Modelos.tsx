@@ -2,13 +2,13 @@ import { LayoutGrid, Clock } from "lucide-react";
 
 const Modelos = () => {
   return (
-    <div className="p-8 animate-fade-in">
-      <div className="mb-8">
+    <div className="p-4 md:p-8 animate-fade-in">
+      <div className="mb-6 md:mb-8">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
             <LayoutGrid className="w-5 h-5 text-primary-foreground" />
           </div>
-          <h1 className="font-display text-3xl font-bold">Modelos de Edição</h1>
+          <h1 className="font-display text-2xl md:text-3xl font-bold">Modelos de Edição</h1>
         </div>
         <p className="text-muted-foreground">Escolha um modelo para a IA se inspirar na criação do seu vídeo</p>
       </div>

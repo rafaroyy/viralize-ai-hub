@@ -159,13 +159,13 @@ const AnaliseRoteiro = () => {
   };
 
   return (
-    <div className="p-8 max-w-4xl mx-auto animate-fade-in">
-      <div className="mb-8">
+    <div className="p-4 md:p-8 max-w-4xl mx-auto animate-fade-in">
+      <div className="mb-6 md:mb-8">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
             <FileSearch className="w-5 h-5 text-primary-foreground" />
           </div>
-          <h1 className="font-display text-3xl font-bold">Análise de Roteiro</h1>
+          <h1 className="font-display text-2xl md:text-3xl font-bold">Análise de Roteiro</h1>
         </div>
         <p className="text-muted-foreground">
           Analise seu roteiro com a metodologia <strong>P–C–R</strong> (Pergunta, Conflito, Resposta) e maximize a retenção
@@ -173,7 +173,7 @@ const AnaliseRoteiro = () => {
       </div>
 
       {/* Methodology Summary */}
-      <section className="glass-card p-5 mb-6">
+      <section className="glass-card p-4 md:p-5 mb-6">
         <h3 className="font-display font-semibold text-sm mb-3 flex items-center gap-2">
           <Zap className="w-4 h-4 text-primary" />
           Metodologia de Viralização: P–C–R
@@ -203,7 +203,7 @@ const AnaliseRoteiro = () => {
         </div>
       </section>
 
-      <section className="glass-card p-6 mb-6">
+      <section className="glass-card p-4 md:p-6 mb-6">
         <Tabs defaultValue="text" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4">
             <TabsTrigger value="text" className="gap-2">
@@ -324,7 +324,7 @@ const AnaliseRoteiro = () => {
           setViewingHistory(null);
         }
       }}>
-        <DialogContent className="sm:max-w-2xl glass-card border-border max-h-[85vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl glass-card border-border max-h-[90vh] overflow-y-auto">
           {resultToShow && (
             <div className="space-y-5 animate-fade-in">
               <div>
