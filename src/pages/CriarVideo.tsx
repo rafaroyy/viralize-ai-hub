@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle, Eye, Clock } from "lucide-react";
+import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle, Eye, Clock, Smartphone } from "lucide-react";
 import { AiLoader } from "@/components/ui/ai-loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { api, CaptionStyle, JobStatus } from "@/lib/api";
 import { Slider } from "@/components/ui/slider";
 import { VideoUploadCard } from "@/components/ui/video-upload-card";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const MAX_WORDS = 25;
 const SORA_LIMIT_SECONDS = 120; // 2 minutes lifetime limit
@@ -56,18 +58,18 @@ function UserBadge({ name, videosRemaining, onLogout }: { name: string; videosRe
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-border/50 bg-card/80 backdrop-blur-sm hover:border-primary/30 transition-all group"
+        className="flex items-center gap-2.5 px-2 sm:px-3 py-2 rounded-xl border border-border/50 bg-card/80 backdrop-blur-sm hover:border-primary/30 transition-all group"
       >
-        <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
+        <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow shrink-0">
           <Crown className="w-4 h-4 text-primary-foreground" />
         </div>
-        <div className="text-left">
+        <div className="text-left hidden sm:block">
           <p className="text-sm font-semibold leading-tight">{name}</p>
           <p className="text-[10px] text-primary font-medium">
             Pro{videosRemaining !== null ? ` · ${videosRemaining} vídeos` : ""}
           </p>
         </div>
-        <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform hidden sm:block ${open ? "rotate-180" : ""}`} />
       </button>
 
       <AnimatePresence>
@@ -426,27 +428,27 @@ const CriarVideo = () => {
         </div>
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
 
-        <div className="relative z-10 flex-1 overflow-auto p-8 animate-fade-in">
+        <div className="relative z-10 flex-1 overflow-auto p-4 md:p-8 animate-fade-in">
           <div className="max-w-3xl mx-auto">
-            <div className="flex items-start justify-between mb-12 gap-4">
+            <div className="flex items-start justify-between mb-8 md:mb-12 gap-4">
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
                     <Video className="w-5 h-5 text-primary-foreground" />
                   </div>
-                  <h1 className="font-display text-3xl font-bold">Criar Vídeo Viral</h1>
+                  <h1 className="font-display text-2xl md:text-3xl font-bold">Criar Vídeo Viral</h1>
                 </div>
-                <p className="text-muted-foreground">Escolha como deseja criar seu vídeo</p>
+                <p className="text-muted-foreground text-sm md:text-base">Escolha como deseja criar seu vídeo</p>
               </div>
               <UserBadge name={displayName} videosRemaining={videosRemaining} onLogout={handleLogout} />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-2xl mx-auto">
               <motion.button
                 whileHover={{ scale: 1.03, y: -4 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setMode("assisted")}
-                className="glass-card p-8 text-left group cursor-pointer transition-colors hover:border-primary/50"
+                className="glass-card p-5 md:p-8 text-left group cursor-pointer transition-colors hover:border-primary/50"
               >
                 <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mb-5 shadow-glow group-hover:scale-110 transition-transform">
                   <Wand2 className="w-7 h-7 text-primary-foreground" />
@@ -465,7 +467,7 @@ const CriarVideo = () => {
                 whileHover={{ scale: 1.03, y: -4 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setMode("manual")}
-                className="glass-card p-8 text-left group cursor-pointer transition-colors hover:border-primary/50"
+                className="glass-card p-5 md:p-8 text-left group cursor-pointer transition-colors hover:border-primary/50"
               >
                 <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                   <PenLine className="w-7 h-7 text-foreground" />
@@ -500,9 +502,9 @@ const CriarVideo = () => {
         </div>
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/90 via-background/70 to-background" />
 
-        <div className="relative z-10 flex-1 overflow-auto p-8 animate-fade-in">
+        <div className="relative z-10 flex-1 overflow-auto p-4 md:p-8 animate-fade-in">
           <div className="max-w-2xl mx-auto">
-            <div className="flex items-start justify-between mb-8 gap-4">
+            <div className="flex items-start justify-between mb-6 md:mb-8 gap-4">
               <div>
                 <button
                   onClick={() => setMode("choose")}
@@ -515,16 +517,16 @@ const CriarVideo = () => {
                   <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
                     <PenLine className="w-5 h-5 text-foreground" />
                   </div>
-                  <h1 className="font-display text-3xl font-bold">Script Manual</h1>
+                  <h1 className="font-display text-2xl md:text-3xl font-bold">Script Manual</h1>
                 </div>
-                <p className="text-muted-foreground">Escreva, envie e gere. Sem complicações.</p>
+                <p className="text-muted-foreground text-sm md:text-base">Escreva, envie e gere. Sem complicações.</p>
               </div>
               <UserBadge name={displayName} videosRemaining={videosRemaining} onLogout={handleLogout} />
             </div>
 
             <div className="space-y-8">
               {/* Script */}
-              <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-6 space-y-4">
+              <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-4 md:p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="font-display text-lg font-semibold flex items-center gap-2">
                     <FileText className="w-4 h-4 text-primary" />
@@ -544,7 +546,7 @@ const CriarVideo = () => {
               </motion.section>
 
               {/* Narration */}
-              <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-6 space-y-5">
+              <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-4 md:p-6 space-y-5">
                 <h2 className="font-display text-lg font-semibold">Modo de Narração</h2>
                 <RadioGroup value={narrationMode} onValueChange={setNarrationMode} className="space-y-3">
                   <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${narrationMode === "narrated" ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
@@ -559,7 +561,7 @@ const CriarVideo = () => {
               </motion.section>
 
               {/* Upload */}
-              <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card p-6 space-y-4">
+              <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card p-4 md:p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="font-display text-lg font-semibold flex items-center gap-2">
                     <Upload className="w-4 h-4 text-primary" />
@@ -634,7 +636,10 @@ const CriarVideo = () => {
           </div>
         </div>
 
-        <ManualPreview script={manualScript} duration={duration} narrationMode={narrationMode} isGenerating={isGenerating} jobStatus={jobStatus} previewUrl={previewUrl} loadingPreview={loadingPreview} />
+        <ManualPreview script={manualScript} duration={duration} narrationMode={narrationMode} isGenerating={isGenerating} jobStatus={jobStatus} previewUrl={previewUrl} loadingPreview={loadingPreview} isMobile={false} />
+        <MobilePreviewDrawer
+          content={<ManualPreview script={manualScript} duration={duration} narrationMode={narrationMode} isGenerating={isGenerating} jobStatus={jobStatus} previewUrl={previewUrl} loadingPreview={loadingPreview} isMobile={true} />}
+        />
         {jobDialog}
       </div>
     );
@@ -648,9 +653,9 @@ const CriarVideo = () => {
       </div>
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/90 via-background/70 to-background" />
 
-      <div className="relative z-10 flex-1 overflow-auto p-8 animate-fade-in">
+      <div className="relative z-10 flex-1 overflow-auto p-4 md:p-8 animate-fade-in">
         <div className="max-w-3xl mx-auto">
-          <div className="flex items-start justify-between mb-8 gap-4">
+          <div className="flex items-start justify-between mb-6 md:mb-8 gap-4">
             <div>
               <button
                 onClick={() => setMode("choose")}
@@ -663,16 +668,16 @@ const CriarVideo = () => {
                 <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
                   <Video className="w-5 h-5 text-primary-foreground" />
                 </div>
-                <h1 className="font-display text-3xl font-bold">Criar Vídeo Viral</h1>
+                <h1 className="font-display text-2xl md:text-3xl font-bold">Criar Vídeo Viral</h1>
               </div>
-              <p className="text-muted-foreground">Configure seu vídeo em minutos e obtenha milhares de visualizações!</p>
+              <p className="text-muted-foreground text-sm md:text-base">Configure seu vídeo em minutos e obtenha milhares de visualizações!</p>
             </div>
             <UserBadge name={displayName} videosRemaining={videosRemaining} onLogout={handleLogout} />
           </div>
 
           <div className="space-y-8">
             {/* Informações do Vídeo */}
-            <section className="glass-card p-6 space-y-5">
+            <section className="glass-card p-4 md:p-6 space-y-5">
               <h2 className="font-display text-lg font-semibold flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-primary" />
                 Informações do Vídeo
@@ -723,7 +728,7 @@ const CriarVideo = () => {
             </section>
 
             {/* Narração */}
-            <section className="glass-card p-6 space-y-5">
+            <section className="glass-card p-4 md:p-6 space-y-5">
               <h2 className="font-display text-lg font-semibold">Modo de Narração</h2>
               <RadioGroup value={narrationMode} onValueChange={setNarrationMode} className="space-y-3">
                 <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${narrationMode === "narrated" ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
@@ -745,7 +750,7 @@ const CriarVideo = () => {
             </section>
 
             {/* Configurações */}
-            <section className="glass-card p-6 space-y-5">
+            <section className="glass-card p-4 md:p-6 space-y-5">
               <h2 className="font-display text-lg font-semibold flex items-center gap-2">
                 <Video className="w-4 h-4 text-primary" />
                 Configurações do Vídeo
@@ -825,7 +830,7 @@ const CriarVideo = () => {
 
             {/* Upload - only when custom */}
             {videoSource === "custom" && (
-              <section className="glass-card p-6 space-y-4">
+              <section className="glass-card p-4 md:p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="font-display text-lg font-semibold flex items-center gap-2">
                     <Upload className="w-4 h-4 text-primary" />
@@ -882,8 +887,8 @@ const CriarVideo = () => {
         </div>
       </div>
 
-      {/* Right: Preview */}
-      <div className="relative z-10 w-[380px] border-l border-border bg-secondary/30 backdrop-blur-sm flex flex-col shrink-0">
+      {/* Right: Preview - hidden on mobile */}
+      <div className="relative z-10 w-[380px] border-l border-border bg-secondary/30 backdrop-blur-sm hidden md:flex flex-col shrink-0">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <h3 className="font-display font-semibold text-sm">Preview</h3>
           {previewUrl && (
@@ -986,15 +991,67 @@ const CriarVideo = () => {
         </div>
       </div>
 
+      {/* Mobile Preview Drawer for Assisted mode */}
+      <MobilePreviewDrawer
+        content={
+          <div className="flex flex-col items-center p-4">
+            <div className="relative w-[200px]">
+              <div className="bg-background rounded-2xl border-2 border-border overflow-hidden aspect-[9/16] shadow-card">
+                <div className="h-full flex flex-col items-center justify-center px-4 text-center">
+                  <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center mb-3 animate-pulse-glow">
+                    <Play className="w-5 h-5 text-primary-foreground" />
+                  </div>
+                  <p className="text-xs font-bold font-display leading-tight mb-1">
+                    {tema.trim() || "Seu tema aparecerá aqui"}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {duration}s • {scenesCount} cenas • {narrationMode === "narrated" ? "Com áudio" : "Mudo"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      />
+
 
       {jobDialog}
     </div>
   );
 };
 
-function ManualPreview({ script, duration, narrationMode, isGenerating, jobStatus, previewUrl, loadingPreview }: { script: string; duration: string; narrationMode: string; isGenerating: boolean; jobStatus: JobStatus | null; previewUrl: string | null; loadingPreview: boolean }) {
+function MobilePreviewDrawer({ content }: { content: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  if (!isMobile) return null;
+
   return (
-    <div className="relative z-10 w-[380px] border-l border-border bg-secondary/30 backdrop-blur-sm flex flex-col shrink-0">
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full gradient-primary shadow-glow flex items-center justify-center md:hidden"
+      >
+        <Smartphone className="w-6 h-6 text-primary-foreground" />
+      </button>
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerContent className="max-h-[80vh]">
+          <DrawerHeader>
+            <DrawerTitle>Preview</DrawerTitle>
+          </DrawerHeader>
+          <div className="overflow-auto pb-6">
+            {content}
+          </div>
+        </DrawerContent>
+      </Drawer>
+    </>
+  );
+}
+
+function ManualPreview({ script, duration, narrationMode, isGenerating, jobStatus, previewUrl, loadingPreview, isMobile = false }: { script: string; duration: string; narrationMode: string; isGenerating: boolean; jobStatus: JobStatus | null; previewUrl: string | null; loadingPreview: boolean; isMobile?: boolean }) {
+  if (!isMobile) {
+  return (
+    <div className="relative z-10 w-[380px] border-l border-border bg-secondary/30 backdrop-blur-sm hidden md:flex flex-col shrink-0">
       <div className="flex items-center px-5 py-4 border-b border-border">
         <h3 className="font-display font-semibold text-sm">Preview</h3>
       </div>
@@ -1075,6 +1132,50 @@ function ManualPreview({ script, duration, narrationMode, isGenerating, jobStatu
         <div className="flex justify-between text-xs">
           <span className="text-muted-foreground">Narração</span>
           <span className="font-medium">{narrationMode === "narrated" ? "Com áudio" : "Mudo"}</span>
+        </div>
+        <div className="flex justify-between text-xs">
+          <span className="text-muted-foreground">Palavras</span>
+          <span className="font-medium">{script.trim() ? script.trim().split(/\s+/).length : 0}/{MAX_WORDS}</span>
+        </div>
+      </div>
+    </div>
+  );
+  }
+
+  // Mobile inline version (used inside Drawer)
+  return (
+    <div className="flex flex-col items-center p-4">
+      <div className="relative w-[200px]">
+        <div className="bg-background rounded-2xl border-2 border-border overflow-hidden aspect-[9/16] shadow-card">
+          <div className="h-full flex flex-col relative">
+            <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background to-background" />
+            <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center">
+              <AnimatePresence mode="wait">
+                {script.trim() ? (
+                  <motion.div key="script" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-3">
+                    <p className="text-xs font-bold font-display leading-tight">{script}</p>
+                  </motion.div>
+                ) : (
+                  <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
+                    <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mx-auto">
+                      <PenLine className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">Seu roteiro aparecerá aqui...</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="mt-4 space-y-1 w-full max-w-[200px]">
+        <div className="flex justify-between text-xs">
+          <span className="text-muted-foreground">Modo</span>
+          <span className="font-medium text-primary">Script Manual</span>
+        </div>
+        <div className="flex justify-between text-xs">
+          <span className="text-muted-foreground">Duração</span>
+          <span className="font-medium">{duration}s</span>
         </div>
         <div className="flex justify-between text-xs">
           <span className="text-muted-foreground">Palavras</span>
