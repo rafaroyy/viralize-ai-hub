@@ -1,75 +1,74 @@
 
 
-## Plano: Sistema de Paginas de Afiliados
+# Plano: Melhorar Responsividade Mobile
 
-### Como funciona
+## Problemas Identificados
 
-Cada afiliado tera uma URL unica como `viralizeia.com/julio` ou `viralizeia.com/maria`. Essa pagina mostra a mesma landing page, mas com os links de checkout personalizados do afiliado. Quem acessar sem slug de afiliado (so `viralizeia.com`) ve a pagina padrao com seus links originais.
+1. **Painel de Preview fixo (380px)** nas telas de Criar Video (modo Assistente e Manual) - nao aparece nem funciona no mobile pois usa `w-[380px]` fixo sem breakpoint responsivo
+2. **Padding excessivo (`p-8`)** em todas as paginas internas (CriarVideo, AnaliseRoteiro, Modelos, etc) - muito espaco desperdicado no mobile
+3. **Titulos grandes demais** (`text-3xl`) no mobile sem reducao responsiva
+4. **UserBadge no header** quebra o layout em telas pequenas
+5. **Preview panel do modo Assistente e Manual** precisa virar um componente colapsavel ou drawer no mobile em vez de coluna lateral fixa
 
-### Arquitetura
+## Solucao
 
-1. **Tabela no banco de dados** para cadastrar afiliados com:
-   - `slug` (ex: "julio") - identificador unico na URL
-   - `name` (nome do afiliado)
-   - `checkout_monthly` (link de checkout mensal do afiliado)
-   - `checkout_lifetime` (link de checkout vitalicio do afiliado)
-   - `active` (para desativar se necessario)
+### 1. Preview Panel - Desktop vs Mobile
+- No desktop (md+): manter o painel lateral de 380px como esta
+- No mobile: esconder o painel lateral e adicionar um botao flutuante "Preview" que abre um Drawer (bottom sheet) com o conteudo do preview
+- Usar a classe `hidden md:flex` no painel lateral e renderizar o Drawer apenas em telas pequenas
 
-2. **Rota dinamica** no React Router: `/:affiliateSlug` que carrega a mesma LandingPage, mas busca os dados do afiliado no banco e substitui os links de checkout.
+### 2. Padding Responsivo em Todas as Paginas
+- Trocar `p-8` por `p-4 md:p-8` em:
+  - CriarVideo.tsx (todos os 3 modos: choose, manual, assisted)
+  - AnaliseRoteiro.tsx
+  - Modelos.tsx
+  - ChatIA.tsx
 
-3. **Logica na LandingPage**: O componente recebe opcionalmente os links do afiliado via parametro de rota. Se existir um slug valido, usa os links do afiliado. Se nao, usa os links padrao (PerfectPay/CenterPag atuais).
+### 3. Tipografia Responsiva
+- Titulos: `text-2xl md:text-3xl` em vez de `text-3xl`
+- Subtitulos ajustados proporcionalmente
 
-### Detalhes Tecnicos
+### 4. UserBadge Responsivo
+- Esconder o nome/detalhes no mobile, mostrar so o avatar
+- Ou mover para baixo do titulo em vez de `justify-between`
 
-**1. Criar tabela `affiliates`**
-```sql
-CREATE TABLE public.affiliates (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  slug TEXT UNIQUE NOT NULL,
-  name TEXT NOT NULL,
-  checkout_monthly TEXT NOT NULL,
-  checkout_lifetime TEXT NOT NULL,
-  active BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
+### 5. Cards e Grids
+- `glass-card p-4 md:p-6` em vez de `p-6`
+- Grids de upload: garantir `grid-cols-2` no mobile
 
--- Permitir leitura publica (landing page nao exige login)
-ALTER TABLE public.affiliates ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can read active affiliates"
-  ON public.affiliates FOR SELECT
-  USING (active = true);
-```
+### 6. Header do Chat IA
+- Ja funciona bem, apenas ajustar padding
 
-**2. Nova rota no App.tsx**
-```
-<Route path="/:affiliateSlug" element={<LandingPage />} />
-```
-Essa rota precisa ficar antes do `*` (NotFound) e depois das rotas fixas.
+---
 
-**3. Modificar LandingPage.tsx**
-- Usar `useParams()` para capturar o `affiliateSlug`
-- Se houver slug, buscar o afiliado no banco via Supabase
-- Se o afiliado existir e estiver ativo, usar seus links de checkout
-- Se nao existir, redirecionar para `/` (pagina padrao)
-- Os links padrao atuais (PerfectPay/CenterPag) continuam como fallback
+## Detalhes Tecnicos
 
-**4. Cadastro de afiliados**
-Para adicionar afiliados, voce podera:
-- Inserir direto pelo painel do backend (Lovable Cloud)
-- Ou podemos criar uma tela admin futuramente
+### Arquivos a Modificar
 
-### Exemplo de uso
+**src/pages/CriarVideo.tsx** (maior impacto):
+- Modo "choose": `p-4 md:p-8`, titulo responsivo, UserBadge stack no mobile
+- Modo "manual": `p-4 md:p-8`, esconder painel lateral no mobile, adicionar botao preview + Drawer
+- Modo "assisted": `p-4 md:p-8`, esconder painel lateral no mobile, adicionar botao preview + Drawer
+- `ManualPreview` e o painel do assisted: `hidden md:flex` + Drawer mobile
 
-| Afiliado | URL | Link Mensal | Link Vitalicio |
-|----------|-----|-------------|----------------|
-| Julio | viralizeia.com/julio | link-do-julio-mensal | link-do-julio-vitalicio |
-| Maria | viralizeia.com/maria | link-da-maria-mensal | link-da-maria-vitalicio |
-| (padrao) | viralizeia.com | PPU38CQ4E1A | PPU38CQ6M3E |
+**src/pages/AnaliseRoteiro.tsx**:
+- `p-4 md:p-8`
+- Titulo `text-2xl md:text-3xl`
+- Dialog de resultado: `max-h-[90vh]` no mobile
 
-### Ordem de implementacao
+**src/pages/Modelos.tsx**:
+- `p-4 md:p-8`
+- Titulo responsivo
 
-1. Criar a tabela `affiliates` no banco
-2. Adicionar a rota dinamica no App.tsx
-3. Atualizar LandingPage.tsx para ler o slug e buscar links do afiliado
-4. Testar com um afiliado de exemplo
+**src/pages/ChatIA.tsx**:
+- Padding do input area e header ja estao ok
+- Ajustar `max-w-[75%]` para `max-w-[85%] md:max-w-[75%]` nas mensagens
+
+**src/pages/LandingPage.tsx**:
+- Ajustes menores de overflow e espacamento
+
+### Componente de Preview Mobile (Drawer)
+- Usar o componente Drawer (vaul) ja instalado no projeto
+- Botao flutuante fixo no canto inferior direito com icone de Play/Eye
+- Ao clicar, abre o Drawer com o conteudo do preview (mesmo componente, apenas reposicionado)
 
