@@ -167,7 +167,7 @@ function Navbar() {
 
       <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <a href="#" className="flex items-center gap-2 shrink-0">
-          <img src={isDark ? logoViralize : logoViralizeLight} alt="Viralize" className="h-9 object-contain" />
+          <img src={isDark ? logoViralize : logoViralizeLight} alt="Viralize" className="h-18 object-contain" />
         </a>
 
         {/* Desktop nav */}
