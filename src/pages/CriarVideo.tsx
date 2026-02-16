@@ -422,7 +422,7 @@ const CriarVideo = () => {
   // Mode selection screen
   if (mode === "choose") {
     return (
-      <div className="relative flex h-screen overflow-hidden">
+      <div className="relative flex min-h-screen md:h-screen overflow-x-hidden overflow-y-auto md:overflow-hidden">
         <div className="absolute inset-0 z-0">
           <FlickeringGrid color="hsl(263 70% 58%)" maxOpacity={0.12} flickerChance={0.1} squareSize={4} gridGap={6} />
         </div>
@@ -496,7 +496,7 @@ const CriarVideo = () => {
   // Manual mode
   if (mode === "manual") {
     return (
-      <div className="relative flex h-screen overflow-hidden">
+      <div className="relative flex min-h-screen md:h-screen overflow-x-hidden overflow-y-auto md:overflow-hidden">
         <div className="absolute inset-0 z-0">
           <FlickeringGrid color="hsl(263 70% 58%)" maxOpacity={0.08} flickerChance={0.08} squareSize={4} gridGap={6} />
         </div>
@@ -647,7 +647,7 @@ const CriarVideo = () => {
 
   // Assisted mode
   return (
-    <div className="relative flex h-screen overflow-hidden">
+    <div className="relative flex min-h-screen md:h-screen overflow-x-hidden overflow-y-auto md:overflow-hidden">
       <div className="absolute inset-0 z-0">
         <FlickeringGrid color="hsl(263 70% 58%)" maxOpacity={0.08} flickerChance={0.08} squareSize={4} gridGap={6} />
       </div>
