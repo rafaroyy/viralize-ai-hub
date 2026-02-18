@@ -891,7 +891,7 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: { checkoutMonthly
                     "text-muted-foreground hover:text-foreground"
                   )}>
 
-                  Trimestral
+                  Vitalício
                   <span className="ml-1.5 text-[10px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded-full border border-green-500/30">-65%
 
                   </span>
@@ -917,7 +917,7 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: { checkoutMonthly
                 {/* Header */}
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg font-semibold text-foreground">
-                    {activeTab === 'monthly' ? 'Mensal' : 'Trimestral'}
+                    {activeTab === 'monthly' ? 'Mensal' : 'Vitalício'}
                   </h3>
                   {activeTab === 'lifetime' &&
                   <span className="text-[10px] font-semibold bg-destructive/20 text-destructive px-2.5 py-1 rounded-full border border-destructive/30 flex items-center gap-1">
@@ -930,7 +930,7 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: { checkoutMonthly
                 <p className="text-sm text-muted-foreground mb-6">
                   {activeTab === 'monthly' ?
                   'Acesso completo, cancele quando quiser.' :
-                  'Acesso completo por 3 meses!'}
+                  'Pague uma vez, use para sempre!'}
                 </p>
 
                 {/* Price */}
@@ -954,7 +954,7 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: { checkoutMonthly
                       {activeTab === 'monthly' ? '145' : '245'}
                     </motion.span>
                     <span className="text-sm text-muted-foreground mb-1.5">
-                      {activeTab === 'monthly' ? '/mês' : '/trimestre'}
+                      {activeTab === 'monthly' ? '/mês' : ' único'}
                     </span>
                   </div>
                 </div>
@@ -966,7 +966,7 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: { checkoutMonthly
                   rel="noopener noreferrer"
                   className="w-full gradient-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-glow text-sm mb-6">
 
-                  {activeTab === 'monthly' ? 'Começar agora' : 'Garantir acesso trimestral'}
+                  {activeTab === 'monthly' ? 'Começar agora' : 'Garantir acesso vitalício'}
                   <ArrowRight className="h-4 w-4" />
                 </a>
 
