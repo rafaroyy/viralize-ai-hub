@@ -59,7 +59,7 @@ export default function Login() {
               <img
                 src={isDark ? logoViralize : logoViralizeLight}
                 alt="Viralize AI"
-                className="h-20 object-contain"
+                className="h-28 object-contain"
               />
             </Link>
           </div>
