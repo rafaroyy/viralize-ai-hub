@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle, Eye, Clock, Smartphone } from "lucide-react";
+import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle, Eye, Clock, Smartphone, Search, ExternalLink } from "lucide-react";
 import { AiLoader } from "@/components/ui/ai-loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -402,6 +402,57 @@ const CriarVideo = () => {
   );
 
   // File list component
+  const InspirationGuide = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3"
+    >
+      <p className="text-sm font-semibold flex items-center gap-2">
+        <Sparkles className="w-4 h-4 text-primary" />
+        Maximize sua taxa de viralização
+      </p>
+      <div className="space-y-2.5">
+        {[
+          { step: 1, icon: <Search className="w-3.5 h-3.5" />, text: "Busque inspiração no TikTok usando a palavra-chave do seu nicho" },
+          { step: 2, icon: <Download className="w-3.5 h-3.5" />, text: "Copie o link do vídeo e use o SnapTik para baixar sem marca d'água" },
+          { step: 3, icon: <Upload className="w-3.5 h-3.5" />, text: "Faça upload dos vídeos aqui para criar seu vídeo personalizado" },
+        ].map(({ step, icon, text }) => (
+          <div key={step} className="flex items-start gap-3">
+            <div className="w-6 h-6 rounded-full gradient-primary flex items-center justify-center shrink-0 mt-0.5">
+              <span className="text-[10px] font-bold text-primary-foreground">{step}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground leading-relaxed">
+              {icon}
+              <span>{text}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-2 pt-1">
+        <Button
+          size="sm"
+          variant="outline"
+          className="text-xs border-primary/30 text-primary hover:bg-primary/10"
+          onClick={() => window.open("https://snaptik.app", "_blank")}
+        >
+          <ExternalLink className="w-3 h-3 mr-1.5" />
+          Abrir SnapTik
+        </Button>
+        {keyword.trim() && (
+          <Button
+            size="sm"
+            className="text-xs gradient-primary text-primary-foreground"
+            onClick={() => window.open(`https://www.tiktok.com/search?q=${encodeURIComponent(keyword.trim())}`, "_blank")}
+          >
+            <Search className="w-3 h-3 mr-1.5" />
+            Buscar no TikTok
+          </Button>
+        )}
+      </div>
+    </motion.div>
+  );
+
   const FileList = ({ files, isManual = false }: { files: File[]; isManual?: boolean }) => (
     files.length > 0 ? (
       <div className="space-y-2 mt-3">
@@ -574,6 +625,7 @@ const CriarVideo = () => {
                 <p className="text-xs text-muted-foreground">
                   Para melhores resultados, envie vídeos de <strong className="text-foreground">~5 segundos</strong> cada. Se não enviar, a IA da Viralize gerará os vídeos automaticamente.
                 </p>
+                <InspirationGuide />
                 <div className="space-y-2">
                   <Label>Quantidade de vídeos</Label>
                   <div className="flex items-center gap-3">
@@ -705,7 +757,7 @@ const CriarVideo = () => {
                       className="text-xs text-primary flex items-center gap-1"
                     >
                       <Sparkles className="w-3 h-3" />
-                      Dica: use o botão abaixo para buscar referências no TikTok!
+                      Encontre vídeos virais, baixe sem marca d'água pelo SnapTik e use aqui!
                     </motion.p>
                   )}
                 </div>
@@ -724,6 +776,14 @@ const CriarVideo = () => {
               >
                 <Sparkles className="w-4 h-4 mr-2" />
                 Buscar inspiração
+              </Button>
+              <Button
+                variant="outline"
+                className="border-primary/30 text-primary hover:bg-primary/10"
+                onClick={() => window.open("https://snaptik.app", "_blank")}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Remover marca d'água (SnapTik)
               </Button>
             </section>
 
@@ -843,6 +903,7 @@ const CriarVideo = () => {
                 <p className="text-xs text-muted-foreground">
                   Envie <strong className="text-foreground">{scenesCount}</strong> {scenesCount === 1 ? "vídeo" : "vídeos"} — um para cada cena de 8 segundos.
                 </p>
+                <InspirationGuide />
                 <div className={`grid gap-3 ${scenesCount <= 2 ? "grid-cols-2" : scenesCount <= 3 ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-4"}`}>
                   {Array.from({ length: scenesCount }, (_, i) => (
                     <VideoUploadCard
