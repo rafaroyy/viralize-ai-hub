@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
    HELPERS
    ═══════════════════════════════════════════ */
 
-function ScrollReveal({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
+function ScrollReveal({ children, delay = 0, className }: {children: React.ReactNode;delay?: number;className?: string;}) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
   return (
@@ -18,19 +18,19 @@ function ScrollReveal({ children, delay = 0, className }: { children: React.Reac
       initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay, ease: "easeOut" }}
-      className={className}
-    >
+      className={className}>
+
       {children}
-    </motion.div>
-  );
+    </motion.div>);
+
 }
 
-function ImpactLine({ children, className }: { children: React.ReactNode; className?: string }) {
+function ImpactLine({ children, className }: {children: React.ReactNode;className?: string;}) {
   return (
     <p className={cn("text-xl sm:text-2xl lg:text-3xl font-bold font-display text-foreground leading-tight", className)}>
       {children}
-    </p>
-  );
+    </p>);
+
 }
 
 const CHECKOUT_URL = "https://checkout.centerpag.com/PPU38CQ6M3E";
@@ -54,14 +54,14 @@ function Navbar() {
             href={CHECKOUT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="gradient-primary text-primary-foreground px-5 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity shadow-glow"
-          >
+            className="gradient-primary text-primary-foreground px-5 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity shadow-glow">
+
             Começar agora
           </a>
         </div>
       </div>
-    </header>
-  );
+    </header>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -82,8 +82,8 @@ function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] font-display"
-        >
+          className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] font-display">
+
           Todos os dias alguém desconhecido fica rico com vídeos simples.
         </motion.h1>
 
@@ -91,8 +91,8 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.15 }}
-          className="text-lg sm:text-xl text-muted-foreground max-w-xl"
-        >
+          className="text-lg sm:text-xl text-muted-foreground max-w-xl">
+
           E não é quem trabalha mais. É quem viraliza.
         </motion.p>
 
@@ -100,8 +100,8 @@ function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-2xl sm:text-3xl font-bold font-display text-primary"
-        >
+          className="text-2xl sm:text-3xl font-bold font-display text-primary">
+
           Visualização virou dinheiro.
         </motion.p>
 
@@ -109,14 +109,14 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="flex flex-col items-center gap-3"
-        >
+          className="flex flex-col items-center gap-3">
+
           <a
             href={CHECKOUT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="gradient-primary text-primary-foreground px-10 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow text-base"
-          >
+            className="gradient-primary text-primary-foreground px-10 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow text-base">
+
             Quero começar agora
             <motion.span animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, repeatDelay: 2, duration: 1 }}>
               <ArrowRight className="h-5 w-5" />
@@ -125,8 +125,8 @@ function HeroSection() {
           <span className="text-sm text-muted-foreground">Pagamento único. Acesso vitalício.</span>
         </motion.div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -135,11 +135,11 @@ function HeroSection() {
 
 function DorSection() {
   const lines = [
-    "Eles não são mais inteligentes.",
-    "Não começaram antes.",
-    "Não têm mais seguidores.",
-    "Só entenderam como fazer vídeos que o algoritmo entrega.",
-  ];
+  "Eles não são mais inteligentes.",
+  "Não começaram antes.",
+  "Não têm mais seguidores.",
+  "Só entenderam como fazer vídeos que o algoritmo entrega."];
+
 
   return (
     <section className="w-full py-20 md:py-28">
@@ -151,19 +151,19 @@ function DorSection() {
         </ScrollReveal>
 
         <div className="flex flex-col gap-4">
-          {lines.map((line, i) => (
-            <ScrollReveal key={i} delay={i * 0.1}>
+          {lines.map((line, i) =>
+          <ScrollReveal key={i} delay={i * 0.1}>
               <p className="text-base sm:text-lg text-muted-foreground">{line}</p>
             </ScrollReveal>
-          ))}
+          )}
         </div>
 
         <ScrollReveal delay={0.4}>
           <ImpactLine>Quem domina atenção, domina vendas.</ImpactLine>
         </ScrollReveal>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -199,8 +199,8 @@ function ViradaSection() {
           <ImpactLine className="text-primary">Você não precisa de outro produto. Precisa de visualizações.</ImpactLine>
         </ScrollReveal>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -228,12 +228,12 @@ function SolucaoSection() {
         <ScrollReveal delay={0.2}>
           <div className="flex flex-col gap-4 items-center">
             <p className="text-sm text-muted-foreground uppercase tracking-widest font-medium mb-2">Você não precisa de:</p>
-            {semItems.map((item, i) => (
-              <div key={i} className="flex items-center gap-3 text-lg text-muted-foreground">
+            {semItems.map((item, i) =>
+            <div key={i} className="flex items-center gap-3 text-lg text-muted-foreground">
                 <X className="h-5 w-5 text-destructive shrink-0" />
                 <span>{item}</span>
               </div>
-            ))}
+            )}
           </div>
         </ScrollReveal>
 
@@ -241,8 +241,8 @@ function SolucaoSection() {
           <ImpactLine>Você só executa. A estrutura já vem pronta.</ImpactLine>
         </ScrollReveal>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -271,12 +271,12 @@ function ProvaSection() {
                 <h3 className="text-lg font-bold font-display text-destructive">Sem Viralize</h3>
               </div>
               <ul className="flex flex-col gap-3">
-                {["vídeos ignorados", "perfil parado", "nenhuma venda"].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-muted-foreground">
+                {["vídeos ignorados", "perfil parado", "nenhuma venda"].map((item) =>
+                <li key={item} className="flex items-center gap-3 text-muted-foreground">
                     <X className="h-4 w-4 text-destructive shrink-0" />
                     {item}
                   </li>
-                ))}
+                )}
               </ul>
             </div>
 
@@ -287,12 +287,12 @@ function ProvaSection() {
                 <h3 className="text-lg font-bold font-display text-primary">Com Viralize</h3>
               </div>
               <ul className="flex flex-col gap-3">
-                {["explosão de alcance", "mensagens chegando", "vendas acontecendo"].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-foreground font-medium">
+                {["explosão de alcance", "mensagens chegando", "vendas acontecendo"].map((item) =>
+                <li key={item} className="flex items-center gap-3 text-foreground font-medium">
                     <ArrowRight className="h-4 w-4 text-primary shrink-0" />
                     {item}
                   </li>
-                ))}
+                )}
               </ul>
             </div>
           </div>
@@ -302,8 +302,8 @@ function ProvaSection() {
           <ImpactLine className="text-center">O algoritmo promove quem entende o jogo.</ImpactLine>
         </ScrollReveal>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -328,7 +328,9 @@ function OfertaSection() {
             <span className="text-lg text-muted-foreground/60 line-through">De R$ 645</span>
             <div className="flex items-end gap-2">
               <span className="text-sm text-muted-foreground">por apenas</span>
-              <span className="text-6xl font-bold font-display text-foreground">R$247</span>
+              <span className="text-6xl font-bold font-display text-foreground">R$245
+
+              </span>
             </div>
             <span className="text-sm text-muted-foreground mt-1">Pagamento único.</span>
           </div>
@@ -341,12 +343,10 @@ function OfertaSection() {
         </ScrollReveal>
 
         <ScrollReveal delay={0.2}>
-          <a
-            href={CHECKOUT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="gradient-primary text-primary-foreground px-10 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow text-base"
-          >
+          <a href={CHECKOUT_URL} target="_blank"
+          rel="noopener noreferrer"
+          className="gradient-primary text-primary-foreground px-10 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow text-base">
+
             Quero começar agora
             <motion.span animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, repeatDelay: 2, duration: 1 }}>
               <ArrowRight className="h-5 w-5" />
@@ -361,8 +361,8 @@ function OfertaSection() {
           </div>
         </ScrollReveal>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -379,8 +379,8 @@ function FechamentoSection() {
           </p>
         </ScrollReveal>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -395,8 +395,8 @@ function Footer() {
           &copy; {new Date().getFullYear()} Viralize. Todos os direitos reservados.
         </p>
       </div>
-    </footer>
-  );
+    </footer>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -415,6 +415,6 @@ export default function PaginaVendas() {
       <OfertaSection />
       <FechamentoSection />
       <Footer />
-    </div>
-  );
+    </div>);
+
 }
