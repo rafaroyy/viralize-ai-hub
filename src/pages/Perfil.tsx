@@ -54,19 +54,9 @@ const Perfil = () => {
           <section className="glass-card p-6 space-y-4 mb-8">
             <h2 className="font-display text-lg font-semibold">Uso do Plano</h2>
             <Separator className="bg-border/50" />
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center">
-                <p className="text-2xl font-bold font-display text-primary">{quota.total.remaining}</p>
-                <p className="text-xs text-muted-foreground">Total restante</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold font-display">{quota.sora.remaining}</p>
-                <p className="text-xs text-muted-foreground">IA Viralize</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold font-display">{quota.custom.remaining}</p>
-                <p className="text-xs text-muted-foreground">Custom restante</p>
-              </div>
+            <div className="flex flex-col items-center gap-1">
+              <p className="text-4xl font-bold font-display text-primary">{quota.total.remaining}</p>
+              <p className="text-sm text-muted-foreground">de {quota.total.limit} vídeos restantes</p>
             </div>
             <p className="text-xs text-muted-foreground text-center">
               Ciclo: {new Date(quota.period_start).toLocaleDateString("pt-BR")} — {new Date(quota.period_end).toLocaleDateString("pt-BR")}
