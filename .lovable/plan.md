@@ -1,38 +1,49 @@
 
+# Guia de Fluxo "Buscar Inspiracao + SnapTik + Upload"
 
-# Plano: Corrigir Tela Preta no Mobile
+## Objetivo
+Criar um fluxo educativo dentro do app que guie o usuario passo a passo para maximizar a taxa de viralizacao usando videos reais do TikTok como base.
 
-## Problema Raiz
+## O que sera feito
 
-O `AppLayout` usa `display: flex` com direcao padrao **row** (horizontal). No mobile, o `MobileSidebar` renderiza uma barra topo com `w-full` (largura 100%). Como estao lado a lado horizontalmente, a sidebar ocupa toda a largura e empurra o conteudo principal (`main`) para fora da tela -- resultando na tela preta.
+### 1. Banner/Card educativo na secao "Fonte dos Videos" (modo Assistente IA)
+Quando o usuario selecionar "Videos personalizados (Upload)", exibir um card com um mini-tutorial de 3 passos:
 
-```text
-Desktop (funciona):
-[Sidebar 60-260px] [Main Content flex-1]
+- **Passo 1** - Busque inspiracao no TikTok usando a palavra-chave acima
+- **Passo 2** - Copie o link do video e use o SnapTik (snaptik.app) para baixar sem marca d'agua
+- **Passo 3** - Faca upload dos videos aqui para criar seu video personalizado
 
-Mobile (quebrado - flex row):
-[MobileSidebar w-full] [Main ... fora da tela]
-```
+O card tera visual destacado (borda primary, icones numerados) e um botao direto para abrir o SnapTik.
 
-## Solucao
+### 2. Mesmo banner no modo Script Manual
+Na secao "Videos Personalizados" do modo manual, exibir o mesmo card educativo adaptado.
 
-Alterar o `AppLayout` para usar `flex-col md:flex-row`, fazendo com que no mobile a barra da sidebar fique **acima** do conteudo, e no desktop continue lado a lado.
+### 3. Tooltip/dica no botao "Buscar inspiracao"
+Expandir a dica que ja aparece ao digitar a palavra-chave, adicionando menção ao SnapTik:
+> "Encontre videos virais, baixe sem marca d'agua pelo SnapTik e use aqui!"
 
-```text
-Mobile (corrigido - flex col):
-[MobileSidebar w-full - barra topo]
-[Main Content - abaixo]
-```
+### 4. Botao direto para SnapTik
+Adicionar um botao secundario "Remover marca d'agua (SnapTik)" ao lado ou abaixo do botao "Buscar inspiracao", que abre `https://snaptik.app` em nova aba.
 
-## Detalhes Tecnicos
+---
 
-### Arquivo: `src/components/AppLayout.tsx`
+## Detalhes tecnicos
 
-Unica alteracao necessaria:
-- Trocar `flex` por `flex flex-col md:flex-row` no container principal
-- Isso faz a sidebar e o main empilharem verticalmente no mobile
+### Arquivo modificado
+- `src/pages/CriarVideo.tsx`
 
-### Resultado Esperado
-- No mobile: barra do menu hamburger no topo, conteudo da pagina abaixo, tudo visivel e scrollavel
-- No desktop: sem nenhuma mudanca, sidebar lateral como antes
+### Componente novo (inline)
+Um componente `InspirationGuide` sera criado dentro do arquivo com os 3 passos, usando os mesmos padroes visuais existentes (`glass-card`, `gradient-primary`, icones Lucide). Inclui:
+- Icones numerados (1, 2, 3) com estilo `gradient-primary`
+- Texto curto e direto para cada passo
+- Botao "Abrir SnapTik" que abre `https://snaptik.app` em nova aba
+- Botao "Buscar no TikTok" (reusa a logica do keyword existente)
+- Animacao com `framer-motion` (fade-in) consistente com o resto da pagina
 
+### Onde sera inserido
+1. **Modo Assistente**: Dentro da secao de upload que aparece quando `videoSource === "custom"` (linhas ~832-870), logo apos o paragrafo explicativo
+2. **Modo Manual**: Dentro da secao "Videos Personalizados" (linhas ~564-617), logo apos o paragrafo explicativo
+3. **Botao SnapTik**: Abaixo do botao "Buscar inspiracao" existente (linha ~713-727)
+
+### Dica expandida na palavra-chave
+A dica animada existente (linhas 702-710) sera atualizada para mencionar o fluxo completo.
