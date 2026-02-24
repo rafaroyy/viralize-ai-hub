@@ -8,6 +8,7 @@ import logoViralize from "@/assets/logo-viralize.png";
 import logoViralizeLight from "@/assets/logo-viralize-light.png";
 import { useTheme } from "@/hooks/use-theme";
 import semViralizeImg from "@/assets/sem-viralize-views.png";
+import comViralizeImg from "@/assets/com-viralize-views.png";
 import { cn } from "@/lib/utils";
 
 /* ═══════════════════════════════════════════
@@ -404,6 +405,11 @@ function ProvaSection() {
                   </li>
                 ))}
               </ul>
+              <img
+                src={comViralizeImg}
+                alt="Muitas visualizações com Viralize"
+                className="w-full rounded-lg mt-2 relative z-10"
+              />
             </motion.div>
           </div>
         </ScrollReveal>
