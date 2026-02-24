@@ -328,9 +328,7 @@ function OfertaSection() {
             <span className="text-lg text-muted-foreground/60 line-through">De R$ 645</span>
             <div className="flex items-end gap-2">
               <span className="text-sm text-muted-foreground">por apenas</span>
-              <span className="text-6xl font-bold font-display text-foreground">R$245
-
-              </span>
+              <span className="text-6xl font-bold font-display text-foreground">R$247</span>
             </div>
             <span className="text-sm text-muted-foreground mt-1">Pagamento único.</span>
           </div>
