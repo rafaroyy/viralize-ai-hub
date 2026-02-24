@@ -777,14 +777,6 @@ const CriarVideo = () => {
                 <Sparkles className="w-4 h-4 mr-2" />
                 Buscar inspiração
               </Button>
-              <Button
-                variant="outline"
-                className="border-primary/30 text-primary hover:bg-primary/10"
-                onClick={() => window.open("https://snaptik.app", "_blank")}
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Remover marca d'água (SnapTik)
-              </Button>
             </section>
 
             {/* Narração */}
@@ -879,9 +871,12 @@ const CriarVideo = () => {
                   </label>
                   <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${videoSource === "custom" ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
                     <RadioGroupItem value="custom" />
-                    <div>
-                      <p className="font-medium text-sm">Vídeos personalizados (Upload)</p>
-                      <p className="text-xs text-muted-foreground">Envie seus próprios vídeos</p>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm flex items-center gap-2">
+                        Vídeos personalizados (Upload)
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full gradient-primary text-primary-foreground">🔥 Recomendado</span>
+                      </p>
+                      <p className="text-xs text-muted-foreground">Maior taxa de viralização com vídeos reais do TikTok</p>
                     </div>
                   </label>
                 </RadioGroup>
