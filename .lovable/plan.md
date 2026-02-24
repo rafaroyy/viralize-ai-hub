@@ -1,49 +1,51 @@
 
-# Guia de Fluxo "Buscar Inspiracao + SnapTik + Upload"
 
-## Objetivo
-Criar um fluxo educativo dentro do app que guie o usuario passo a passo para maximizar a taxa de viralizacao usando videos reais do TikTok como base.
+# Nova Pagina de Vendas em /pagina
 
-## O que sera feito
+## Resumo
+Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
 
-### 1. Banner/Card educativo na secao "Fonte dos Videos" (modo Assistente IA)
-Quando o usuario selecionar "Videos personalizados (Upload)", exibir um card com um mini-tutorial de 3 passos:
+## Estrutura das Secoes
 
-- **Passo 1** - Busque inspiracao no TikTok usando a palavra-chave acima
-- **Passo 2** - Copie o link do video e use o SnapTik (snaptik.app) para baixar sem marca d'agua
-- **Passo 3** - Faca upload dos videos aqui para criar seu video personalizado
+1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
+2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
+3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
+4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
+5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
+6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
+7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
 
-O card tera visual destacado (borda primary, icones numerados) e um botao direto para abrir o SnapTik.
+## Detalhes Tecnicos
 
-### 2. Mesmo banner no modo Script Manual
-Na secao "Videos Personalizados" do modo manual, exibir o mesmo card educativo adaptado.
+### Arquivos criados
+- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
 
-### 3. Tooltip/dica no botao "Buscar inspiracao"
-Expandir a dica que ja aparece ao digitar a palavra-chave, adicionando menção ao SnapTik:
-> "Encontre videos virais, baixe sem marca d'agua pelo SnapTik e use aqui!"
+### Arquivos modificados
+- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
 
-### 4. Botao direto para SnapTik
-Adicionar um botao secundario "Remover marca d'agua (SnapTik)" ao lado ou abaixo do botao "Buscar inspiracao", que abre `https://snaptik.app` em nova aba.
+### Componentes reutilizados
+- `ScrollReveal` (mesmo pattern da LandingPage)
+- `framer-motion` para animacoes
+- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
+- Logo existente no header
+- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
 
----
+### Regras de UI seguidas conforme o prompt
+- Maximo 1 ideia por bloco
+- Frases de impacto em linha isolada (texto maior, peso bold)
+- Sem emojis no site
+- CTAs apenas no Hero + Oferta
+- Visual clean, contraste alto, bastante espaco
+- Navbar simplificada (logo + "Entrar" + CTA)
+- Footer minimalista
 
-## Detalhes tecnicos
+### Pricing
+- Preco: De R$645 por R$247
+- Pagamento unico
+- Link de checkout vitalicio reutilizado (CenterPag)
+- Suporte a affiliate slug mantido
 
-### Arquivo modificado
-- `src/pages/CriarVideo.tsx`
+### Rota
+- `/pagina` como rota publica (nao protegida)
+- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
 
-### Componente novo (inline)
-Um componente `InspirationGuide` sera criado dentro do arquivo com os 3 passos, usando os mesmos padroes visuais existentes (`glass-card`, `gradient-primary`, icones Lucide). Inclui:
-- Icones numerados (1, 2, 3) com estilo `gradient-primary`
-- Texto curto e direto para cada passo
-- Botao "Abrir SnapTik" que abre `https://snaptik.app` em nova aba
-- Botao "Buscar no TikTok" (reusa a logica do keyword existente)
-- Animacao com `framer-motion` (fade-in) consistente com o resto da pagina
-
-### Onde sera inserido
-1. **Modo Assistente**: Dentro da secao de upload que aparece quando `videoSource === "custom"` (linhas ~832-870), logo apos o paragrafo explicativo
-2. **Modo Manual**: Dentro da secao "Videos Personalizados" (linhas ~564-617), logo apos o paragrafo explicativo
-3. **Botao SnapTik**: Abaixo do botao "Buscar inspiracao" existente (linha ~713-727)
-
-### Dica expandida na palavra-chave
-A dica animada existente (linhas 702-710) sera atualizada para mencionar o fluxo completo.
