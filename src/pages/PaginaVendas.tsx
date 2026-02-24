@@ -47,8 +47,8 @@ function ImpactLine({ children, className }: { children: React.ReactNode; classN
   );
 }
 
-const CHECKOUT_LIFETIME = "https://checkout.centerpag.com/PPU38CQ6M3E";
-const CHECKOUT_MONTHLY = "https://go.perfectpay.com.br/PPU38CQ4E1A";
+const CHECKOUT_LIFETIME = "https://pay.zouti.com.br/checkout?poi=prod_offer_xx1w0hy1pi5lhvnvcukmdo";
+const CHECKOUT_MONTHLY = "https://pay.zouti.com.br/checkout?poi=prod_offer_qnohqjvl02nadr7v471icj";
 
 /* ═══════════════════════════════════════════
    NAVBAR
