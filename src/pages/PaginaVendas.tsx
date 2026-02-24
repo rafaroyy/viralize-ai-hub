@@ -47,7 +47,8 @@ function ImpactLine({ children, className }: { children: React.ReactNode; classN
   );
 }
 
-const CHECKOUT_URL = "https://checkout.centerpag.com/PPU38CQ6M3E";
+const CHECKOUT_LIFETIME = "https://checkout.centerpag.com/PPU38CQ6M3E";
+const CHECKOUT_MONTHLY = "https://go.perfectpay.com.br/PPU38CQ4E1A";
 
 /* ═══════════════════════════════════════════
    NAVBAR
@@ -81,7 +82,7 @@ function Navbar() {
             Entrar
           </Link>
           <a
-            href={CHECKOUT_URL}
+            href={CHECKOUT_LIFETIME}
             target="_blank"
             rel="noopener noreferrer"
             className="gradient-primary text-primary-foreground px-5 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity shadow-glow"
@@ -111,7 +112,7 @@ function Navbar() {
                 Entrar
               </Link>
               <a
-                href={CHECKOUT_URL}
+                href={CHECKOUT_LIFETIME}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setMobileOpen(false)}
@@ -178,7 +179,7 @@ function HeroSection() {
           className="flex flex-col items-center gap-3"
         >
           <a
-            href={CHECKOUT_URL}
+            href={CHECKOUT_LIFETIME}
             target="_blank"
             rel="noopener noreferrer"
             className="gradient-primary text-primary-foreground px-10 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow text-base"
@@ -427,6 +428,7 @@ function ProvaSection() {
    ═══════════════════════════════════════════ */
 
 function OfertaSection() {
+  const [activeTab, setActiveTab] = useState<'monthly' | 'lifetime'>('lifetime');
   const [timer, setTimer] = useState({ min: 37, sec: 0 });
 
   useEffect(() => {
@@ -440,6 +442,18 @@ function OfertaSection() {
     return () => clearInterval(interval);
   }, []);
 
+  const features = [
+    "Acesso completo ao motor de vídeos",
+    "Frameworks de viralização (HDC, PPMO, etc.)",
+    "Copy visual por frame",
+    "Variações automáticas de roteiro",
+    "Análise de roteiro com metodologia P-C-R",
+    "Chat IA especializado em vídeos virais",
+    "Upload de vídeos personalizados",
+    "Suporte prioritário",
+    "Garantia de 7 dias",
+  ];
+
   return (
     <section className="w-full py-20 md:py-28 relative overflow-hidden">
       <div className="absolute inset-0">
@@ -450,17 +464,58 @@ function OfertaSection() {
           <div className="text-center mb-4">
             <SectionTag>Oferta</SectionTag>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
-              Acesso vitalício à{" "}
+              Acesso completo à{" "}
               <GradientText className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
                 Viralize
               </GradientText>
             </h2>
+            <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
+              Um único plano com tudo incluso. Sem taxas escondidas, sem surpresas.
+            </p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.1}>
           <div className="max-w-md mx-auto mt-10">
-            <motion.div className="relative glass-card rounded-2xl border border-border/60 p-8 overflow-hidden">
+            {/* Tabs */}
+            <div className="flex justify-center mb-8">
+              <div className="inline-flex rounded-full bg-secondary/60 border border-border/50 p-1 gap-1">
+                <button
+                  onClick={() => setActiveTab('monthly')}
+                  className={cn(
+                    "px-5 py-2 rounded-full text-sm font-medium transition-all",
+                    activeTab === 'monthly'
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Mensal
+                </button>
+                <button
+                  onClick={() => setActiveTab('lifetime')}
+                  className={cn(
+                    "px-5 py-2 rounded-full text-sm font-medium transition-all",
+                    activeTab === 'lifetime'
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Vitalício
+                  <span className="ml-1.5 text-[10px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded-full border border-green-500/30">
+                    -65%
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Card */}
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="relative glass-card rounded-2xl border border-border/60 p-8 overflow-hidden"
+            >
               <BorderTrail
                 className="bg-gradient-to-l from-primary via-primary/50 to-transparent"
                 size={80}
@@ -468,58 +523,76 @@ function OfertaSection() {
               />
 
               <div className="relative z-10">
+                {/* Header */}
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-semibold text-foreground">Vitalício</h3>
-                  <span className="text-[10px] font-semibold bg-destructive/20 text-destructive px-2.5 py-1 rounded-full border border-destructive/30 flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {String(timer.min).padStart(2, "0")}:{String(timer.sec).padStart(2, "0")}
-                  </span>
+                  <h3 className="text-lg font-semibold text-foreground">
+                    {activeTab === 'monthly' ? 'Mensal' : 'Vitalício'}
+                  </h3>
+                  {activeTab === 'lifetime' && (
+                    <span className="text-[10px] font-semibold bg-destructive/20 text-destructive px-2.5 py-1 rounded-full border border-destructive/30 flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {String(timer.min).padStart(2, '0')}:{String(timer.sec).padStart(2, '0')}
+                    </span>
+                  )}
                 </div>
 
-                <p className="text-sm text-muted-foreground mb-6">Pague uma vez, use para sempre.</p>
+                <p className="text-sm text-muted-foreground mb-6">
+                  {activeTab === 'monthly'
+                    ? 'Acesso completo, cancele quando quiser.'
+                    : 'Pague uma vez, use para sempre!'}
+                </p>
 
                 {/* Price */}
                 <div className="mb-6">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-base text-muted-foreground/50 line-through">De R$ 645</span>
-                    <span className="text-xs font-bold bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full border border-green-500/30">
-                      -62% OFF
-                    </span>
-                  </div>
+                  {activeTab === 'lifetime' && (
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-base text-muted-foreground/50 line-through">De R$ 697,00</span>
+                      <span className="text-xs font-bold bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full border border-green-500/30">
+                        -65% OFF
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-end gap-1">
                     <span className="text-sm text-muted-foreground">R$</span>
                     <motion.span
+                      key={activeTab}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       className="text-5xl font-bold text-foreground font-display tracking-tight"
                     >
-                      247
+                      {activeTab === 'monthly' ? '145' : '245'}
                     </motion.span>
-                    <span className="text-sm text-muted-foreground mb-1.5"> único</span>
+                    <span className="text-sm text-muted-foreground mb-1.5">
+                      {activeTab === 'monthly' ? '/mês' : ' único'}
+                    </span>
                   </div>
                 </div>
 
-                <p className="text-sm text-muted-foreground italic mb-6">
-                  Menos que o valor de um vídeo viral pode gerar.
-                </p>
-
                 {/* CTA */}
                 <a
-                  href={CHECKOUT_URL}
+                  href={activeTab === 'monthly' ? CHECKOUT_MONTHLY : CHECKOUT_LIFETIME}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full gradient-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-glow text-sm mb-6"
                 >
-                  Quero começar agora
-                  <motion.span animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, repeatDelay: 2, duration: 1 }}>
-                    <ArrowRight className="h-4 w-4" />
-                  </motion.span>
+                  {activeTab === 'monthly' ? 'Começar agora' : 'Garantir acesso vitalício'}
+                  <ArrowRight className="h-4 w-4" />
                 </a>
 
+                {/* Features */}
+                <ul className="space-y-3">
+                  {features.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                      <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
                 {/* Shield */}
-                <div className="pt-5 border-t border-border/50 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                <div className="mt-6 pt-5 border-t border-border/50 flex items-center gap-2 text-xs text-muted-foreground">
                   <Shield className="h-4 w-4 text-primary" />
-                  Pagamento seguro. Acesso imediato.
+                  Acesso a todas as funcionalidades sem taxas escondidas
                 </div>
               </div>
             </motion.div>
@@ -550,7 +623,7 @@ function FechamentoSection() {
               </span>
             </p>
             <a
-              href={CHECKOUT_URL}
+              href={CHECKOUT_LIFETIME}
               target="_blank"
               rel="noopener noreferrer"
               className="gradient-primary text-primary-foreground px-10 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow text-base"
