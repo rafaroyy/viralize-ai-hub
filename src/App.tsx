@@ -14,6 +14,7 @@ import ChatIA from "./pages/ChatIA";
 import MeusVideos from "./pages/MeusVideos";
 import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
+import PaginaVendas from "./pages/PaginaVendas";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/pagina" element={<PaginaVendas />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/criar" element={<CriarVideo />} />
               <Route path="/analise" element={<AnaliseRoteiro />} />
