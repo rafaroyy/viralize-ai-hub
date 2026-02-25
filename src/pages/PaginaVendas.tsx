@@ -47,7 +47,7 @@ function ImpactLine({ children, className }: { children: React.ReactNode; classN
   );
 }
 
-const CHECKOUT_LIFETIME = "https://pay.zouti.com.br/checkout?poi=prod_offer_xx1w0hy1pi5lhvnvcukmdo";
+const CHECKOUT_LIFETIME = "https://pay.zouti.com.br/checkout?poi=prod_offer_2eglvz23g6tqk19jd1b3xe";
 const CHECKOUT_MONTHLY = "https://pay.zouti.com.br/checkout?poi=prod_offer_qnohqjvl02nadr7v471icj";
 
 /* ═══════════════════════════════════════════
@@ -560,7 +560,7 @@ function OfertaSection() {
                       animate={{ opacity: 1, scale: 1 }}
                       className="text-5xl font-bold text-foreground font-display tracking-tight"
                     >
-                      {activeTab === 'monthly' ? '145' : '245'}
+                      {activeTab === 'monthly' ? '145' : '645'}
                     </motion.span>
                     <span className="text-sm text-muted-foreground mb-1.5">
                       {activeTab === 'monthly' ? '/mês' : ' único'}
