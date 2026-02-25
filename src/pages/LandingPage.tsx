@@ -951,7 +951,7 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: { checkoutMonthly
                       animate={{ opacity: 1, scale: 1 }}
                       className="text-5xl font-bold text-foreground font-display tracking-tight">
 
-                      {activeTab === 'monthly' ? '145' : '245'}
+                      {activeTab === 'monthly' ? '145' : '645'}
                     </motion.span>
                     <span className="text-sm text-muted-foreground mb-1.5">
                       {activeTab === 'monthly' ? '/mês' : ' único'}
@@ -961,7 +961,7 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: { checkoutMonthly
 
                 {/* CTA */}
                 <a
-                  href={activeTab === 'monthly' ? (checkoutMonthly || 'https://go.perfectpay.com.br/PPU38CQ4E1A') : (checkoutLifetime || 'https://checkout.centerpag.com/PPU38CQ6M3E')}
+                  href={activeTab === 'monthly' ? (checkoutMonthly || 'https://pay.zouti.com.br/checkout?poi=prod_offer_qnohqjvl02nadr7v471icj') : (checkoutLifetime || 'https://pay.zouti.com.br/checkout?poi=prod_offer_2eglvz23g6tqk19jd1b3xe')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full gradient-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-glow text-sm mb-6">
