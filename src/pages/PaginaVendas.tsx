@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
    HELPERS
    ═══════════════════════════════════════════ */
 
-function ScrollReveal({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
+function ScrollReveal({ children, delay = 0, className }: {children: React.ReactNode;delay?: number;className?: string;}) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
   return (
@@ -24,27 +24,27 @@ function ScrollReveal({ children, delay = 0, className }: { children: React.Reac
       initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay, ease: "easeOut" }}
-      className={className}
-    >
+      className={className}>
+      
       {children}
-    </motion.div>
-  );
+    </motion.div>);
+
 }
 
-function SectionTag({ children }: { children: React.ReactNode }) {
+function SectionTag({ children }: {children: React.ReactNode;}) {
   return (
     <span className="inline-block text-xs font-semibold tracking-widest uppercase text-primary mb-4 border border-primary/30 rounded-full px-4 py-1.5 bg-primary/5">
       {children}
-    </span>
-  );
+    </span>);
+
 }
 
-function ImpactLine({ children, className }: { children: React.ReactNode; className?: string }) {
+function ImpactLine({ children, className }: {children: React.ReactNode;className?: string;}) {
   return (
     <p className={cn("text-xl sm:text-2xl lg:text-3xl font-bold font-display text-foreground leading-tight", className)}>
       {children}
-    </p>
-  );
+    </p>);
+
 }
 
 const CHECKOUT_LIFETIME = "https://pay.zouti.com.br/checkout?poi=prod_offer_2eglvz23g6tqk19jd1b3xe";
@@ -69,8 +69,8 @@ function Navbar() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         scrolled ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg" : "bg-transparent"
-      )}
-    >
+      )}>
+      
       <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <img src={isDark ? logoViralize : logoViralizeLight} alt="Viralize" className="h-28 object-contain" />
@@ -84,8 +84,8 @@ function Navbar() {
             href={CHECKOUT_LIFETIME}
             target="_blank"
             rel="noopener noreferrer"
-            className="gradient-primary text-primary-foreground px-5 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity shadow-glow"
-          >
+            className="gradient-primary text-primary-foreground px-5 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity shadow-glow">
+            
             Garantir acesso
           </a>
           <button className="sm:hidden ml-1 p-2" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
@@ -99,32 +99,32 @@ function Navbar() {
       </div>
 
       <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="sm:hidden bg-background/95 backdrop-blur-xl border-b border-border/50 overflow-hidden"
-          >
+        {mobileOpen &&
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className="sm:hidden bg-background/95 backdrop-blur-xl border-b border-border/50 overflow-hidden">
+          
             <nav className="container mx-auto px-6 py-4 flex flex-col gap-3">
               <Link to="/login" onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground py-2">
                 Entrar
               </Link>
               <a
-                href={CHECKOUT_LIFETIME}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setMobileOpen(false)}
-                className="text-sm text-primary hover:text-foreground py-2"
-              >
+              href={CHECKOUT_LIFETIME}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMobileOpen(false)}
+              className="text-sm text-primary hover:text-foreground py-2">
+              
                 Garantir acesso
               </a>
             </nav>
           </motion.div>
-        )}
+        }
       </AnimatePresence>
-    </motion.header>
-  );
+    </motion.header>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -145,8 +145,8 @@ function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 text-sm text-primary border border-primary/30 rounded-full px-5 py-2 bg-primary/5"
-        >
+          className="inline-flex items-center gap-2 text-sm text-primary border border-primary/30 rounded-full px-5 py-2 bg-primary/5">
+          
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
           Este acesso foi liberado para você após a live.
         </motion.div>
@@ -155,8 +155,8 @@ function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] font-display"
-        >
+          className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] font-display">
+          
           Seu convite exclusivo para o{" "}
           <GradientText className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] font-display">
             acesso vitalício à Viralize.
@@ -167,8 +167,8 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.25 }}
-          className="text-lg sm:text-xl text-muted-foreground max-w-xl"
-        >
+          className="text-lg sm:text-xl text-muted-foreground max-w-xl">
+          
           Normalmente fechado ao público. Condição disponível por tempo limitado para quem participou da live.
         </motion.p>
 
@@ -176,14 +176,14 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="flex flex-col items-center gap-3"
-        >
+          className="flex flex-col items-center gap-3">
+          
           <a
             href={CHECKOUT_LIFETIME}
             target="_blank"
             rel="noopener noreferrer"
-            className="gradient-primary text-primary-foreground px-10 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow text-base"
-          >
+            className="gradient-primary text-primary-foreground px-10 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow text-base">
+            
             Quero garantir meu acesso vitalício
             <motion.span animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, repeatDelay: 2, duration: 1 }}>
               <ArrowRight className="h-5 w-5" />
@@ -192,8 +192,8 @@ function HeroSection() {
           <span className="text-sm text-muted-foreground">Pagamento único. Acesso vitalício.</span>
         </motion.div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -225,8 +225,8 @@ function ProvaSection() {
             <motion.div
               className="glass-card p-8 rounded-2xl flex flex-col gap-5 border-destructive/20"
               whileHover={{ y: -4 }}
-              transition={{ duration: 0.3 }}
-            >
+              transition={{ duration: 0.3 }}>
+              
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center">
                   <TrendingDown className="h-5 w-5 text-destructive" />
@@ -234,31 +234,31 @@ function ProvaSection() {
                 <h3 className="text-lg font-bold font-display text-destructive">Sem Viralize</h3>
               </div>
               <ul className="flex flex-col gap-3">
-                {["vídeos ignorados", "perfil parado", "nenhuma venda"].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-muted-foreground">
+                {["vídeos ignorados", "perfil parado", "nenhuma venda"].map((item) =>
+                <li key={item} className="flex items-center gap-3 text-muted-foreground">
                     <X className="h-4 w-4 text-destructive shrink-0" />
                     {item}
                   </li>
-                ))}
+                )}
               </ul>
               <img
                 src={semViralizeImg}
                 alt="Poucas visualizações sem Viralize"
-                className="w-full rounded-lg mt-2 opacity-80"
-              />
+                className="w-full rounded-lg mt-2 opacity-80" />
+              
             </motion.div>
 
             {/* Com Viralize */}
             <motion.div
               className="glass-card p-8 rounded-2xl flex flex-col gap-5 border-primary/30 shadow-glow relative overflow-hidden"
               whileHover={{ y: -4, boxShadow: "0 0 40px hsl(var(--primary) / 0.25)" }}
-              transition={{ duration: 0.3 }}
-            >
+              transition={{ duration: 0.3 }}>
+              
               <BorderTrail
                 className="bg-gradient-to-l from-primary via-primary/50 to-transparent"
                 size={60}
-                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-              />
+                transition={{ repeat: Infinity, duration: 4, ease: "linear" }} />
+              
               <div className="flex items-center gap-3 mb-2 relative z-10">
                 <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
                   <TrendingUp className="h-5 w-5 text-primary-foreground" />
@@ -266,24 +266,24 @@ function ProvaSection() {
                 <h3 className="text-lg font-bold font-display text-primary">Com Viralize</h3>
               </div>
               <ul className="flex flex-col gap-3 relative z-10">
-                {["explosão de alcance", "mensagens chegando", "vendas acontecendo"].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-foreground font-medium">
+                {["explosão de alcance", "mensagens chegando", "vendas acontecendo"].map((item) =>
+                <li key={item} className="flex items-center gap-3 text-foreground font-medium">
                     <Check className="h-4 w-4 text-primary shrink-0" />
                     {item}
                   </li>
-                ))}
+                )}
               </ul>
               <img
                 src={comViralizeImg}
                 alt="Muitas visualizações com Viralize"
-                className="w-full rounded-lg mt-2 relative z-10"
-              />
+                className="w-full rounded-lg mt-2 relative z-10" />
+              
             </motion.div>
           </div>
         </ScrollReveal>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -292,10 +292,10 @@ function ProvaSection() {
 
 function ComoFuncionaSection() {
   const steps = [
-    { num: "01", title: "Escolha seu objetivo", desc: "Defina o tipo de vídeo e o resultado que quer alcançar." },
-    { num: "02", title: "Viralize gera a estrutura", desc: "A IA cria roteiro, copy visual e framework de viralização prontos para gravar." },
-    { num: "03", title: "Você posta com consistência", desc: "Execute com clareza e direção. Sem adivinhar, sem desperdiçar tempo." },
-  ];
+  { num: "01", title: "Escolha seu objetivo", desc: "Defina o tipo de vídeo e o resultado que quer alcançar." },
+  { num: "02", title: "Viralize gera a estrutura", desc: "A IA cria roteiro, copy visual e framework de viralização prontos para gravar." },
+  { num: "03", title: "Você posta com consistência", desc: "Execute com clareza e direção. Sem adivinhar, sem desperdiçar tempo." }];
+
 
   return (
     <section className="w-full py-20 md:py-28">
@@ -313,23 +313,23 @@ function ComoFuncionaSection() {
         </ScrollReveal>
 
         <div className="grid md:grid-cols-3 gap-6">
-          {steps.map((step, i) => (
-            <ScrollReveal key={step.num} delay={i * 0.1}>
+          {steps.map((step, i) =>
+          <ScrollReveal key={step.num} delay={i * 0.1}>
               <motion.div
-                className="glass-card p-6 rounded-2xl flex flex-col gap-4 h-full"
-                whileHover={{ y: -4 }}
-                transition={{ duration: 0.3 }}
-              >
+              className="glass-card p-6 rounded-2xl flex flex-col gap-4 h-full"
+              whileHover={{ y: -4 }}
+              transition={{ duration: 0.3 }}>
+              
                 <span className="text-3xl font-bold font-display text-primary/30">{step.num}</span>
                 <h3 className="text-lg font-bold font-display text-foreground">{step.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
               </motion.div>
             </ScrollReveal>
-          ))}
+          )}
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -338,13 +338,13 @@ function ComoFuncionaSection() {
 
 function BeneficiosSection() {
   const benefits = [
-    "Velocidade: saia da ideia ao roteiro em minutos",
-    "Consistência: nunca mais fique sem saber o que postar",
-    "Direção criativa: cada vídeo com estrutura validada",
-    "Menos tentativa e erro: pare de adivinhar o que funciona",
-    "Mais iteração: teste variações rápidas e encontre o que viraliza",
-    "Clareza total: saiba exatamente o que gravar, falar e mostrar",
-  ];
+  "Velocidade: saia da ideia ao roteiro em minutos",
+  "Consistência: nunca mais fique sem saber o que postar",
+  "Direção criativa: cada vídeo com estrutura validada",
+  "Menos tentativa e erro: pare de adivinhar o que funciona",
+  "Mais iteração: teste variações rápidas e encontre o que viraliza",
+  "Clareza total: saiba exatamente o que gravar, falar e mostrar"];
+
 
   return (
     <section className="w-full py-20 md:py-28 bg-secondary/20 relative overflow-hidden">
@@ -366,22 +366,22 @@ function BeneficiosSection() {
 
         <ScrollReveal delay={0.1}>
           <div className="grid sm:grid-cols-2 gap-4">
-            {benefits.map((b, i) => (
-              <motion.div
-                key={i}
-                className="glass-card px-5 py-4 rounded-xl flex items-start gap-3"
-                whileHover={{ y: -2 }}
-                transition={{ duration: 0.2 }}
-              >
+            {benefits.map((b, i) =>
+            <motion.div
+              key={i}
+              className="glass-card px-5 py-4 rounded-xl flex items-start gap-3"
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2 }}>
+              
                 <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <span className="text-sm text-muted-foreground">{b}</span>
               </motion.div>
-            ))}
+            )}
           </div>
         </ScrollReveal>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -403,16 +403,16 @@ function OfertaSection() {
   }, []);
 
   const features = [
-    "Acesso completo ao motor de vídeos",
-    "Frameworks de viralização (HDC, PPMO, etc.)",
-    "Copy visual por frame",
-    "Variações automáticas de roteiro",
-    "Análise de roteiro com metodologia P-C-R",
-    "Chat IA especializado em vídeos virais",
-    "Upload de vídeos personalizados",
-    "Suporte prioritário",
-    "Garantia de 7 dias",
-  ];
+  "Acesso completo ao motor de vídeos",
+  "Frameworks de viralização (HDC, PPMO, etc.)",
+  "Copy visual por frame",
+  "Variações automáticas de roteiro",
+  "Análise de roteiro com metodologia P-C-R",
+  "Chat IA especializado em vídeos virais",
+  "Upload de vídeos personalizados",
+  "Suporte prioritário",
+  "Garantia de 7 dias"];
+
 
   return (
     <section className="w-full py-20 md:py-28 relative overflow-hidden">
@@ -441,13 +441,13 @@ function OfertaSection() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="relative glass-card rounded-2xl border border-border/60 p-8 overflow-hidden"
-            >
+              className="relative glass-card rounded-2xl border border-border/60 p-8 overflow-hidden">
+              
               <BorderTrail
                 className="bg-gradient-to-l from-primary via-primary/50 to-transparent"
                 size={80}
-                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-              />
+                transition={{ repeat: Infinity, duration: 4, ease: "linear" }} />
+              
 
               <div className="relative z-10">
                 {/* Header */}
@@ -473,7 +473,7 @@ function OfertaSection() {
                   </div>
                   <div className="flex items-end gap-1">
                     <span className="text-sm text-muted-foreground">R$</span>
-                    <span className="text-5xl font-bold text-foreground font-display tracking-tight">645</span>
+                    <span className="text-5xl font-bold text-foreground font-display tracking-tight">245</span>
                     <span className="text-sm text-muted-foreground mb-1.5"> único</span>
                   </div>
                 </div>
@@ -483,20 +483,20 @@ function OfertaSection() {
                   href={CHECKOUT_LIFETIME}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full gradient-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-glow text-sm mb-6"
-                >
+                  className="w-full gradient-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-glow text-sm mb-6">
+                  
                   Garantir acesso vitalício
                   <ArrowRight className="h-4 w-4" />
                 </a>
 
                 {/* Features */}
                 <ul className="space-y-3">
-                  {features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                  {features.map((f) =>
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
                       <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                       {f}
                     </li>
-                  ))}
+                  )}
                 </ul>
 
                 {/* Shield */}
@@ -509,8 +509,8 @@ function OfertaSection() {
           </div>
         </ScrollReveal>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -521,13 +521,13 @@ function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const faqs = [
-    { q: "O que é a Viralize?", a: "A Viralize é uma ferramenta de inteligência artificial que cria roteiros, estruturas e copy visual para vídeos com alto potencial de alcance. Você define o objetivo e ela entrega tudo pronto para gravar." },
-    { q: "Como funciona o acesso vitalício?", a: "Você paga uma única vez e tem acesso completo a todas as funcionalidades da Viralize, sem mensalidade e sem cobranças futuras." },
-    { q: "Tem garantia?", a: "Sim. Você tem 7 dias de garantia incondicional. Se não fizer sentido para você, devolvemos 100% do valor." },
-    { q: "Preciso ter experiência com vídeos?", a: "Não. A Viralize foi feita justamente para quem não sabe por onde começar. A estrutura, o roteiro e a copy já vêm prontos." },
-    { q: "Como acesso a plataforma após a compra?", a: "Após o pagamento, você recebe os dados de acesso por e-mail e já pode começar a usar imediatamente." },
-    { q: "Funciona para qualquer nicho?", a: "Sim. A Viralize trabalha com frameworks de viralização que funcionam independente do nicho. Você adapta o conteúdo ao seu mercado." },
-  ];
+  { q: "O que é a Viralize?", a: "A Viralize é uma ferramenta de inteligência artificial que cria roteiros, estruturas e copy visual para vídeos com alto potencial de alcance. Você define o objetivo e ela entrega tudo pronto para gravar." },
+  { q: "Como funciona o acesso vitalício?", a: "Você paga uma única vez e tem acesso completo a todas as funcionalidades da Viralize, sem mensalidade e sem cobranças futuras." },
+  { q: "Tem garantia?", a: "Sim. Você tem 7 dias de garantia incondicional. Se não fizer sentido para você, devolvemos 100% do valor." },
+  { q: "Preciso ter experiência com vídeos?", a: "Não. A Viralize foi feita justamente para quem não sabe por onde começar. A estrutura, o roteiro e a copy já vêm prontos." },
+  { q: "Como acesso a plataforma após a compra?", a: "Após o pagamento, você recebe os dados de acesso por e-mail e já pode começar a usar imediatamente." },
+  { q: "Funciona para qualquer nicho?", a: "Sim. A Viralize trabalha com frameworks de viralização que funcionam independente do nicho. Você adapta o conteúdo ao seu mercado." }];
+
 
   return (
     <section className="w-full py-20 md:py-28">
@@ -545,40 +545,40 @@ function FAQSection() {
         </ScrollReveal>
 
         <div className="flex flex-col gap-3">
-          {faqs.map((faq, i) => (
-            <ScrollReveal key={i} delay={i * 0.05}>
+          {faqs.map((faq, i) =>
+          <ScrollReveal key={i} delay={i * 0.05}>
               <motion.div
-                className="glass-card rounded-xl overflow-hidden"
-                whileHover={{ y: -1 }}
-                transition={{ duration: 0.2 }}
-              >
+              className="glass-card rounded-xl overflow-hidden"
+              whileHover={{ y: -1 }}
+              transition={{ duration: 0.2 }}>
+              
                 <button
-                  onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                  className="w-full flex items-center justify-between px-6 py-4 text-left"
-                >
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                className="w-full flex items-center justify-between px-6 py-4 text-left">
+                
                   <span className="text-sm font-medium text-foreground">{faq.q}</span>
                   <ChevronDown className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-200", openIndex === i && "rotate-180")} />
                 </button>
                 <AnimatePresence>
-                  {openIndex === i && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
-                    >
+                  {openIndex === i &&
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden">
+                  
                       <p className="px-6 pb-4 text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
                     </motion.div>
-                  )}
+                }
                 </AnimatePresence>
               </motion.div>
             </ScrollReveal>
-          ))}
+          )}
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -598,8 +598,8 @@ function FechamentoSection() {
             <p className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display leading-tight">
               Acesso vitalício por{" "}
               <span className="text-muted-foreground/50 line-through text-2xl sm:text-3xl">R$697</span>{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">
-                R$645.
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">R$245.
+
               </span>
             </p>
             <p className="text-muted-foreground text-sm max-w-md">
@@ -609,8 +609,8 @@ function FechamentoSection() {
               href={CHECKOUT_LIFETIME}
               target="_blank"
               rel="noopener noreferrer"
-              className="gradient-primary text-primary-foreground px-10 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow text-base"
-            >
+              className="gradient-primary text-primary-foreground px-10 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-glow text-base">
+              
               Ativar acesso vitalício agora
               <motion.span animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, repeatDelay: 2, duration: 1 }}>
                 <ArrowRight className="h-5 w-5" />
@@ -619,8 +619,8 @@ function FechamentoSection() {
           </div>
         </ScrollReveal>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -639,8 +639,8 @@ function Footer() {
           </p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>);
+
 }
 
 /* ═══════════════════════════════════════════
@@ -659,6 +659,6 @@ export default function PaginaVendas() {
       <FAQSection />
       <FechamentoSection />
       <Footer />
-    </div>
-  );
+    </div>);
+
 }
