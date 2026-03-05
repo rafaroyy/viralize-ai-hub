@@ -47,7 +47,7 @@ function ImpactLine({ children, className }: {children: React.ReactNode;classNam
 
 }
 
-const CHECKOUT_LIFETIME = "https://pay.zouti.com.br/checkout?poi=prod_offer_2eglvz23g6tqk19jd1b3xe";
+const CHECKOUT_LIFETIME = "https://pay.zouti.com.br/checkout?poi=prod_offer_xx1w0hy1pi5lhvnvcukmdo";
 
 /* ═══════════════════════════════════════════
    NAVBAR
