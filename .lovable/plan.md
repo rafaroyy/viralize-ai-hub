@@ -1,51 +1,67 @@
 
 
-# Nova Pagina de Vendas em /pagina
+# Transformar /pagina em Convite Exclusivo Pós-Live (Vitalício)
 
 ## Resumo
-Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
+Reescrever `src/pages/PaginaVendas.tsx` para ser uma página de convite exclusivo para leads vindos de uma live, vendendo apenas o Plano Vitalício. Nenhum outro arquivo será alterado.
 
-## Estrutura das Secoes
+## Estrutura Final (7 seções obrigatórias)
 
-1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
-2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
-3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
-4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
-5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
-6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
-7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
+### 1. HERO
+- Microcopy no topo: "Este acesso foi liberado para você após a live."
+- Headline: "Seu convite exclusivo para o acesso vitalício à Viralize"
+- Subheadline: curta, reforçando condição limitada
+- CTA primário: "Garantir meu acesso vitalício" → link CHECKOUT_LIFETIME
 
-## Detalhes Tecnicos
+### 2. PROVAS (ANTES/DEPOIS)
+- Mover seção ProvaSection para posição 2 (logo após hero)
+- Título: "O que muda na prática"
+- Manter imagens `semViralizeImg` e `comViralizeImg` intactas, mesmo formato, mesmas classes
+- Bullets e cards iguais
 
-### Arquivos criados
-- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
+### 3. COMO FUNCIONA (3 passos)
+- Substituir seções Dor + Virada + Solução por uma única seção "Como funciona"
+- 3 passos simples: Escolha o objetivo → Viralize gera a estrutura → Você posta com consistência
+- Visual com cards numerados
 
-### Arquivos modificados
-- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
+### 4. BENEFÍCIOS
+- Nova seção com bullets diretos
+- Foco: velocidade, consistência, direção criativa, menos tentativa e erro, mais iteração
+- Layout clean com ícones Check
 
-### Componentes reutilizados
-- `ScrollReveal` (mesmo pattern da LandingPage)
-- `framer-motion` para animacoes
-- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
-- Logo existente no header
-- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
+### 5. VITALÍCIO (o que inclui)
+- Reescrever OfertaSection: remover tabs mensal/lifetime, remover `CHECKOUT_MONTHLY`
+- Card único: Vitalício
+- Preço: De R$697 riscado → R$645
+- Lista de features mantida
+- Timer de escassez mantido
+- CTA: "Garantir acesso vitalício"
+- Reforço: pagamento único, acesso contínuo, sem mensalidade
 
-### Regras de UI seguidas conforme o prompt
-- Maximo 1 ideia por bloco
-- Frases de impacto em linha isolada (texto maior, peso bold)
-- Sem emojis no site
-- CTAs apenas no Hero + Oferta
-- Visual clean, contraste alto, bastante espaco
-- Navbar simplificada (logo + "Entrar" + CTA)
-- Footer minimalista
+### 6. FAQ
+- Nova seção com 5-6 perguntas (sem mencionar plano mensal)
+- Perguntas: O que é a Viralize? / Como funciona o acesso vitalício? / Tem garantia? / Preciso de experiência? / Como acesso após a compra? / Posso usar em qualquer nicho?
 
-### Pricing
-- Preco: De R$645 por R$247
-- Pagamento unico
-- Link de checkout vitalicio reutilizado (CenterPag)
-- Suporte a affiliate slug mantido
+### 7. OFERTA FINAL (hard close)
+- Reescrever FechamentoSection
+- Repetir oferta: valor riscado + valor atual
+- CTA forte: "Ativar acesso vitalício agora"
 
-### Rota
-- `/pagina` como rota publica (nao protegida)
-- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
+### Navbar
+- CTA do navbar: "Garantir acesso" (link vitalício)
+- Remover referência a CHECKOUT_MONTHLY
+
+### Footer
+- Sem alterações
+
+## Arquivo modificado
+- `src/pages/PaginaVendas.tsx` — reescrita completa do conteúdo, mantendo helpers (ScrollReveal, SectionTag, ImpactLine), imports, e assets
+
+## Checklist
+- Apenas `/pagina` alterada
+- Imagens de prova intactas
+- Zero menção a plano mensal
+- Topo menciona live
+- CTA no hero + CTA no final
+- Nenhum arquivo externo tocado
 
