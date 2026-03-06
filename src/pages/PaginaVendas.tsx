@@ -594,7 +594,7 @@ function FechamentoSection() {
       <div className="container mx-auto px-4 sm:px-6 max-w-2xl text-center relative z-10">
         <ScrollReveal>
           <div className="flex flex-col items-center gap-6">
-            <p className="text-lg text-muted-foreground">Essa condição foi liberada para quem participou da live.</p>
+            <p className="text-lg text-muted-foreground">Esta é uma oferta exclusiva para quem recebeu este convite.</p>
             <p className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display leading-tight">
               Acesso vitalício por{" "}
               <span className="text-muted-foreground/50 line-through text-2xl sm:text-3xl">R$697</span>{" "}
