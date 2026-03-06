@@ -169,7 +169,7 @@ function HeroSection() {
           transition={{ duration: 0.7, delay: 0.25 }}
           className="text-lg sm:text-xl text-muted-foreground max-w-xl">
           
-          Normalmente fechado ao público. Condição disponível por tempo limitado para quem participou da live.
+          Acesso exclusivo por convite. Disponível por tempo limitado para quem foi selecionado.
         </motion.p>
 
         <motion.div
