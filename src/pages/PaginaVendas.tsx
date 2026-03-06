@@ -468,7 +468,7 @@ function OfertaSection() {
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-base text-muted-foreground/50 line-through">De R$ 697,00</span>
                     <span className="text-xs font-bold bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full border border-green-500/30">
-                      OFERTA DA LIVE
+                      OFERTA ESPECIAL
                     </span>
                   </div>
                   <div className="flex items-end gap-1">
