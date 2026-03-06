@@ -141,15 +141,15 @@ function HeroSection() {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 py-20 md:py-32 relative z-10 max-w-3xl text-center flex flex-col items-center gap-8">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 text-sm text-primary border border-primary/30 rounded-full px-5 py-2 bg-primary/5">
-          
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          Este acesso foi liberado para você após a live.
-        </motion.div>
+        
+
+
+
+
+
+
+
+        
 
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
