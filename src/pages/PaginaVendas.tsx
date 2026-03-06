@@ -169,7 +169,7 @@ function HeroSection() {
           transition={{ duration: 0.7, delay: 0.25 }}
           className="text-lg sm:text-xl text-muted-foreground max-w-xl">
           
-          Normalmente fechado ao público. Condição disponível por tempo limitado para quem participou da live.
+          Acesso exclusivo por convite. Disponível por tempo limitado para quem foi selecionado.
         </motion.p>
 
         <motion.div
@@ -468,7 +468,7 @@ function OfertaSection() {
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-base text-muted-foreground/50 line-through">De R$ 697,00</span>
                     <span className="text-xs font-bold bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full border border-green-500/30">
-                      OFERTA DA LIVE
+                      OFERTA ESPECIAL
                     </span>
                   </div>
                   <div className="flex items-end gap-1">
@@ -594,7 +594,7 @@ function FechamentoSection() {
       <div className="container mx-auto px-4 sm:px-6 max-w-2xl text-center relative z-10">
         <ScrollReveal>
           <div className="flex flex-col items-center gap-6">
-            <p className="text-lg text-muted-foreground">Essa condição foi liberada para quem participou da live.</p>
+            <p className="text-lg text-muted-foreground">Esta é uma oferta exclusiva para quem recebeu este convite.</p>
             <p className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display leading-tight">
               Acesso vitalício por{" "}
               <span className="text-muted-foreground/50 line-through text-2xl sm:text-3xl">R$697</span>{" "}
