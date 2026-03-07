@@ -219,13 +219,6 @@ const CriarVideo = () => {
       toast({ title: "Envie os vídeos", description: "No modo Custom é obrigatório enviar vídeos.", variant: "destructive" });
       return;
     }
-    if (videoSource === "sora") {
-      const dur = Number(duration);
-      if (dur > soraRemainingSeconds) {
-        toast({ title: "Limite de IA esgotado", description: `Você tem apenas ${formatTimeRemaining(soraRemainingSeconds)} restantes. Reduza a duração ou use vídeos personalizados.`, variant: "destructive" });
-        return;
-      }
-    }
 
     setIsSubmitting(true);
     try {
