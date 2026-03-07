@@ -301,9 +301,6 @@ const CriarVideo = () => {
 
   const videosRemaining = quota?.total?.remaining ?? null;
 
-  const soraUsedSeconds = getSoraUsage(user?.user_id);
-  const soraRemainingSeconds = Math.max(0, SORA_LIMIT_SECONDS - soraUsedSeconds);
-  const soraExhausted = soraRemainingSeconds <= 0;
 
   const isGenerating = !!jobStatus && (jobStatus.status === "pending" || jobStatus.status === "processing");
   const jobFailed = !!jobStatus && jobStatus.status === "failed";
