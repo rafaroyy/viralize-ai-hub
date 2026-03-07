@@ -21,25 +21,6 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/u
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const MAX_WORDS = 25;
-const SORA_LIMIT_SECONDS = 120; // 2 minutes lifetime limit
-
-function getSoraUsage(userId: number | undefined): number {
-  if (!userId) return 0;
-  const stored = localStorage.getItem(`viralize_sora_usage_${userId}`);
-  return stored ? Number(stored) : 0;
-}
-
-function addSoraUsage(userId: number | undefined, seconds: number) {
-  if (!userId) return;
-  const current = getSoraUsage(userId);
-  localStorage.setItem(`viralize_sora_usage_${userId}`, String(current + seconds));
-}
-
-function formatTimeRemaining(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `Restante ${mins} min ${secs} segundos`;
-}
 
 function WordCounter({ text }: { text: string }) {
   const count = text.trim() ? text.trim().split(/\s+/).length : 0;
