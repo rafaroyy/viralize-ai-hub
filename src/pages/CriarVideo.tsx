@@ -820,20 +820,13 @@ const CriarVideo = () => {
               <div className="space-y-3">
                 <Label>Fonte dos Vídeos</Label>
                 <RadioGroup value={videoSource} onValueChange={(v) => {
-                  if (v === "sora" && soraExhausted) return;
                   setVideoSource(v as "sora" | "custom");
                 }} className="space-y-3">
-                  <label className={`relative flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${soraExhausted ? "opacity-60 cursor-not-allowed" : ""} ${videoSource === "sora" ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
-                    <RadioGroupItem value="sora" disabled={soraExhausted} />
+                  <label className={`relative flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${videoSource === "sora" ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
+                    <RadioGroupItem value="sora" />
                     <div className="flex-1">
                       <p className="font-medium text-sm">Gerados pela IA da Viralize</p>
-                      <p className="text-xs text-muted-foreground">
-                        {soraExhausted ? "Limite de uso esgotado" : "A IA cria os vídeos automaticamente"}
-                      </p>
-                    </div>
-                    <div className={`flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full border ${soraExhausted ? "bg-destructive/10 border-destructive/30 text-destructive" : "bg-primary/10 border-primary/20 text-primary"}`}>
-                      <Clock className="w-3 h-3" />
-                      {formatTimeRemaining(soraRemainingSeconds)}
+                      <p className="text-xs text-muted-foreground">A IA cria os vídeos automaticamente</p>
                     </div>
                   </label>
                   <label className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${videoSource === "custom" ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
