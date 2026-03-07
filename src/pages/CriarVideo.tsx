@@ -101,8 +101,7 @@ const CriarVideo = () => {
   const [tema, setTema] = useState("");
   const [nicho, setNicho] = useState("");
   const [idioma, setIdioma] = useState("pt-BR");
-  const initialSoraExhausted = getSoraUsage(user?.user_id) >= SORA_LIMIT_SECONDS;
-  const [videoSource, setVideoSource] = useState<"sora" | "custom">(initialSoraExhausted ? "custom" : "sora");
+  const [videoSource, setVideoSource] = useState<"sora" | "custom">("sora");
 
   // Caption styles from API
   const [captionStyles, setCaptionStyles] = useState<CaptionStyle[]>([]);
