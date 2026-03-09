@@ -12,7 +12,14 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(() => {
+    const expired = sessionStorage.getItem("viralize_session_expired");
+    if (expired) {
+      sessionStorage.removeItem("viralize_session_expired");
+      return "Sua sessão expirou. Faça login novamente.";
+    }
+    return "";
+  });
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();

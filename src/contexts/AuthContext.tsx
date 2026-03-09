@@ -29,9 +29,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await api.quota();
       setQuota(data.quota);
     } catch (err: any) {
-      if (err?.status === 401 || err?.message?.toLowerCase().includes("token") || err?.message?.toLowerCase().includes("expirado")) {
+    if (err?.status === 401 || err?.message?.toLowerCase().includes("token") || err?.message?.toLowerCase().includes("expirado")) {
         localStorage.removeItem("viralize_user");
         localStorage.removeItem("viralize_token");
+        sessionStorage.setItem("viralize_session_expired", "true");
         setUser(null);
         setQuota(null);
       }
