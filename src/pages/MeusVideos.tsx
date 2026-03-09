@@ -151,8 +151,6 @@ function VideoThumbnail({
     return () => { if (revoke) URL.revokeObjectURL(revoke); };
   }, [video.job_id, isCompleted]);
 
-  if (loadFailed) return null;
-
   const dateStr = video.created_at
     ? new Date(video.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
     : "";
@@ -160,10 +158,15 @@ function VideoThumbnail({
   return (
     <button
       onClick={onClick}
-      disabled={disabled}
-      className="group relative aspect-[9/16] rounded-xl overflow-hidden border border-border bg-secondary/50 transition-all hover:border-primary/50 hover:shadow-glow focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+      disabled={disabled || loadFailed}
+      className="group relative aspect-[9/16] rounded-xl overflow-hidden border border-border bg-secondary/50 transition-all hover:border-primary/50 hover:shadow-glow focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed"
     >
-      {thumbUrl ? (
+      {loadFailed ? (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-2">
+          <Film className="w-6 h-6 text-muted-foreground/60" />
+          <span className="text-[10px] text-muted-foreground text-center leading-tight">Arquivo indisponível</span>
+        </div>
+      ) : thumbUrl ? (
         <video
           src={thumbUrl}
           muted
@@ -189,7 +192,7 @@ function VideoThumbnail({
       )}
 
       {/* Overlay on hover */}
-      {isCompleted && (
+      {isCompleted && !loadFailed && (
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
           <Play className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
         </div>
