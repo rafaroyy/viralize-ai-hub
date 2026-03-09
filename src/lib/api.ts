@@ -27,7 +27,9 @@ export async function apiFetch<T = unknown>(
 
   if (!res.ok) {
     const data = await res.json().catch(() => null);
-    throw new Error(data?.detail || data?.message || `Erro ${res.status}`);
+    const error = new Error(data?.detail || data?.message || `Erro ${res.status}`);
+    (error as any).status = res.status;
+    throw error;
   }
 
   // Handle blob responses
