@@ -28,8 +28,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const data = await api.quota();
       setQuota(data.quota);
-    } catch {
-      // silently fail
+    } catch (err: any) {
+      if (err?.status === 401 || err?.message?.toLowerCase().includes("token") || err?.message?.toLowerCase().includes("expirado")) {
+        localStorage.removeItem("viralize_user");
+        localStorage.removeItem("viralize_token");
+        setUser(null);
+        setQuota(null);
+      }
     }
   };
 
@@ -40,8 +45,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const parsed = JSON.parse(stored);
         setUser(parsed);
-        // Refresh quota in background
-        refreshQuota();
+        // Validate token by refreshing quota
+        refreshQuota().finally(() => setLoading(false));
+        return;
       } catch {
         localStorage.removeItem("viralize_user");
         localStorage.removeItem("viralize_token");
