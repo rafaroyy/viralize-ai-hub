@@ -29,8 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await api.quota();
       setQuota(data.quota);
     } catch (err: any) {
-      // If token is expired/invalid (401), auto-logout
-      if (err?.message?.includes("401") || err?.message?.toLowerCase().includes("token") || err?.message?.toLowerCase().includes("expirado")) {
+      if (err?.status === 401 || err?.message?.toLowerCase().includes("token") || err?.message?.toLowerCase().includes("expirado")) {
         localStorage.removeItem("viralize_user");
         localStorage.removeItem("viralize_token");
         setUser(null);
