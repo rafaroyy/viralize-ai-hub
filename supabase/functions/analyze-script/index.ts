@@ -72,32 +72,6 @@ Responda APENAS com um JSON válido, sem markdown, sem texto antes ou depois. O 
 
 Forneça entre 3 e 6 insights, misturando positivos e warnings. Seja específico, prático e direto nos feedbacks. Use exemplos concretos de como melhorar quando der warnings.`;
 
-async function transcribeAudio(audioBlob: Blob, apiKey: string): Promise<string> {
-  const formData = new FormData();
-  formData.append("file", audioBlob, "video.mp4");
-  formData.append("model_id", "scribe_v2");
-  formData.append("tag_audio_events", "false");
-  formData.append("diarize", "false");
-  formData.append("language_code", "por");
-
-  const response = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
-    method: "POST",
-    headers: {
-      "xi-api-key": apiKey,
-    },
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("ElevenLabs STT error:", response.status, errorText);
-    throw new Error("Erro ao transcrever vídeo.");
-  }
-
-  const data = await response.json();
-  return data.text;
-}
-
 async function analyzeScript(script: string, openaiKey: string, projectKey?: string) {
   const headers: Record<string, string> = {
     Authorization: `Bearer ${openaiKey}`,
@@ -146,23 +120,34 @@ serve(async (req) => {
 
     const contentType = req.headers.get("content-type") || "";
     let script: string;
+    let isVideo = false;
 
     if (contentType.includes("multipart/form-data")) {
       if (!elevenlabsKey) throw new Error("ELEVENLABS_KEY is not configured");
+      isVideo = true;
 
-      const formData = await req.formData();
-      const videoFile = formData.get("video") as File | null;
+      // Stream the request body directly to ElevenLabs without buffering
+      // The client sends the form fields that ElevenLabs expects (file, model_id, language_code)
+      console.log("Proxying video upload to ElevenLabs STT (streaming)...");
 
-      if (!videoFile) {
-        return new Response(
-          JSON.stringify({ error: "Nenhum vídeo enviado." }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+      const sttResponse = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
+        method: "POST",
+        headers: {
+          "xi-api-key": elevenlabsKey,
+          "content-type": contentType, // preserve boundary
+        },
+        body: req.body, // stream directly, no buffering
+      });
+
+      if (!sttResponse.ok) {
+        const errorText = await sttResponse.text();
+        console.error("ElevenLabs STT error:", sttResponse.status, errorText);
+        throw new Error("Erro ao transcrever vídeo.");
       }
 
-      console.log("Transcribing video with ElevenLabs:", videoFile.name, "size:", videoFile.size);
-      script = await transcribeAudio(videoFile, elevenlabsKey);
-      console.log("Transcription result:", script.substring(0, 200));
+      const sttData = await sttResponse.json();
+      script = sttData.text;
+      console.log("Transcription result:", script?.substring(0, 200));
 
       if (!script || script.trim().length < 10) {
         return new Response(
@@ -184,7 +169,7 @@ serve(async (req) => {
 
     const analysis = await analyzeScript(script, openaiKey, projectKey);
 
-    if (contentType.includes("multipart/form-data")) {
+    if (isVideo) {
       analysis.transcription = script;
     }
 
