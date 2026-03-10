@@ -403,7 +403,7 @@ const AnaliseRoteiro = () => {
               <div className="glass-card p-5 space-y-3">
                 <h3 className="font-display font-semibold text-sm">Insights</h3>
                 <div className="space-y-2">
-                  {resultToShow.insights.map((item, i) => {
+                  {(resultToShow.insights || []).map((item, i) => {
                     const Icon = getInsightIcon(item.type);
                     return (
                       <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/50">
