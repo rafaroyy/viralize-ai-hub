@@ -231,19 +231,7 @@ const AnaliseRoteiro = () => {
                 title="Upload de Vídeo"
                 description="A IA vai transcrever e analisar automaticamente"
                 accept="video/*,audio/*"
-                onFileSelect={(file) => {
-                  const video = document.createElement("video");
-                  video.preload = "metadata";
-                  video.onloadedmetadata = () => {
-                    URL.revokeObjectURL(video.src);
-                    if (video.duration > 120) {
-                      toast({ title: "Vídeo muito longo", description: "O limite é de 2 minutos. Envie um vídeo mais curto.", variant: "destructive" });
-                      return;
-                    }
-                    setVideoFile(file);
-                  };
-                  video.src = URL.createObjectURL(file);
-                }}
+                onFileSelect={(file) => setVideoFile(file)}
                 onFileRemove={() => setVideoFile(null)}
               />
             </div>
