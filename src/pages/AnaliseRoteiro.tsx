@@ -229,9 +229,20 @@ const AnaliseRoteiro = () => {
             <div className="max-w-xs mx-auto">
               <VideoUploadCard
                 title="Upload de Vídeo"
-                description="A IA vai transcrever e analisar automaticamente"
+                description="A IA vai transcrever e analisar automaticamente (máx. 300 MB)"
                 accept="video/*,audio/*"
-                onFileSelect={(file) => setVideoFile(file)}
+                onFileSelect={(file) => {
+                  const MAX_SIZE_MB = 300;
+                  if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+                    toast({
+                      title: "Arquivo muito grande",
+                      description: `O limite é de ${MAX_SIZE_MB} MB. Envie um arquivo menor.`,
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  setVideoFile(file);
+                }}
                 onFileRemove={() => setVideoFile(null)}
               />
             </div>
