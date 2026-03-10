@@ -86,7 +86,12 @@ const AnaliseRoteiro = () => {
 
       if (isVideo && videoFile) {
         const formData = new FormData();
-        formData.append("video", videoFile);
+        // Send fields ElevenLabs expects so edge function can stream directly
+        formData.append("file", videoFile, videoFile.name);
+        formData.append("model_id", "scribe_v2");
+        formData.append("tag_audio_events", "false");
+        formData.append("diarize", "false");
+        formData.append("language_code", "por");
 
         resp = await fetch(ANALYZE_URL, {
           method: "POST",
