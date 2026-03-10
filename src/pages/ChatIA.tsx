@@ -249,7 +249,7 @@ const ChatIA = () => {
             <Send className="w-4 h-4" />
           </Button>
         </form>
-        <p className="text-xs text-muted-foreground text-center mt-2">Powered by Viralize AI • GPT-5.2</p>
+        <p className="text-xs text-muted-foreground text-center mt-2"><p className="text-xs text-muted-foreground text-center mt-2">Powered by Viralize AI • GPT-5.4</p></p>
       </div>
     </div>
   );

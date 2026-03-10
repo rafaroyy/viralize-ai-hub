@@ -114,7 +114,7 @@ async function analyzeScript(script: string, apiKey: string, projectKey?: string
     method: "POST",
     headers,
     body: JSON.stringify({
-      model: "gpt-4o",
+      model: "gpt-5.4",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: `Analise o seguinte roteiro de vídeo viral:\n\n${script}` },

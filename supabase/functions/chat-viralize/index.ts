@@ -81,7 +81,7 @@ serve(async (req) => {
       method: "POST",
       headers,
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "gpt-5.4",
         messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
         stream: true,
       }),
