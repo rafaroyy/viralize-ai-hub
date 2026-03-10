@@ -232,7 +232,7 @@ const AnaliseRoteiro = () => {
                 description="A IA vai transcrever e analisar automaticamente (máx. 25 MB)"
                 accept="video/*,audio/*"
                 onFileSelect={(file) => {
-                  const MAX_SIZE_MB = 100;
+                  const MAX_SIZE_MB = 300;
                   if (file.size > MAX_SIZE_MB * 1024 * 1024) {
                     toast({
                       title: "Arquivo muito grande",
