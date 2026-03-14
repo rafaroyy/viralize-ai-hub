@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Upload, X, Loader2, Download, Sparkles, Copy, Lightbulb, Palette, AlertTriangle, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Loader2, Sparkles, Copy, Lightbulb, Palette, AlertTriangle, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import html2canvas from 'html2canvas';
+import { PostPreview } from '@/components/PostPreview';
 
 interface Gatilho {
   nome: string;
