@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/animated-sidebar";
-import { Video, FileSearch, LayoutGrid, MessageCircle, Film, Flame, ImageIcon, Clock } from "lucide-react";
+import { Video, FileSearch, LayoutGrid, MessageCircle, Film, Flame, Image as ImageIcon, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import logoViralize from "@/assets/logo-viralize.png";
