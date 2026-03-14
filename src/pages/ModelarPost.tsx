@@ -279,7 +279,7 @@ const ModelarPost = () => {
                   parteVisual={result.parteVisual}
                   descricaoPost={result.descricaoPost}
                   referenceImage={imagePreview}
-                  userName={niche || 'Seu Perfil'}
+                  
                 />
               </div>
 
