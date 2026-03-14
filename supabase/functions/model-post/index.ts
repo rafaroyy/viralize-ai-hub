@@ -127,7 +127,7 @@ Você analisa imagens de posts e cria conteúdo adaptado ao contexto do usuário
       console.error("Failed to parse AI response:", content);
       return new Response(
         JSON.stringify({ success: false, error: "Falha ao interpretar resposta da IA", raw: content }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
