@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.analyze-script]
 verify_jwt = false
+
+[functions.analyze-viral]
+verify_jwt = false
