@@ -993,11 +993,6 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: {checkoutMonthly?
 
 
 
-
-    </section>);
-
-}
-
 /* ═══════════════════════════════════════════
    8) FAQ
    ═══════════════════════════════════════════ */
