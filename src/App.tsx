@@ -15,6 +15,9 @@ import MeusVideos from "./pages/MeusVideos";
 import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
 import PaginaVendas from "./pages/PaginaVendas";
+import AnalisadorViral from "./pages/AnalisadorViral";
+import ModelarPost from "./pages/ModelarPost";
+import Historico from "./pages/Historico";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +46,9 @@ const App = () => (
               <Route path="/chat" element={<ChatIA />} />
               <Route path="/meus-videos" element={<MeusVideos />} />
               <Route path="/perfil" element={<Perfil />} />
+              <Route path="/analisador-viral" element={<AnalisadorViral />} />
+              <Route path="/modelar-post" element={<ModelarPost />} />
+              <Route path="/historico" element={<Historico />} />
             </Route>
             <Route path="/:affiliateSlug" element={<LandingPage />} />
             <Route path="*" element={<NotFound />} />
