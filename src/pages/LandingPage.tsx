@@ -976,7 +976,6 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: {checkoutMonthly?
 
 
 
-  "Frameworks de viralização (HDC, PPMO, etc.)",
   "Copy visual por frame",
   "Variações automáticas de roteiro",
   "Análise de roteiro com metodologia P-C-R",
