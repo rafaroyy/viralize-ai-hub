@@ -46,15 +46,43 @@ async function uploadToGeminiFileAPI(publicUrl: string, apiKey: string): Promise
   }
 
   const uploadData = await uploadResponse.json();
+  const fileName = uploadData?.file?.name;
   const fileUri = uploadData?.file?.uri;
 
-  if (!fileUri) {
-    console.error("[Gemini File API] Resposta sem URI:", JSON.stringify(uploadData));
+  if (!fileUri || !fileName) {
+    console.error("[Gemini File API] Resposta sem URI/name:", JSON.stringify(uploadData));
     throw new Error("Gemini File API não retornou uma URI válida");
   }
 
-  console.log(`[Gemini File API] ✅ Upload concluído! URI: ${fileUri}`);
-  return { fileUri, mimeType };
+  console.log(`[Gemini File API] Upload concluído. URI: ${fileUri}, state: ${uploadData?.file?.state}`);
+
+  // 3. Polling: aguardar o arquivo ficar ACTIVE
+  const maxAttempts = 30;
+  const pollInterval = 3000; // 3s
+  for (let i = 0; i < maxAttempts; i++) {
+    const statusUrl = `https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${apiKey}`;
+    const statusRes = await fetch(statusUrl);
+    if (!statusRes.ok) {
+      const errText = await statusRes.text();
+      console.error(`[Gemini File API] Erro ao verificar status (tentativa ${i + 1}):`, errText);
+      await new Promise(r => setTimeout(r, pollInterval));
+      continue;
+    }
+    const statusData = await statusRes.json();
+    const state = statusData?.state;
+    console.log(`[Gemini File API] Polling ${i + 1}/${maxAttempts} — state: ${state}`);
+
+    if (state === "ACTIVE") {
+      console.log(`[Gemini File API] ✅ Arquivo ACTIVE! Pronto para análise.`);
+      return { fileUri, mimeType };
+    }
+    if (state === "FAILED") {
+      throw new Error("Gemini File API: processamento do arquivo falhou");
+    }
+    await new Promise(r => setTimeout(r, pollInterval));
+  }
+
+  throw new Error("Gemini File API: timeout aguardando arquivo ficar ACTIVE");
 }
 
 serve(async (req) => {
