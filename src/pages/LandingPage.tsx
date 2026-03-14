@@ -851,7 +851,7 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: {checkoutMonthly?
       subtitle: "Economia de 32%",
       originalPrice: "435",
       badge: "-32% OFF",
-      href: checkoutLifetime || "https://pay.zouti.com.br/checkout?poi=prod_offer_2eglvz23g6tqk19jd1b3xe",
+      href: checkoutLifetime || "https://pay.zouti.com.br/checkout?poi=prod_offer_7u1c4rgzmr0c3jf60vvi3k",
     },
   };
 
