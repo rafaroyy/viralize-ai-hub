@@ -976,23 +976,6 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: {checkoutMonthly?
 
 
 
-  "Copy visual por frame",
-  "Variações automáticas de roteiro",
-  "Análise de roteiro com metodologia P-C-R",
-  "Chat IA especializado em vídeos virais",
-  "Upload de vídeos personalizados",
-  "Suporte prioritário",
-  "Garantia de 7 dias"];
-
-
-  return (
-    <section id="pricing" className="w-full py-20 md:py-28 relative overflow-hidden">
-      <div className="absolute inset-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[160px]" />
-      </div>
-      
-
-
 
 
 
