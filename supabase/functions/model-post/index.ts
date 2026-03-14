@@ -22,9 +22,9 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY not configured");
     }
 
     const contextParts: string[] = [];
@@ -37,14 +37,17 @@ serve(async (req) => {
       ? `\n\nCONTEXTO DO USUÁRIO:\n${contextParts.join("\n")}`
       : "";
 
-    const userContent: any[] = [
-      {
-        type: "image_url",
-        image_url: { url: imageBase64 },
-      },
-      {
-        type: "text",
-        text: `Analise esta imagem de um post do Instagram e gere um conteúdo modelado/adaptado para o contexto do usuário.${contextBlock}
+    const systemPrompt = `${SYSTEM_PROMPT_BASE}
+
+## SUA TAREFA: MODELAGEM DE POST
+
+Você analisa imagens de posts e cria conteúdo adaptado ao contexto do usuário, aplicando os frameworks acima.
+• Use a estrutura P-C-R para construir a copy (Pergunta/Hook → Conflito → Resposta/CTA)
+• Inclua pelo menos um pico emocional na copy
+• Alinhe o conteúdo ao ICP e nicho do usuário
+• Sempre responda com JSON válido. Nunca inclua markdown ou code fences.`;
+
+    const userPrompt = `Analise esta imagem de um post do Instagram e gere um conteúdo modelado/adaptado para o contexto do usuário.${contextBlock}
 
 Você DEVE retornar um JSON com EXATAMENTE esta estrutura:
 
@@ -54,7 +57,7 @@ Você DEVE retornar um JSON com EXATAMENTE esta estrutura:
   "copyModelado": "Texto COMPLETO da copy (parteVisual + descricaoPost juntos). Copy pronta para uso com emojis, hashtags, quebras de linha e call-to-action. Mínimo 3 parágrafos.",
   "gatilhosUtilizados": [
     {
-      "nome": "Nome do gatilho mental (ex: Escassez, Prova Social, Autoridade, Reciprocidade, Curiosidade, etc.)",
+      "nome": "Nome do gatilho mental",
       "explicacao": "Explicação de como e onde esse gatilho foi aplicado na copy modelada"
     }
   ]
@@ -68,48 +71,60 @@ REGRAS:
 - Transcreva com 100% de precisão ortográfica. Sem erros de digitação.
 - Mantenha todos os emojis.
 - PROIBIDO incluir nomes de usuário, @ handles, perfis ou qualquer identificação do post original na copy gerada.
-- Retorne APENAS JSON válido, sem markdown, sem code fences.`,
-      },
-    ];
+- Retorne APENAS JSON válido, sem markdown, sem code fences.`;
 
-    const response = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [
-            {
-              role: "system",
-              content: `${SYSTEM_PROMPT_BASE}
-
-## SUA TAREFA: MODELAGEM DE POST
-
-Você analisa imagens de posts e cria conteúdo adaptado ao contexto do usuário, aplicando os frameworks acima.
-• Use a estrutura P-C-R para construir a copy (Pergunta/Hook → Conflito → Resposta/CTA)
-• Inclua pelo menos um pico emocional na copy
-• Alinhe o conteúdo ao ICP e nicho do usuário
-• Sempre responda com JSON válido. Nunca inclua markdown ou code fences.`,
-            },
-            {
-              role: "user",
-              content: userContent,
-            },
-          ],
-        }),
+    // Parse the base64 image - extract mime type and data
+    const parts: any[] = [];
+    
+    if (imageBase64.startsWith("data:")) {
+      const match = imageBase64.match(/^data:(image\/\w+);base64,(.+)$/);
+      if (match) {
+        parts.push({
+          inlineData: {
+            mimeType: match[1],
+            data: match[2],
+          },
+        });
+      } else {
+        parts.push({
+          inlineData: {
+            mimeType: "image/jpeg",
+            data: imageBase64.split(",")[1] || imageBase64,
+          },
+        });
       }
-    );
+    } else {
+      parts.push({
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: imageBase64,
+        },
+      });
+    }
+
+    parts.push({ text: userPrompt });
+
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+    const response = await fetch(geminiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: "user", parts }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.7,
+        },
+      }),
+    });
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error("AI Gateway error:", response.status, errText);
+      console.error("Gemini API error:", response.status, errText);
       let errorMsg = "Falha na análise da IA";
       if (response.status === 429) errorMsg = "Limite de requisições excedido. Tente novamente em alguns instantes.";
-      if (response.status === 402) errorMsg = "Créditos insuficientes. Verifique seu plano.";
+      if (response.status === 403) errorMsg = "Chave de API inválida ou sem permissão.";
       return new Response(
         JSON.stringify({ success: false, error: errorMsg }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -117,14 +132,14 @@ Você analisa imagens de posts e cria conteúdo adaptado ao contexto do usuário
     }
 
     const aiResult = await response.json();
-    const content = aiResult.choices?.[0]?.message?.content || "";
+    const content = aiResult.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
     let parsed;
     try {
       const cleaned = content.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
       parsed = JSON.parse(cleaned);
     } catch (e) {
-      console.error("Failed to parse AI response:", content);
+      console.error("Failed to parse Gemini response:", content);
       return new Response(
         JSON.stringify({ success: false, error: "Falha ao interpretar resposta da IA", raw: content }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
