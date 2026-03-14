@@ -224,7 +224,7 @@ Nota geral 0-100. Classificação: "Baixo" (0-30), "Moderado" (31-60), "Alto" (6
   } catch (e) {
     console.error("analyze-viral error:", e);
     return new Response(JSON.stringify({ success: false, error: e instanceof Error ? e.message : "Erro desconhecido" }), {
-      status: 500,
+      status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

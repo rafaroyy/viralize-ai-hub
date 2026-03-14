@@ -139,7 +139,7 @@ Você analisa imagens de posts e cria conteúdo adaptado ao contexto do usuário
     console.error("model-post error:", e);
     return new Response(
       JSON.stringify({ success: false, error: e instanceof Error ? e.message : "Erro desconhecido" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
