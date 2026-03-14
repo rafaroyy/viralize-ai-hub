@@ -19,6 +19,8 @@ interface ModelResult {
   parteVisual: string;
   descricaoPost: string;
   gatilhosUtilizados: Gatilho[];
+  estiloVisual?: string;
+  artImageUrl?: string | null;
 }
 
 const goals = [

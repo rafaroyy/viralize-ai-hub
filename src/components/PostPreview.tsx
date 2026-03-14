@@ -7,13 +7,17 @@ import html2canvas from 'html2canvas';
 interface PostPreviewProps {
   parteVisual: string;
   descricaoPost: string;
+  artImageUrl: string | null;
   referenceImage: string | null;
 }
 
-export function PostPreview({ parteVisual, referenceImage }: PostPreviewProps) {
+export function PostPreview({ parteVisual, artImageUrl, referenceImage }: PostPreviewProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
   const { toast } = useToast();
+
+  // Use AI-generated art if available, fallback to reference image
+  const backgroundImage = artImageUrl || referenceImage;
 
   const handleExport = async () => {
     if (!canvasRef.current) return;
@@ -42,7 +46,12 @@ export function PostPreview({ parteVisual, referenceImage }: PostPreviewProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-lg text-foreground">Visualização da Arte</h3>
+        <div>
+          <h3 className="font-bold text-lg text-foreground">Arte Gerada</h3>
+          <p className="text-xs text-muted-foreground">
+            {artImageUrl ? 'Fundo gerado por IA + texto aplicado via código' : 'Imagem de referência + texto aplicado via código'}
+          </p>
+        </div>
         <Button
           variant="outline"
           size="sm"
@@ -51,7 +60,7 @@ export function PostPreview({ parteVisual, referenceImage }: PostPreviewProps) {
           disabled={isExporting}
         >
           {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-          Exportar Imagem
+          Exportar PNG
         </Button>
       </div>
 
@@ -67,9 +76,9 @@ export function PostPreview({ parteVisual, referenceImage }: PostPreviewProps) {
           borderRadius: 8,
         }}
       >
-        {referenceImage && (
+        {backgroundImage && (
           <img
-            src={referenceImage}
+            src={backgroundImage}
             alt="Arte"
             crossOrigin="anonymous"
             style={{
@@ -91,7 +100,7 @@ export function PostPreview({ parteVisual, referenceImage }: PostPreviewProps) {
               flexDirection: 'column',
               justifyContent: 'flex-end',
               padding: '24px',
-              background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.25) 50%, transparent 100%)',
+              background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)',
             }}
           >
             {headlineLines.map((line, i) => (
@@ -102,7 +111,7 @@ export function PostPreview({ parteVisual, referenceImage }: PostPreviewProps) {
                   fontWeight: 800,
                   fontSize: headlineLines.length > 3 ? 18 : 24,
                   lineHeight: 1.3,
-                  textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                  textShadow: '0 2px 8px rgba(0,0,0,0.6)',
                 }}
               >
                 {line}
