@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Upload, X, Loader2, Download, Sparkles, Copy, Lightbulb, Palette, AlertTriangle, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Loader2, Sparkles, Copy, Lightbulb, Palette, AlertTriangle, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import html2canvas from 'html2canvas';
+import { PostPreview } from '@/components/PostPreview';
 
 interface Gatilho {
   nome: string;
@@ -39,7 +39,6 @@ const ModelarPost = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -48,7 +47,6 @@ const ModelarPost = () => {
   const [tone, setTone] = useState('');
   const [audience, setAudience] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const [result, setResult] = useState<ModelResult | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
@@ -119,26 +117,7 @@ const ModelarPost = () => {
     }
   };
 
-  const handleExportPNG = async () => {
-    if (!resultsRef.current) return;
-    setIsExporting(true);
-    try {
-      const canvas = await html2canvas(resultsRef.current, {
-        backgroundColor: '#0a0a12',
-        scale: 2,
-        useCORS: true,
-      });
-      const link = document.createElement('a');
-      link.download = 'post-modelado.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      toast({ title: 'PNG exportado com sucesso!' });
-    } catch (err: any) {
-      toast({ title: 'Erro ao exportar', description: err.message, variant: 'destructive' });
-    } finally {
-      setIsExporting(false);
-    }
-  };
+  // Export is now handled by PostPreview component
 
   const handleCopy = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -288,97 +267,95 @@ const ModelarPost = () => {
           {/* Results Dashboard */}
           {result && (
             <div className="space-y-6 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-start">
                 <Button variant="outline" size="sm" onClick={() => setResult(null)} className="gap-2">
                   <Upload className="w-4 h-4" /> Novo upload
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={handleExportPNG}
-                  disabled={isExporting}
-                >
-                  {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                  Exportar PNG
-                </Button>
               </div>
 
-              <div ref={resultsRef} className="space-y-6">
-                {/* Copy Modelado */}
-                <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Copy className="w-4 h-4 text-primary" />
-                      </div>
-                      <h3 className="font-bold text-lg">Copy Modelado</h3>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="gap-1.5 text-xs"
-                      onClick={() => handleCopy(result.copyModelado, 'copy')}
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                      {copiedField === 'copy' ? 'Copiado!' : 'Copiar'}
-                    </Button>
-                  </div>
-                  <div className="rounded-xl bg-secondary/30 border border-border/50 p-4">
-                    <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
-                      {result.copyModelado}
-                    </p>
-                  </div>
-                </div>
+              {/* Post Preview */}
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <PostPreview
+                  parteVisual={result.parteVisual}
+                  descricaoPost={result.descricaoPost}
+                  referenceImage={imagePreview}
+                  userName={niche || 'Seu Perfil'}
+                />
+              </div>
 
-                {/* Gatilhos Utilizados */}
-                <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+              {/* Copy Modelado */}
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Lightbulb className="w-4 h-4 text-primary" />
+                      <Copy className="w-4 h-4 text-primary" />
                     </div>
-                    <h3 className="font-bold text-lg">Gatilhos Utilizados</h3>
+                    <h3 className="font-bold text-lg">Copy Modelado</h3>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {result.gatilhosUtilizados?.map((g, i) => (
-                      <div key={i} className="rounded-xl bg-secondary/30 border border-border/50 p-4 space-y-2">
-                        <h4 className="font-semibold text-sm flex items-center gap-2">
-                          <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
-                          {g.nome}
-                        </h4>
-                        <p className="text-xs text-muted-foreground leading-relaxed">{g.explicacao}</p>
-                      </div>
-                    ))}
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1.5 text-xs"
+                    onClick={() => handleCopy(result.copyModelado, 'copy')}
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    {copiedField === 'copy' ? 'Copiado!' : 'Copiar'}
+                  </Button>
                 </div>
+                <div className="rounded-xl bg-secondary/30 border border-border/50 p-4">
+                  <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
+                    {result.copyModelado}
+                  </p>
+                </div>
+              </div>
 
-                {/* Descrição do Post */}
-                <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Palette className="w-4 h-4 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg">Descrição do Post</h3>
-                        <p className="text-xs text-muted-foreground">Legenda e hashtags para acompanhar o post</p>
-                      </div>
+              {/* Gatilhos Utilizados */}
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Lightbulb className="w-4 h-4 text-primary" />
+                  </div>
+                  <h3 className="font-bold text-lg">Gatilhos Utilizados</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {result.gatilhosUtilizados?.map((g, i) => (
+                    <div key={i} className="rounded-xl bg-secondary/30 border border-border/50 p-4 space-y-2">
+                      <h4 className="font-semibold text-sm flex items-center gap-2">
+                        <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
+                        {g.nome}
+                      </h4>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{g.explicacao}</p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="gap-1.5 text-xs"
-                      onClick={() => handleCopy(result.descricaoPost || '', 'descricao')}
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                      {copiedField === 'descricao' ? 'Copiado!' : 'Copiar'}
-                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Descrição do Post */}
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Palette className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg">Descrição do Post</h3>
+                      <p className="text-xs text-muted-foreground">Legenda e hashtags para acompanhar o post</p>
+                    </div>
                   </div>
-                  <div className="rounded-xl bg-secondary/30 border border-border/50 p-4">
-                    <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
-                      {result.descricaoPost || 'Nenhuma descrição gerada.'}
-                    </p>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1.5 text-xs"
+                    onClick={() => handleCopy(result.descricaoPost || '', 'descricao')}
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    {copiedField === 'descricao' ? 'Copiado!' : 'Copiar'}
+                  </Button>
+                </div>
+                <div className="rounded-xl bg-secondary/30 border border-border/50 p-4">
+                  <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
+                    {result.descricaoPost || 'Nenhuma descrição gerada.'}
+                  </p>
                 </div>
               </div>
             </div>
