@@ -974,19 +974,8 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: {checkoutMonthly?
   );
 }
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimer((prev) => {
-        if (prev.min === 0 && prev.sec === 0) return { min: 37, sec: 0 };
-        if (prev.sec === 0) return { min: prev.min - 1, sec: 59 };
-        return { ...prev, sec: prev.sec - 1 };
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
-  const features = [
-  "Acesso completo ao motor de vídeos",
+
   "Frameworks de viralização (HDC, PPMO, etc.)",
   "Copy visual por frame",
   "Variações automáticas de roteiro",
