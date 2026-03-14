@@ -19,14 +19,14 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
 
     const systemPrompt = `${SYSTEM_PROMPT_BASE}
 
 ## SUA TAREFA: ANÁLISE VIRAL DE VÍDEO
 
-Você DEVE usar a função analyze_viral para retornar sua análise.
+Você DEVE retornar sua análise como um JSON válido seguindo a estrutura especificada abaixo.
 
 ### Regras de formatação
 
@@ -60,163 +60,89 @@ Identifique pontos que MATAM a retenção com tags temporais [MM:SS - MM:SS].
 3. **Corpo (Pacing)**: Estrutura de cortes com timestamps
 4. **CTA exato**: Frase de conversão otimizada
 
-Nota geral 0-100. Classificação: "Baixo" (0-30), "Moderado" (31-60), "Alto" (61-80), "Viral" (81-100).`;
+Nota geral 0-100. Classificação: "Baixo" (0-30), "Moderado" (31-60), "Alto" (61-80), "Viral" (81-100).
 
-    const userContent: any[] = [];
+Retorne APENAS JSON válido com esta estrutura exata:
+{
+  "overallScore": number,
+  "classification": "Baixo" | "Moderado" | "Alto" | "Viral",
+  "summary": "string",
+  "hookAnalysis": { "score": number, "feedback": "string", "tips": ["string"] },
+  "bodyAnalysis": { "score": number, "feedback": "string", "tips": ["string"] },
+  "ctaAnalysis": { "score": number, "feedback": "string", "tips": ["string"] },
+  "retentionKillers": ["string"],
+  "retentionImprovements": ["string"],
+  "strengths": ["string"],
+  "weaknesses": ["string"],
+  "scriptBlueprint": {
+    "captions": ["string"],
+    "exactHook": "string",
+    "bodyPacing": [{ "timestamp": "string", "action": "string" }],
+    "exactCta": "string"
+  },
+  "viralVideoIdeas": [{ "title": "string", "description": "string", "hookSuggestion": "string" }]
+}
+
+Sem markdown, sem code fences. APENAS JSON válido.`;
+
+    // Build Gemini API request parts
+    const parts: any[] = [];
 
     if (url && isVideoUpload) {
-      userContent.push({ type: "video_url", video_url: { url } });
-      userContent.push({
-        type: "text",
+      parts.push({ fileData: { mimeType: "video/mp4", fileUri: url } });
+      parts.push({
         text: `Analise o potencial viral deste vídeo enviado. Assista ao vídeo completo e analise cada parte: hook, corpo e CTA. Use tags temporais [MM:SS] em todas as observações.\n\nDescrição adicional do criador: ${description || "Nenhuma fornecida. Baseie sua análise no que você vê e ouve no vídeo."}`,
       });
     } else if (url) {
-      userContent.push({ type: "video_url", video_url: { url } });
-      userContent.push({
-        type: "text",
+      parts.push({ fileData: { mimeType: "video/mp4", fileUri: url } });
+      parts.push({
         text: `Analise o potencial viral deste conteúdo. Assista ao vídeo e analise cada parte com tags temporais.\n\nDescrição adicional: ${description || "Nenhuma"}`,
       });
     } else {
-      userContent.push({
-        type: "text",
+      parts.push({
         text: `Analise o potencial viral deste conteúdo com base na descrição: ${description}. Estime tags temporais com base na estrutura descrita.`,
       });
     }
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+    const response = await fetch(geminiUrl, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userContent },
-        ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "analyze_viral",
-              description: "Return viral potential analysis with hook/body/cta breakdown, retention analysis, and execution blueprint",
-              parameters: {
-                type: "object",
-                properties: {
-                  overallScore: { type: "number", description: "Overall viral score 0-100" },
-                  classification: { type: "string", enum: ["Baixo", "Moderado", "Alto", "Viral"] },
-                  summary: { type: "string", description: "Brief summary in Portuguese, 2-3 sentences" },
-                  hookAnalysis: {
-                    type: "object",
-                    properties: {
-                      score: { type: "number", description: "Hook score 0-100" },
-                      feedback: { type: "string", description: "Bullet-point hook analysis with timestamps [MM:SS] and **bold** keywords. Use '• ' prefix per point." },
-                      tips: { type: "array", items: { type: "string" }, description: "2-3 specific tips to improve hook" },
-                    },
-                    required: ["score", "feedback", "tips"],
-                  },
-                  bodyAnalysis: {
-                    type: "object",
-                    properties: {
-                      score: { type: "number", description: "Body/content score 0-100" },
-                      feedback: { type: "string", description: "Bullet-point body analysis with timestamps [MM:SS] and **bold** keywords. Use '• ' prefix per point." },
-                      tips: { type: "array", items: { type: "string" }, description: "2-3 specific tips to improve body" },
-                    },
-                    required: ["score", "feedback", "tips"],
-                  },
-                  ctaAnalysis: {
-                    type: "object",
-                    properties: {
-                      score: { type: "number", description: "CTA/ending score 0-100" },
-                      feedback: { type: "string", description: "Bullet-point CTA analysis with timestamps [MM:SS] and **bold** keywords. Use '• ' prefix per point." },
-                      tips: { type: "array", items: { type: "string" }, description: "2-3 specific tips to improve CTA" },
-                    },
-                    required: ["score", "feedback", "tips"],
-                  },
-                  retentionKillers: {
-                    type: "array",
-                    items: { type: "string" },
-                    description: "3-5 specific points that kill retention with timestamps [MM:SS - MM:SS], in Portuguese",
-                  },
-                  retentionImprovements: {
-                    type: "array",
-                    items: { type: "string" },
-                    description: "3-5 specific and actionable tips to improve retention with timestamps, in Portuguese",
-                  },
-                  strengths: { type: "array", items: { type: "string" }, description: "3-5 strengths in Portuguese" },
-                  weaknesses: { type: "array", items: { type: "string" }, description: "3-5 weaknesses in Portuguese" },
-                  scriptBlueprint: {
-                    type: "object",
-                    properties: {
-                      captions: {
-                        type: "array",
-                        items: { type: "string" },
-                        description: "3 optimized caption options for Instagram/TikTok with strategic hashtags, in Portuguese",
-                      },
-                      exactHook: {
-                        type: "string",
-                        description: "The EXACT phrase or action for the first 3 seconds. Be very specific, in Portuguese",
-                      },
-                      bodyPacing: {
-                        type: "array",
-                        items: {
-                          type: "object",
-                          properties: {
-                            timestamp: { type: "string", description: "Time range e.g. [00:03-00:08]" },
-                            action: { type: "string", description: "What should happen in this cut, in Portuguese" },
-                          },
-                          required: ["timestamp", "action"],
-                        },
-                        description: "Recommended cut structure with timestamps",
-                      },
-                      exactCta: {
-                        type: "string",
-                        description: "The exact conversion phrase for the ending, in Portuguese",
-                      },
-                    },
-                    required: ["captions", "exactHook", "bodyPacing", "exactCta"],
-                  },
-                  viralVideoIdeas: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        title: { type: "string", description: "Short catchy title for the video idea in Portuguese" },
-                        description: { type: "string", description: "1-2 sentence description of the video concept in Portuguese" },
-                        hookSuggestion: { type: "string", description: "Specific hook phrase or opening for this video idea in Portuguese" },
-                      },
-                      required: ["title", "description", "hookSuggestion"],
-                    },
-                    description: "3-5 viral video ideas tailored to the creator's niche/content style",
-                  },
-                },
-                required: ["overallScore", "classification", "summary", "hookAnalysis", "bodyAnalysis", "ctaAnalysis", "retentionKillers", "retentionImprovements", "strengths", "weaknesses", "scriptBlueprint", "viralVideoIdeas"],
-                additionalProperties: false,
-              },
-            },
-          },
-        ],
-        tool_choice: { type: "function", function: { name: "analyze_viral" } },
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: "user", parts }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.7,
+        },
       }),
     });
 
     if (!response.ok) {
-      const t = await response.text();
-      console.error("AI error:", response.status, t);
+      const errText = await response.text();
+      console.error("Gemini API error:", response.status, errText);
       let errorMsg = "Erro na análise de IA";
       if (response.status === 429) errorMsg = "Limite de requisições excedido. Tente novamente em instantes.";
-      if (response.status === 402) errorMsg = "Créditos insuficientes. Verifique seu plano.";
+      if (response.status === 403) errorMsg = "Chave de API inválida ou sem permissão.";
       return new Response(JSON.stringify({ success: false, error: errorMsg }), {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const aiData = await response.json();
-    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall) throw new Error("No tool call in response");
+    const content = aiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-    const analysis = JSON.parse(toolCall.function.arguments);
+    let analysis;
+    try {
+      const cleaned = content.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+      analysis = JSON.parse(cleaned);
+    } catch (e) {
+      console.error("Failed to parse Gemini response:", content);
+      return new Response(JSON.stringify({ success: false, error: "Falha ao interpretar resposta da IA", raw: content }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     return new Response(JSON.stringify({ success: true, analysis }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
