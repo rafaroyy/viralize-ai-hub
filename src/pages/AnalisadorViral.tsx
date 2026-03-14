@@ -197,7 +197,37 @@ const AnalisadorViral = () => {
       });
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || 'Erro na análise');
-      setAnalysis(data.analysis);
+      
+      // Normalize: OpenAI agent uses different keys than Gemini agent
+      const raw = data.analysis || {};
+      const normalized = {
+        ...raw,
+        overallScore: raw.overallScore ?? raw.viralScore ?? 0,
+        classification: raw.classification ?? 'Moderado',
+        summary: raw.summary ?? '',
+        strengths: raw.strengths ?? raw.pontosFortes ?? [],
+        weaknesses: raw.weaknesses ?? raw.pontosFracos ?? [],
+        retentionKillers: raw.retentionKillers ?? [],
+        retentionImprovements: raw.retentionImprovements ?? [],
+        hookAnalysis: raw.hookAnalysis ?? { score: 0, feedback: '', tips: [] },
+        bodyAnalysis: raw.bodyAnalysis ?? { score: 0, feedback: '', tips: [] },
+        ctaAnalysis: raw.ctaAnalysis ?? { score: 0, feedback: '', tips: [] },
+        scriptBlueprint: raw.scriptBlueprint ?? {
+          captions: raw.roteiroMelhorado?.legendas ?? [],
+          exactHook: raw.roteiroMelhorado?.hook ?? '',
+          bodyPacing: [],
+          exactCta: raw.roteiroMelhorado?.cta ?? '',
+        },
+        viralVideoIdeas: raw.viralVideoIdeas ?? [],
+      };
+      // Ensure nested arrays have defaults
+      normalized.hookAnalysis.tips = normalized.hookAnalysis.tips ?? [];
+      normalized.bodyAnalysis.tips = normalized.bodyAnalysis.tips ?? [];
+      normalized.ctaAnalysis.tips = normalized.ctaAnalysis.tips ?? [];
+      normalized.scriptBlueprint.bodyPacing = normalized.scriptBlueprint.bodyPacing ?? [];
+      normalized.scriptBlueprint.captions = normalized.scriptBlueprint.captions ?? [];
+      
+      setAnalysis(normalized);
 
       // Save to history
       if (user) {
