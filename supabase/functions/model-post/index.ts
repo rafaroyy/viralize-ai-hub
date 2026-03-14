@@ -107,23 +107,12 @@ Você analisa imagens de posts e cria conteúdo adaptado ao contexto do usuário
     if (!response.ok) {
       const errText = await response.text();
       console.error("AI Gateway error:", response.status, errText);
-
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ success: false, error: "Limite de requisições excedido. Tente novamente em alguns instantes." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ success: false, error: "Créditos insuficientes. Adicione créditos ao workspace." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
+      let errorMsg = "Falha na análise da IA";
+      if (response.status === 429) errorMsg = "Limite de requisições excedido. Tente novamente em alguns instantes.";
+      if (response.status === 402) errorMsg = "Créditos insuficientes. Verifique seu plano.";
       return new Response(
-        JSON.stringify({ success: false, error: "Falha na análise da IA" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ success: false, error: errorMsg }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -138,7 +127,7 @@ Você analisa imagens de posts e cria conteúdo adaptado ao contexto do usuário
       console.error("Failed to parse AI response:", content);
       return new Response(
         JSON.stringify({ success: false, error: "Falha ao interpretar resposta da IA", raw: content }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -150,7 +139,7 @@ Você analisa imagens de posts e cria conteúdo adaptado ao contexto do usuário
     console.error("model-post error:", e);
     return new Response(
       JSON.stringify({ success: false, error: e instanceof Error ? e.message : "Erro desconhecido" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });

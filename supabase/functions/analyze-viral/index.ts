@@ -202,19 +202,14 @@ Nota geral 0-100. Classificação: "Baixo" (0-30), "Moderado" (31-60), "Alto" (6
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ success: false, error: "Limite de requisições excedido. Tente novamente em instantes." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ success: false, error: "Créditos insuficientes." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
       const t = await response.text();
       console.error("AI error:", response.status, t);
-      throw new Error("Erro na análise de IA");
+      let errorMsg = "Erro na análise de IA";
+      if (response.status === 429) errorMsg = "Limite de requisições excedido. Tente novamente em instantes.";
+      if (response.status === 402) errorMsg = "Créditos insuficientes. Verifique seu plano.";
+      return new Response(JSON.stringify({ success: false, error: errorMsg }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const aiData = await response.json();
@@ -229,7 +224,7 @@ Nota geral 0-100. Classificação: "Baixo" (0-30), "Moderado" (31-60), "Alto" (6
   } catch (e) {
     console.error("analyze-viral error:", e);
     return new Response(JSON.stringify({ success: false, error: e instanceof Error ? e.message : "Erro desconhecido" }), {
-      status: 500,
+      status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
