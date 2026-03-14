@@ -19,6 +19,8 @@ interface ModelResult {
   parteVisual: string;
   descricaoPost: string;
   gatilhosUtilizados: Gatilho[];
+  estiloVisual?: string;
+  artImageUrl?: string | null;
 }
 
 const goals = [
@@ -278,8 +280,8 @@ const ModelarPost = () => {
                 <PostPreview
                   parteVisual={result.parteVisual}
                   descricaoPost={result.descricaoPost}
+                  artImageUrl={result.artImageUrl || null}
                   referenceImage={imagePreview}
-                  
                 />
               </div>
 
