@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.analyze-viral]
 verify_jwt = false
+
+[functions.model-post]
+verify_jwt = false
