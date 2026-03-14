@@ -118,26 +118,7 @@ const ModelarPost = () => {
     }
   };
 
-  const handleExportPNG = async () => {
-    if (!resultsRef.current) return;
-    setIsExporting(true);
-    try {
-      const canvas = await html2canvas(resultsRef.current, {
-        backgroundColor: '#0a0a12',
-        scale: 2,
-        useCORS: true,
-      });
-      const link = document.createElement('a');
-      link.download = 'post-modelado.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      toast({ title: 'PNG exportado com sucesso!' });
-    } catch (err: any) {
-      toast({ title: 'Erro ao exportar', description: err.message, variant: 'destructive' });
-    } finally {
-      setIsExporting(false);
-    }
-  };
+  // Export is now handled by PostPreview component
 
   const handleCopy = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
