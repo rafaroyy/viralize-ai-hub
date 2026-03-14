@@ -48,7 +48,6 @@ const ModelarPost = () => {
   const [audience, setAudience] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<ModelResult | null>(null);
-  const [result, setResult] = useState<ModelResult | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const handleFileSelect = useCallback((file: File) => {
