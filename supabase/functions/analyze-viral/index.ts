@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { SYSTEM_PROMPT_BASE } from "../_shared/knowledge_base.ts";
+import { SYSTEM_PROMPT_BASE, FRAMEWORK_ROTEIROS, DIRETRIZES_CRIATIVAS } from "../_shared/knowledge_base.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,7 +22,14 @@ serve(async (req) => {
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
 
-    const systemPrompt = `${SYSTEM_PROMPT_BASE}
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY not configured");
+
+    // =============================================
+    // AGENTE 1: GEMINI — Extração e análise bruta
+    // =============================================
+
+    const geminiSystemPrompt = `${SYSTEM_PROMPT_BASE}
 
 ## SUA TAREFA: ANÁLISE VIRAL DE VÍDEO
 
@@ -106,11 +113,11 @@ Sem markdown, sem code fences. APENAS JSON válido.`;
 
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
-    const response = await fetch(geminiUrl, {
+    const geminiResponse = await fetch(geminiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt }] },
+        systemInstruction: { parts: [{ text: geminiSystemPrompt }] },
         contents: [{ role: "user", parts }],
         generationConfig: {
           responseMimeType: "application/json",
@@ -119,32 +126,134 @@ Sem markdown, sem code fences. APENAS JSON válido.`;
       }),
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("Gemini API error:", response.status, errText);
-      let errorMsg = "Erro na análise de IA";
-      if (response.status === 429) errorMsg = "Limite de requisições excedido. Tente novamente em instantes.";
-      if (response.status === 403) errorMsg = "Chave de API inválida ou sem permissão.";
+    if (!geminiResponse.ok) {
+      const errText = await geminiResponse.text();
+      console.error("Gemini API error:", geminiResponse.status, errText);
+      let errorMsg = "Erro na análise de IA (Gemini)";
+      if (geminiResponse.status === 429) errorMsg = "Limite de requisições Gemini excedido. Tente novamente em instantes.";
+      if (geminiResponse.status === 403) errorMsg = "Chave Gemini inválida ou sem permissão.";
       return new Response(JSON.stringify({ success: false, error: errorMsg }), {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const aiData = await response.json();
-    const content = aiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const aiData = await geminiResponse.json();
+    const geminiContent = aiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-    let analysis;
+    let geminiAnalysis;
     try {
-      const cleaned = content.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-      analysis = JSON.parse(cleaned);
+      const cleaned = geminiContent.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+      geminiAnalysis = JSON.parse(cleaned);
     } catch (e) {
-      console.error("Failed to parse Gemini response:", content);
-      return new Response(JSON.stringify({ success: false, error: "Falha ao interpretar resposta da IA", raw: content }), {
+      console.error("Failed to parse Gemini response:", geminiContent);
+      return new Response(JSON.stringify({ success: false, error: "Falha ao interpretar resposta do Gemini", raw: geminiContent }), {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(JSON.stringify({ success: true, analysis }), {
+    console.log("Agente 1 (Gemini) concluído. Enviando para Agente 2 (OpenAI)...");
+
+    // =============================================
+    // AGENTE 2: OPENAI — Avaliação estratégica RAG
+    // =============================================
+
+    const openaiSystemPrompt = `Você é o Analista Viral Sênior do Viralize AI.
+
+Use o contexto fornecido pelo nosso agente de extração (Gemini) e avalie o potencial viral do conteúdo baseando-se ESTRITAMENTE nestes dois documentos metodológicos:
+
+---
+${FRAMEWORK_ROTEIROS}
+---
+${DIRETRIZES_CRIATIVAS}
+---
+
+## INSTRUÇÕES
+
+1. Analise o JSON de extração do Gemini fornecido pelo usuário.
+2. Cruze cada ponto da análise com os frameworks acima (estrutura P-C-R, picos emocionais, formato eficiente, ICP, linhas de conteúdo, regra dos 70%).
+3. Gere um veredito final com score próprio e um roteiro melhorado.
+
+## OUTPUT
+
+Retorne APENAS um JSON válido com esta estrutura exata (sem markdown, sem code fences):
+
+{
+  "viralScore": number (0-100),
+  "classification": "Baixo" | "Moderado" | "Alto" | "Viral",
+  "summary": "string — resumo executivo da avaliação estratégica",
+  "pontosFortes": ["string — cada ponto forte identificado, referenciando o framework"],
+  "pontosFracos": ["string — cada ponto fraco identificado, referenciando o framework"],
+  "hookAnalysis": { "score": number, "feedback": "string", "tips": ["string"] },
+  "bodyAnalysis": { "score": number, "feedback": "string", "tips": ["string"] },
+  "ctaAnalysis": { "score": number, "feedback": "string", "tips": ["string"] },
+  "retentionKillers": ["string"],
+  "retentionImprovements": ["string"],
+  "roteiroMelhorado": {
+    "hook": "string — frase/ação exata para os primeiros 3s usando estrutura P do P-C-R",
+    "corpo": "string — estrutura do corpo usando Conflito do P-C-R com picos emocionais",
+    "cta": "string — CTA otimizado usando Resposta do P-C-R",
+    "legendas": ["string — 3 opções de legenda com hashtags"],
+    "picoEmocional": "string — qual emoção principal explorar e como"
+  },
+  "scriptBlueprint": {
+    "captions": ["string"],
+    "exactHook": "string",
+    "bodyPacing": [{ "timestamp": "string", "action": "string" }],
+    "exactCta": "string"
+  },
+  "viralVideoIdeas": [{ "title": "string", "description": "string", "hookSuggestion": "string" }]
+}`;
+
+    const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        temperature: 0.7,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: openaiSystemPrompt },
+          {
+            role: "user",
+            content: `Aqui está a análise bruta gerada pelo nosso Agente de Extração (Gemini). Avalie estrategicamente e gere o veredito final:\n\n${JSON.stringify(geminiAnalysis, null, 2)}`,
+          },
+        ],
+      }),
+    });
+
+    if (!openaiResponse.ok) {
+      const errText = await openaiResponse.text();
+      console.error("OpenAI API error:", openaiResponse.status, errText);
+      let errorMsg = "Erro na avaliação estratégica (OpenAI)";
+      if (openaiResponse.status === 429) errorMsg = "Limite de requisições OpenAI excedido.";
+      if (openaiResponse.status === 401) errorMsg = "Chave OpenAI inválida.";
+      // Fallback: retorna a análise do Gemini se OpenAI falhar
+      console.warn("Fallback: retornando análise do Gemini sem refinamento.");
+      return new Response(JSON.stringify({ success: true, analysis: geminiAnalysis, fallback: true }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const openaiData = await openaiResponse.json();
+    const openaiContent = openaiData.choices?.[0]?.message?.content || "";
+
+    let finalAnalysis;
+    try {
+      finalAnalysis = JSON.parse(openaiContent);
+    } catch (e) {
+      console.error("Failed to parse OpenAI response:", openaiContent);
+      // Fallback: retorna Gemini
+      return new Response(JSON.stringify({ success: true, analysis: geminiAnalysis, fallback: true }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    console.log("Agente 2 (OpenAI) concluído. Pipeline multi-agente finalizado.");
+
+    return new Response(JSON.stringify({ success: true, analysis: finalAnalysis }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
