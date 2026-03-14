@@ -22,6 +22,16 @@ const navLinks = [
     icon: <FileSearch className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
   },
   {
+    label: "Analisador Viral",
+    href: "/analisador-viral",
+    icon: <Flame className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+  },
+  {
+    label: "Modelar Post",
+    href: "/modelar-post",
+    icon: <ImageIcon className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+  },
+  {
     label: "Modelos",
     href: "/modelos",
     icon: <LayoutGrid className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
@@ -35,6 +45,11 @@ const navLinks = [
     label: "Meus Vídeos",
     href: "/meus-videos",
     icon: <Film className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+  },
+  {
+    label: "Histórico",
+    href: "/historico",
+    icon: <Clock className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
   },
 ];
 
