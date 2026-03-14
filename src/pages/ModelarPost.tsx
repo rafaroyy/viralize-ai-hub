@@ -280,8 +280,8 @@ const ModelarPost = () => {
                 <PostPreview
                   parteVisual={result.parteVisual}
                   descricaoPost={result.descricaoPost}
+                  artImageUrl={result.artImageUrl || null}
                   referenceImage={imagePreview}
-                  
                 />
               </div>
 
