@@ -359,7 +359,6 @@ const ModelarPost = () => {
                 </div>
               </div>
             </div>
-            </div>
           )}
         </div>
       </main>
