@@ -47,7 +47,7 @@ const ModelarPost = () => {
   const [tone, setTone] = useState('');
   const [audience, setAudience] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
+  const [result, setResult] = useState<ModelResult | null>(null);
   const [result, setResult] = useState<ModelResult | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
