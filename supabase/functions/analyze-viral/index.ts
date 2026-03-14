@@ -7,6 +7,56 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+/**
+ * Etapa 1: Baixa o vídeo da URL pública e faz upload para a Gemini File API.
+ * Retorna a URI interna do Google para uso em generateContent.
+ */
+async function uploadToGeminiFileAPI(publicUrl: string, apiKey: string): Promise<{ fileUri: string; mimeType: string }> {
+  // 1. Fetch do arquivo a partir da URL pública
+  console.log("[Gemini File API] Baixando arquivo de:", publicUrl);
+  const fileResponse = await fetch(publicUrl);
+  if (!fileResponse.ok) {
+    throw new Error(`Falha ao baixar arquivo: ${fileResponse.status} ${fileResponse.statusText}`);
+  }
+
+  const fileBuffer = await fileResponse.arrayBuffer();
+  const mimeType = fileResponse.headers.get("content-type") || "video/mp4";
+  const fileSizeMB = (fileBuffer.byteLength / (1024 * 1024)).toFixed(2);
+  console.log(`[Gemini File API] Arquivo baixado: ${fileSizeMB}MB, mimeType: ${mimeType}`);
+
+  // 2. Upload para a Gemini File API
+  const uploadUrl = `https://generativelanguage.googleapis.com/upload/v1beta/files?uploadType=media&key=${apiKey}`;
+
+  console.log("[Gemini File API] Enviando arquivo para Google File API...");
+  const uploadResponse = await fetch(uploadUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": mimeType,
+      "X-Goog-Upload-Command": "upload, finalize",
+      "X-Goog-Upload-Header-Content-Type": mimeType,
+      "X-Goog-Upload-Protocol": "raw",
+    },
+    body: fileBuffer,
+  });
+
+  if (!uploadResponse.ok) {
+    const errText = await uploadResponse.text();
+    console.error("[Gemini File API] Erro no upload:", uploadResponse.status, errText);
+    throw new Error(`Falha no upload para Gemini File API: ${uploadResponse.status} - ${errText}`);
+  }
+
+  const uploadData = await uploadResponse.json();
+  const fileUri = uploadData?.file?.uri;
+
+  if (!fileUri) {
+    console.error("[Gemini File API] Resposta sem URI:", JSON.stringify(uploadData));
+    throw new Error("Gemini File API não retornou uma URI válida");
+  }
+
+  console.log(`[Gemini File API] ✅ Upload concluído! URI: ${fileUri}`);
+  return { fileUri, mimeType };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -95,15 +145,16 @@ Sem markdown, sem code fences. APENAS JSON válido.`;
     // Build Gemini API request parts
     const parts: any[] = [];
 
-    if (url && isVideoUpload) {
-      parts.push({ fileData: { mimeType: "video/mp4", fileUri: url } });
+    // Etapa 1 & 2: Se temos URL de vídeo, fazer upload via Gemini File API
+    if (url && (isVideoUpload || url.startsWith("http"))) {
+      console.log("[Pipeline] Iniciando upload do vídeo para Gemini File API...");
+      const { fileUri, mimeType } = await uploadToGeminiFileAPI(url, GEMINI_API_KEY);
+
+      parts.push({ fileData: { mimeType, fileUri } });
       parts.push({
-        text: `Analise o potencial viral deste vídeo enviado. Assista ao vídeo completo e analise cada parte: hook, corpo e CTA. Use tags temporais [MM:SS] em todas as observações.\n\nDescrição adicional do criador: ${description || "Nenhuma fornecida. Baseie sua análise no que você vê e ouve no vídeo."}`,
-      });
-    } else if (url) {
-      parts.push({ fileData: { mimeType: "video/mp4", fileUri: url } });
-      parts.push({
-        text: `Analise o potencial viral deste conteúdo. Assista ao vídeo e analise cada parte com tags temporais.\n\nDescrição adicional: ${description || "Nenhuma"}`,
+        text: isVideoUpload
+          ? `Analise o potencial viral deste vídeo enviado. Assista ao vídeo completo e analise cada parte: hook, corpo e CTA. Use tags temporais [MM:SS] em todas as observações.\n\nDescrição adicional do criador: ${description || "Nenhuma fornecida. Baseie sua análise no que você vê e ouve no vídeo."}`
+          : `Analise o potencial viral deste conteúdo. Assista ao vídeo e analise cada parte com tags temporais.\n\nDescrição adicional: ${description || "Nenhuma"}`,
       });
     } else {
       parts.push({
@@ -113,6 +164,7 @@ Sem markdown, sem code fences. APENAS JSON válido.`;
 
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
+    console.log("[Pipeline] Chamando Gemini generateContent...");
     const geminiResponse = await fetch(geminiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -151,7 +203,7 @@ Sem markdown, sem code fences. APENAS JSON válido.`;
       });
     }
 
-    console.log("Agente 1 (Gemini) concluído. Enviando para Agente 2 (OpenAI)...");
+    console.log("[Pipeline] Agente 1 (Gemini) concluído. Enviando para Agente 2 (OpenAI)...");
 
     // =============================================
     // AGENTE 2: OPENAI — Avaliação estratégica RAG
@@ -227,9 +279,6 @@ Retorne APENAS um JSON válido com esta estrutura exata (sem markdown, sem code 
     if (!openaiResponse.ok) {
       const errText = await openaiResponse.text();
       console.error("OpenAI API error:", openaiResponse.status, errText);
-      let errorMsg = "Erro na avaliação estratégica (OpenAI)";
-      if (openaiResponse.status === 429) errorMsg = "Limite de requisições OpenAI excedido.";
-      if (openaiResponse.status === 401) errorMsg = "Chave OpenAI inválida.";
       // Fallback: retorna a análise do Gemini se OpenAI falhar
       console.warn("Fallback: retornando análise do Gemini sem refinamento.");
       return new Response(JSON.stringify({ success: true, analysis: geminiAnalysis, fallback: true }), {
@@ -245,13 +294,12 @@ Retorne APENAS um JSON válido com esta estrutura exata (sem markdown, sem code 
       finalAnalysis = JSON.parse(openaiContent);
     } catch (e) {
       console.error("Failed to parse OpenAI response:", openaiContent);
-      // Fallback: retorna Gemini
       return new Response(JSON.stringify({ success: true, analysis: geminiAnalysis, fallback: true }), {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log("Agente 2 (OpenAI) concluído. Pipeline multi-agente finalizado.");
+    console.log("[Pipeline] ✅ Agente 2 (OpenAI) concluído. Pipeline multi-agente finalizado.");
 
     return new Response(JSON.stringify({ success: true, analysis: finalAnalysis }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
