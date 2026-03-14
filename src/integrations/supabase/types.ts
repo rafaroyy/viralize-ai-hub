@@ -44,6 +44,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_history: {
+        Row: {
+          created_at: string | null
+          id: string
+          payload: Json | null
+          tipo: string
+          titulo: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          payload?: Json | null
+          tipo: string
+          titulo: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          payload?: Json | null
+          tipo?: string
+          titulo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
