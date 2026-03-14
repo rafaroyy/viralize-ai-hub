@@ -255,34 +255,34 @@ ${DIRETRIZES_CRIATIVAS}
 
 ## OUTPUT
 
-Retorne APENAS um JSON válido com esta estrutura exata (sem markdown, sem code fences):
+Retorne APENAS um JSON válido com esta estrutura exata (sem markdown, sem code fences).
+IMPORTANTE: Use EXATAMENTE os mesmos nomes de campo listados abaixo. NÃO renomeie nenhum campo.
 
 {
-  "viralScore": number (0-100),
+  "overallScore": number (0-100),
   "classification": "Baixo" | "Moderado" | "Alto" | "Viral",
   "summary": "string — resumo executivo da avaliação estratégica",
-  "pontosFortes": ["string — cada ponto forte identificado, referenciando o framework"],
-  "pontosFracos": ["string — cada ponto fraco identificado, referenciando o framework"],
-  "hookAnalysis": { "score": number, "feedback": "string", "tips": ["string"] },
-  "bodyAnalysis": { "score": number, "feedback": "string", "tips": ["string"] },
-  "ctaAnalysis": { "score": number, "feedback": "string", "tips": ["string"] },
-  "retentionKillers": ["string"],
-  "retentionImprovements": ["string"],
-  "roteiroMelhorado": {
-    "hook": "string — frase/ação exata para os primeiros 3s usando estrutura P do P-C-R",
-    "corpo": "string — estrutura do corpo usando Conflito do P-C-R com picos emocionais",
-    "cta": "string — CTA otimizado usando Resposta do P-C-R",
-    "legendas": ["string — 3 opções de legenda com hashtags"],
-    "picoEmocional": "string — qual emoção principal explorar e como"
-  },
+  "hookAnalysis": { "score": number, "feedback": "string com bullet points usando • no início", "tips": ["string"] },
+  "bodyAnalysis": { "score": number, "feedback": "string com bullet points usando • no início", "tips": ["string"] },
+  "ctaAnalysis": { "score": number, "feedback": "string com bullet points usando • no início", "tips": ["string"] },
+  "retentionKillers": ["string — cada item com • no início e **negrito** em palavras-chave"],
+  "retentionImprovements": ["string — cada item com • no início e **negrito** em palavras-chave"],
+  "strengths": ["string — cada ponto forte com • no início, referenciando o framework"],
+  "weaknesses": ["string — cada ponto fraco com • no início, referenciando o framework"],
   "scriptBlueprint": {
-    "captions": ["string"],
-    "exactHook": "string",
+    "captions": ["string — 3 opções de legenda com hashtags"],
+    "exactHook": "string — frase/ação exata para os primeiros 3s usando estrutura P do P-C-R",
     "bodyPacing": [{ "timestamp": "string", "action": "string" }],
-    "exactCta": "string"
+    "exactCta": "string — CTA otimizado usando Resposta do P-C-R"
   },
   "viralVideoIdeas": [{ "title": "string", "description": "string", "hookSuggestion": "string" }]
-}`;
+}
+
+### Regras de formatação obrigatórias
+• TODOS os feedbacks e itens de lista DEVEM usar bullet points com "• " no início
+• Destaque palavras-chave com **negrito**
+• Use tags temporais [MM:SS - MM:SS] quando aplicável
+• Referencie sempre os conceitos do framework (P-C-R, picos emocionais, formato eficiente, ICP)`;
 
     const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
