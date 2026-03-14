@@ -822,8 +822,157 @@ function AudienceSection() {
    ═══════════════════════════════════════════ */
 
 function PricingSection({ checkoutMonthly, checkoutLifetime }: {checkoutMonthly?: string;checkoutLifetime?: string;}) {
-  const [activeTab, setActiveTab] = useState<'monthly' | 'lifetime'>('lifetime');
-  const [timer, setTimer] = useState({ min: 37, sec: 0 });
+  const [activeTab, setActiveTab] = useState<'monthly' | 'quarterly'>('quarterly');
+
+  const features = [
+    "Acesso completo ao motor de vídeos",
+    "Frameworks de viralização (HDC, PPMO, etc.)",
+    "Copy visual por frame",
+    "Variações automáticas de roteiro",
+    "Análise de roteiro com metodologia P-C-R",
+    "Chat IA especializado em vídeos virais",
+    "Upload de vídeos personalizados",
+    "Suporte prioritário",
+    "Garantia de 7 dias",
+  ];
+
+  const plans = {
+    monthly: {
+      label: "Mensal",
+      price: "145",
+      period: "/mês",
+      subtitle: "Flexibilidade total",
+      href: checkoutMonthly || "https://pay.zouti.com.br/checkout?poi=prod_offer_qnohqjvl02nadr7v471icj",
+    },
+    quarterly: {
+      label: "Trimestral",
+      price: "295",
+      period: "/trimestre",
+      subtitle: "Economia de 32%",
+      originalPrice: "435",
+      badge: "-32% OFF",
+      href: checkoutLifetime || "https://pay.zouti.com.br/checkout?poi=prod_offer_2eglvz23g6tqk19jd1b3xe",
+    },
+  };
+
+  const current = plans[activeTab];
+
+  return (
+    <section id="pricing" className="w-full py-20 md:py-28 relative overflow-hidden">
+      <div className="absolute inset-0">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[160px]" />
+      </div>
+
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
+        <ScrollReveal className="text-center mb-12">
+          <SectionTag>Preços</SectionTag>
+          <h2 className="text-3xl sm:text-4xl font-bold font-display mb-4">
+            Invista no seu <GradientText>crescimento viral</GradientText>
+          </h2>
+          <p className="text-muted-foreground max-w-lg mx-auto">
+            Escolha o plano ideal e comece a criar vídeos que viralizam.
+          </p>
+        </ScrollReveal>
+
+        {/* Tab toggle */}
+        <div className="flex justify-center mb-10">
+          <div className="inline-flex bg-secondary/70 border border-border/50 rounded-xl p-1 gap-1">
+            {(["monthly", "quarterly"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  "relative px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300",
+                  activeTab === tab
+                    ? "gradient-primary text-primary-foreground shadow-glow"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {tab === "monthly" ? "Mensal" : "Trimestral"}
+                {tab === "quarterly" && (
+                  <span className="absolute -top-2.5 -right-2.5 text-[10px] font-bold bg-green-500 text-white px-1.5 py-0.5 rounded-full">
+                    -32%
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Card */}
+        <ScrollReveal className="max-w-md mx-auto">
+          <motion.div
+            layout
+            className="relative rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-8 overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+
+            {activeTab === "quarterly" && plans.quarterly.badge && (
+              <div className="absolute top-4 right-4 text-xs font-bold bg-green-500 text-white px-3 py-1 rounded-full">
+                {plans.quarterly.badge}
+              </div>
+            )}
+
+            <div className="relative z-10 flex flex-col items-center text-center gap-6">
+              <div>
+                <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-1">{current.label}</p>
+                <p className="text-xs text-muted-foreground">{current.subtitle}</p>
+              </div>
+
+              <div className="flex items-baseline gap-1">
+                {activeTab === "quarterly" && plans.quarterly.originalPrice && (
+                  <span className="text-lg text-muted-foreground line-through mr-2">R${plans.quarterly.originalPrice}</span>
+                )}
+                <span className="text-sm text-muted-foreground">R$</span>
+                <motion.span
+                  key={current.price}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-5xl sm:text-6xl font-bold font-display text-foreground"
+                >
+                  {current.price}
+                </motion.span>
+                <span className="text-muted-foreground text-sm">{current.period}</span>
+              </div>
+
+              {activeTab === "quarterly" && (
+                <p className="text-xs text-green-500 font-medium">
+                  Equivale a R$98/mês — economize R$140
+                </p>
+              )}
+
+              <div className="w-full border-t border-border/50 pt-6">
+                <ul className="flex flex-col gap-3 text-left">
+                  {features.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                      <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <a
+                href={current.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full gradient-primary text-primary-foreground py-4 rounded-xl font-semibold text-center hover:opacity-90 transition-opacity shadow-glow inline-flex items-center justify-center gap-2"
+              >
+                Começar agora
+                <ArrowRight className="h-4 w-4" />
+              </a>
+
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Shield className="h-3.5 w-3.5" />
+                Garantia de 7 dias — cancele sem burocracia
+              </p>
+            </div>
+          </motion.div>
+        </ScrollReveal>
+      </div>
+    </section>
+  );
+}
 
   useEffect(() => {
     const interval = setInterval(() => {
