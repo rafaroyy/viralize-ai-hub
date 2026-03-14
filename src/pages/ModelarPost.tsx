@@ -267,99 +267,98 @@ const ModelarPost = () => {
           {/* Results Dashboard */}
           {result && (
             <div className="space-y-6 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-start">
                 <Button variant="outline" size="sm" onClick={() => setResult(null)} className="gap-2">
                   <Upload className="w-4 h-4" /> Novo upload
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={handleExportPNG}
-                  disabled={isExporting}
-                >
-                  {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                  Exportar PNG
-                </Button>
               </div>
 
-              <div ref={resultsRef} className="space-y-6">
-                {/* Copy Modelado */}
-                <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Copy className="w-4 h-4 text-primary" />
-                      </div>
-                      <h3 className="font-bold text-lg">Copy Modelado</h3>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="gap-1.5 text-xs"
-                      onClick={() => handleCopy(result.copyModelado, 'copy')}
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                      {copiedField === 'copy' ? 'Copiado!' : 'Copiar'}
-                    </Button>
-                  </div>
-                  <div className="rounded-xl bg-secondary/30 border border-border/50 p-4">
-                    <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
-                      {result.copyModelado}
-                    </p>
-                  </div>
-                </div>
+              {/* Post Preview */}
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <PostPreview
+                  parteVisual={result.parteVisual}
+                  descricaoPost={result.descricaoPost}
+                  referenceImage={imagePreview}
+                  userName={niche || 'Seu Perfil'}
+                />
+              </div>
 
-                {/* Gatilhos Utilizados */}
-                <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+              {/* Copy Modelado */}
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Lightbulb className="w-4 h-4 text-primary" />
+                      <Copy className="w-4 h-4 text-primary" />
                     </div>
-                    <h3 className="font-bold text-lg">Gatilhos Utilizados</h3>
+                    <h3 className="font-bold text-lg">Copy Modelado</h3>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {result.gatilhosUtilizados?.map((g, i) => (
-                      <div key={i} className="rounded-xl bg-secondary/30 border border-border/50 p-4 space-y-2">
-                        <h4 className="font-semibold text-sm flex items-center gap-2">
-                          <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
-                          {g.nome}
-                        </h4>
-                        <p className="text-xs text-muted-foreground leading-relaxed">{g.explicacao}</p>
-                      </div>
-                    ))}
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1.5 text-xs"
+                    onClick={() => handleCopy(result.copyModelado, 'copy')}
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    {copiedField === 'copy' ? 'Copiado!' : 'Copiar'}
+                  </Button>
                 </div>
-
-                {/* Descrição do Post */}
-                <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Palette className="w-4 h-4 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg">Descrição do Post</h3>
-                        <p className="text-xs text-muted-foreground">Legenda e hashtags para acompanhar o post</p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="gap-1.5 text-xs"
-                      onClick={() => handleCopy(result.descricaoPost || '', 'descricao')}
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                      {copiedField === 'descricao' ? 'Copiado!' : 'Copiar'}
-                    </Button>
-                  </div>
-                  <div className="rounded-xl bg-secondary/30 border border-border/50 p-4">
-                    <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
-                      {result.descricaoPost || 'Nenhuma descrição gerada.'}
-                    </p>
-                  </div>
+                <div className="rounded-xl bg-secondary/30 border border-border/50 p-4">
+                  <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
+                    {result.copyModelado}
+                  </p>
                 </div>
               </div>
+
+              {/* Gatilhos Utilizados */}
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Lightbulb className="w-4 h-4 text-primary" />
+                  </div>
+                  <h3 className="font-bold text-lg">Gatilhos Utilizados</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {result.gatilhosUtilizados?.map((g, i) => (
+                    <div key={i} className="rounded-xl bg-secondary/30 border border-border/50 p-4 space-y-2">
+                      <h4 className="font-semibold text-sm flex items-center gap-2">
+                        <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
+                        {g.nome}
+                      </h4>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{g.explicacao}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Descrição do Post */}
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Palette className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg">Descrição do Post</h3>
+                      <p className="text-xs text-muted-foreground">Legenda e hashtags para acompanhar o post</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1.5 text-xs"
+                    onClick={() => handleCopy(result.descricaoPost || '', 'descricao')}
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    {copiedField === 'descricao' ? 'Copiado!' : 'Copiar'}
+                  </Button>
+                </div>
+                <div className="rounded-xl bg-secondary/30 border border-border/50 p-4">
+                  <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
+                    {result.descricaoPost || 'Nenhuma descrição gerada.'}
+                  </p>
+                </div>
+              </div>
+            </div>
             </div>
           )}
         </div>
