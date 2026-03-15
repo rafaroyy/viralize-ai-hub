@@ -22,6 +22,9 @@ const MARGIN = 18;
 const CONTENT_W = PAGE_W - MARGIN * 2;
 const FOOTER_H = 12;
 const CARD_PAD = 4;
+const CARD_INNER_PAD = 16; // left padding inside cards to avoid accent bar overlap
+const SECTION_GAP = 24; // gap between major sections
+const INNER_GAP = 12; // gap between subtitles and paragraphs inside sections
 const CARD_RADIUS = 3;
 const LINE_H = 4.2;
 
@@ -159,23 +162,24 @@ class PDFBuilder {
     this.y += 6;
   }
 
-  subTitle(title: string, indent = CARD_PAD) {
+  subTitle(title: string, indent = CARD_INNER_PAD) {
     this.ensureSpace(10);
     this.doc.setFontSize(10);
     this.doc.setFont('helvetica', 'bold');
     this.doc.setTextColor(COLORS.text);
     this.doc.text(sanitize(title), MARGIN + indent, this.y);
-    this.y += 5;
+    this.y += 5 + INNER_GAP / 2;
   }
 
   paragraph(text: string, indent = 0) {
     this.doc.setFontSize(9);
     this.doc.setFont('helvetica', 'normal');
     this.doc.setTextColor(COLORS.textLight);
-    const lines = this.doc.splitTextToSize(sanitize(text), CONTENT_W - indent - CARD_PAD * 2);
+    const leftOffset = Math.max(indent, CARD_INNER_PAD);
+    const lines = this.doc.splitTextToSize(sanitize(text), CONTENT_W - leftOffset - CARD_PAD);
     for (const line of lines) {
       this.ensureSpace(5);
-      this.doc.text(line, MARGIN + indent + CARD_PAD, this.y);
+      this.doc.text(line, MARGIN + leftOffset, this.y);
       this.y += LINE_H;
     }
     this.y += 1;
@@ -184,15 +188,15 @@ class PDFBuilder {
   bulletList(items: string[], icon = '-', iconColor = COLORS.textLight) {
     for (const item of items) {
       const cleanItem = sanitize(item);
-      const lines = this.doc.splitTextToSize(cleanItem, CONTENT_W - 8 - CARD_PAD * 2);
+      const lines = this.doc.splitTextToSize(cleanItem, CONTENT_W - CARD_INNER_PAD - 8);
       this.ensureSpace(lines.length * LINE_H + 2);
       this.doc.setFontSize(9);
       this.doc.setFont('helvetica', 'normal');
       this.doc.setTextColor(iconColor);
-      this.doc.text(icon, MARGIN + CARD_PAD + 2, this.y);
+      this.doc.text(icon, MARGIN + CARD_INNER_PAD, this.y);
       this.doc.setTextColor(COLORS.textLight);
       for (let i = 0; i < lines.length; i++) {
-        this.doc.text(lines[i], MARGIN + CARD_PAD + 8, this.y);
+        this.doc.text(lines[i], MARGIN + CARD_INNER_PAD + 6, this.y);
         this.y += LINE_H;
       }
       this.y += 1;
@@ -325,7 +329,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
 
   b.subTitle('Resumo', 0);
   b.paragraph(analysis.summary);
-  b.gap(4);
+  b.gap(SECTION_GAP);
 
   // ═══════════════════════════════════════════
   // 2. ANALISE P-C-R
@@ -354,12 +358,12 @@ export function generateViralPDF(analysis: ViralAnalysis) {
     doc.setFontSize(9);
     let estH = 7; // subtitle
     for (const fl of feedbackLines) {
-      estH += doc.splitTextToSize(fl, CONTENT_W - 8 - CARD_PAD * 2).length * LINE_H + 1;
+      estH += doc.splitTextToSize(fl, CONTENT_W - CARD_INNER_PAD - 8).length * LINE_H + 1;
     }
     if (tipsClean.length > 0) {
       estH += 6; // "DICAS:" label
       for (const tip of tipsClean) {
-        estH += doc.splitTextToSize(tip, CONTENT_W - 8 - CARD_PAD * 2).length * LINE_H + 1;
+        estH += doc.splitTextToSize(tip, CONTENT_W - CARD_INNER_PAD - 8).length * LINE_H + 1;
       }
     }
 
@@ -381,12 +385,12 @@ export function generateViralPDF(analysis: ViralAnalysis) {
       doc.setFontSize(8);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(COLORS.primary);
-      doc.text('DICAS:', MARGIN + CARD_PAD + 2, b.y);
+      doc.text('DICAS:', MARGIN + CARD_INNER_PAD, b.y);
       b.y += 4;
       b.bulletList(tipsClean, '>', COLORS.primary);
     }
 
-    b.gap(8);
+    b.gap(SECTION_GAP);
   }
 
   // ═══════════════════════════════════════════
@@ -486,7 +490,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
     doc.setFontSize(9);
     let estH = 7;
     for (const item of cleanItems) {
-      estH += doc.splitTextToSize(item, CONTENT_W - 8 - CARD_PAD * 2).length * LINE_H + 1;
+      estH += doc.splitTextToSize(item, CONTENT_W - CARD_INNER_PAD - 8).length * LINE_H + 1;
     }
 
     b.ensureSpace(Math.min(estH + 8, 50));
@@ -494,7 +498,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
 
     b.subTitle(title);
     b.bulletList(cleanItems, icon, iconColor);
-    b.gap(6);
+    b.gap(SECTION_GAP);
   };
 
   renderDiagCard('Pontos Fortes', analysis.strengths, '+', COLORS.green, COLORS.green);
@@ -506,13 +510,13 @@ export function generateViralPDF(analysis: ViralAnalysis) {
     doc.setFontSize(9);
     let estH = 7;
     for (const item of cleanItems) {
-      estH += doc.splitTextToSize(item, CONTENT_W - 8 - CARD_PAD * 2).length * LINE_H + 1;
+      estH += doc.splitTextToSize(item, CONTENT_W - CARD_INNER_PAD - 8).length * LINE_H + 1;
     }
     b.ensureSpace(Math.min(estH + 8, 50));
     b.drawCardBg(estH, COLORS.green);
     b.subTitle('Como melhorar a retencao');
     b.bulletList(cleanItems, '>', COLORS.green);
-    b.gap(6);
+    b.gap(SECTION_GAP);
   }
 
   // ═══════════════════════════════════════════
@@ -526,9 +530,9 @@ export function generateViralPDF(analysis: ViralAnalysis) {
       // Estimate
       doc.setFontSize(9);
       let estH = 7;
-      estH += doc.splitTextToSize(sanitize(idea.description), CONTENT_W - 8).length * LINE_H + 2;
+      estH += doc.splitTextToSize(sanitize(idea.description), CONTENT_W - CARD_INNER_PAD).length * LINE_H + 2;
       if (idea.hookSuggestion) {
-        estH += doc.splitTextToSize(sanitize(idea.hookSuggestion), CONTENT_W - 8).length * LINE_H + 2;
+        estH += doc.splitTextToSize(sanitize(idea.hookSuggestion), CONTENT_W - CARD_INNER_PAD).length * LINE_H + 2;
       }
 
       b.drawCardBg(estH, COLORS.primary);
@@ -536,21 +540,21 @@ export function generateViralPDF(analysis: ViralAnalysis) {
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(COLORS.text);
-      doc.text(sanitize(idea.title), MARGIN + CARD_PAD + 2, b.y);
+      doc.text(sanitize(idea.title), MARGIN + CARD_INNER_PAD, b.y);
       b.y += 5;
-      b.paragraph(idea.description, 4);
+      b.paragraph(idea.description, CARD_INNER_PAD);
       if (idea.hookSuggestion) {
         doc.setFontSize(8);
         doc.setFont('helvetica', 'italic');
         doc.setTextColor(COLORS.primary);
-        const hookLines = doc.splitTextToSize(`Hook: "${sanitize(idea.hookSuggestion)}"`, CONTENT_W - 8);
+        const hookLines = doc.splitTextToSize(`Hook: "${sanitize(idea.hookSuggestion)}"`, CONTENT_W - CARD_INNER_PAD);
         for (const line of hookLines) {
           b.ensureSpace(5);
-          doc.text(line, MARGIN + CARD_PAD + 4, b.y);
+          doc.text(line, MARGIN + CARD_INNER_PAD, b.y);
           b.y += 4;
         }
       }
-      b.gap(6);
+      b.gap(SECTION_GAP);
     }
   }
 
