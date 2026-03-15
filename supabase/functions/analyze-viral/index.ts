@@ -103,6 +103,29 @@ serve(async (req) => {
       });
     }
 
+    // =============================================
+    // CACHE: Verificar se já existe análise para esta URL
+    // =============================================
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const sb = createClient(supabaseUrl, supabaseKey);
+
+    if (url) {
+      const { data: cached } = await sb
+        .from("analysis_cache")
+        .select("analysis")
+        .eq("video_url", url)
+        .maybeSingle();
+
+      if (cached) {
+        console.log("[Cache] ✅ Hit! Retornando análise cacheada.");
+        return new Response(JSON.stringify({ success: true, analysis: cached.analysis, cached: true }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      console.log("[Cache] Miss. Iniciando pipeline completo.");
+    }
+
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
 
