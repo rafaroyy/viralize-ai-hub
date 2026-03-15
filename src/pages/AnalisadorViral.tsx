@@ -471,7 +471,7 @@ const AnalisadorViral = () => {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" /> {isUploading ? 'Enviando vídeo...' : 'Analisando...'}
+                    <Loader2 className="w-5 h-5 animate-spin" /> {progressMessage || 'Analisando...'}
                   </>
                 ) : (
                   <>
