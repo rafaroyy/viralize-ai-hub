@@ -22,6 +22,9 @@ const MARGIN = 18;
 const CONTENT_W = PAGE_W - MARGIN * 2;
 const FOOTER_H = 12;
 const CARD_PAD = 4;
+const CARD_INNER_PAD = 16; // left padding inside cards to avoid accent bar overlap
+const SECTION_GAP = 24; // gap between major sections
+const INNER_GAP = 12; // gap between subtitles and paragraphs inside sections
 const CARD_RADIUS = 3;
 const LINE_H = 4.2;
 
