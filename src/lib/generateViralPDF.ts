@@ -162,13 +162,13 @@ class PDFBuilder {
     this.y += 6;
   }
 
-  subTitle(title: string, indent = CARD_PAD) {
+  subTitle(title: string, indent = CARD_INNER_PAD) {
     this.ensureSpace(10);
     this.doc.setFontSize(10);
     this.doc.setFont('helvetica', 'bold');
     this.doc.setTextColor(COLORS.text);
     this.doc.text(sanitize(title), MARGIN + indent, this.y);
-    this.y += 5;
+    this.y += 5 + INNER_GAP / 2;
   }
 
   paragraph(text: string, indent = 0) {
