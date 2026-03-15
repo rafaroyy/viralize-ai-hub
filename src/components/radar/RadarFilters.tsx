@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter } from "lucide-react";
 import type { RadarFiltersState, TimeWindow, SourceType, TrendStatus } from "@/types/radar";
-import { sourceLabels, statusLabels, categoryLabels, nicheLabels } from "@/data/radarMocks";
+import { sourceLabels, statusLabels, availableSources, comingSoonSources } from "@/data/radarMocks";
 
 interface Props {
   filters: RadarFiltersState;
@@ -33,10 +33,15 @@ export function RadarFilters({ filters, onChange }: Props) {
         </SelectContent>
       </Select>
       <Select value={filters.sources[0] || "all"} onValueChange={(v) => update({ sources: v === "all" ? [] : [v as SourceType] })}>
-        <SelectTrigger className="h-9 w-32 bg-secondary/50"><SelectValue placeholder="Fonte" /></SelectTrigger>
+        <SelectTrigger className="h-9 w-36 bg-secondary/50"><SelectValue placeholder="Fonte" /></SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todas fontes</SelectItem>
-          {Object.entries(sourceLabels).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+          {availableSources.map(k => <SelectItem key={k} value={k}>{sourceLabels[k]}</SelectItem>)}
+          {comingSoonSources.map(k => (
+            <SelectItem key={k} value={k} disabled className="opacity-50">
+              {sourceLabels[k]} (Em breve)
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
       <Select value={filters.statuses[0] || "all"} onValueChange={(v) => update({ statuses: v === "all" ? [] : [v as TrendStatus] })}>

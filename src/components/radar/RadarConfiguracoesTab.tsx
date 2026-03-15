@@ -9,11 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { X, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { sourceLabels, nicheLabels, categoryLabels } from "@/data/radarMocks";
+import { sourceLabels, nicheLabels, categoryLabels, availableSources, comingSoonSources } from "@/data/radarMocks";
 import type { RadarSettings, SourceType, NicheType, TrendCategory } from "@/types/radar";
 
 const defaultSettings: RadarSettings = {
-  activeSources: ["google", "tiktok", "youtube", "noticias"],
+  activeSources: ["youtube"],
   updateFrequency: "1h",
   priorityNiches: ["marketing", "creator-economy", "e-commerce"],
   blockedTerms: [],
@@ -30,6 +30,7 @@ export function RadarConfiguracoesTab() {
   const { toast } = useToast();
 
   const toggleSource = (s: SourceType) => {
+    if (comingSoonSources.includes(s)) return;
     const sources = settings.activeSources.includes(s) ? settings.activeSources.filter(x => x !== s) : [...settings.activeSources, s];
     setSettings({ ...settings, activeSources: sources });
   };
@@ -59,12 +60,22 @@ export function RadarConfiguracoesTab() {
       <Card className="glass-card">
         <CardHeader className="pb-3"><CardTitle className="text-sm">Fontes Ativas</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          {(Object.entries(sourceLabels) as [SourceType, string][]).map(([k, v]) => (
-            <div key={k} className="flex items-center justify-between">
-              <Label className="text-sm">{v}</Label>
-              <Switch checked={settings.activeSources.includes(k)} onCheckedChange={() => toggleSource(k)} />
-            </div>
-          ))}
+          {(Object.entries(sourceLabels) as [SourceType, string][]).map(([k, v]) => {
+            const isComingSoon = comingSoonSources.includes(k);
+            return (
+              <div key={k} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Label className={`text-sm ${isComingSoon ? "text-muted-foreground" : ""}`}>{v}</Label>
+                  {isComingSoon && <Badge variant="outline" className="text-[10px] px-1.5 py-0">Em breve</Badge>}
+                </div>
+                <Switch
+                  checked={settings.activeSources.includes(k)}
+                  onCheckedChange={() => toggleSource(k)}
+                  disabled={isComingSoon}
+                />
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
 

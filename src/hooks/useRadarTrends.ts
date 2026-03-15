@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { mockTrends, mockOpportunities } from "@/data/radarMocks";
 import type { Trend, SourceSignal, Opportunity } from "@/types/radar";
 import { useToast } from "@/hooks/use-toast";
 
@@ -48,9 +47,9 @@ function mapDbTrend(row: any, sources: any[]): Trend {
 }
 
 export function useRadarTrends() {
-  const [trends, setTrends] = useState<Trend[]>(mockTrends);
-  const [opportunities] = useState<Opportunity[]>(mockOpportunities);
-  const [loading, setLoading] = useState(false);
+  const [trends, setTrends] = useState<Trend[]>([]);
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+  const [loading, setLoading] = useState(true);
   const [fetching, setFetching] = useState(false);
   const { toast } = useToast();
 
@@ -66,7 +65,7 @@ export function useRadarTrends() {
       if (tErr) throw tErr;
 
       if (!trendRows || trendRows.length === 0) {
-        setTrends(mockTrends);
+        setTrends([]);
         return;
       }
 
@@ -80,7 +79,7 @@ export function useRadarTrends() {
       setTrends(mapped);
     } catch (e: any) {
       console.error("Error loading trends:", e);
-      // Keep mocks as fallback
+      setTrends([]);
     } finally {
       setLoading(false);
     }
