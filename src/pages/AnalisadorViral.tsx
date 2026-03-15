@@ -1,8 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Flame, Loader2, TrendingUp, TrendingDown, Lightbulb, Target, Eye, Upload, X, AlertTriangle, CheckCircle2, PlayCircle, Sparkles, FileText, Clock, Hash, Scissors, Download, MessageCircle, History, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { generateViralPDF } from '@/lib/generateViralPDF';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
@@ -347,43 +346,11 @@ const AnalisadorViral = () => {
     }
   };
 
-  const handleExportPDF = async () => {
-    if (!resultsRef.current) return;
+  const handleExportPDF = () => {
+    if (!analysis) return;
     setIsExporting(true);
     try {
-      const canvas = await html2canvas(resultsRef.current, {
-        backgroundColor: '#0a0a12',
-        scale: 2,
-        useCORS: true,
-      });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const imgWidth = pageWidth - 20;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let y = 10;
-      const pageHeight = pdf.internal.pageSize.getHeight() - 20;
-      if (imgHeight <= pageHeight) {
-        pdf.addImage(imgData, 'PNG', 10, y, imgWidth, imgHeight);
-      } else {
-        let remainingHeight = imgHeight;
-        let sourceY = 0;
-        while (remainingHeight > 0) {
-          const sliceHeight = Math.min(pageHeight, remainingHeight);
-          const sliceCanvasHeight = (sliceHeight / imgHeight) * canvas.height;
-          const sliceCanvas = document.createElement('canvas');
-          sliceCanvas.width = canvas.width;
-          sliceCanvas.height = sliceCanvasHeight;
-          const ctx = sliceCanvas.getContext('2d')!;
-          ctx.drawImage(canvas, 0, sourceY, canvas.width, sliceCanvasHeight, 0, 0, canvas.width, sliceCanvasHeight);
-          const sliceImg = sliceCanvas.toDataURL('image/png');
-          if (sourceY > 0) pdf.addPage();
-          pdf.addImage(sliceImg, 'PNG', 10, 10, imgWidth, sliceHeight);
-          sourceY += sliceCanvasHeight;
-          remainingHeight -= pageHeight;
-        }
-      }
-      pdf.save('analise-viral.pdf');
+      generateViralPDF(analysis);
       toast({ title: 'PDF exportado com sucesso!' });
     } catch (err: any) {
       toast({ title: 'Erro ao exportar PDF', description: err.message, variant: 'destructive' });
