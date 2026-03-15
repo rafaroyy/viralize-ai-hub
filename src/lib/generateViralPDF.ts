@@ -21,8 +21,9 @@ const PAGE_H = 297;
 const MARGIN = 18;
 const CONTENT_W = PAGE_W - MARGIN * 2;
 const FOOTER_H = 12;
-const CARD_PAD = 4; // mm padding inside cards
+const CARD_PAD = 4;
 const CARD_RADIUS = 3;
+const LINE_H = 4.2;
 
 interface ViralAnalysis {
   overallScore: number;
@@ -46,7 +47,6 @@ interface ViralAnalysis {
 
 // ── Helpers ──
 
-/** Remove emojis and special unicode symbols that break PDF font rendering */
 function stripEmojis(text: string): string {
   return text
     .replace(/[\u{1F600}-\u{1F64F}]/gu, '')
@@ -69,7 +69,7 @@ function stripEmojis(text: string): string {
 }
 
 function sanitize(text: string): string {
-  return stripEmojis(text.replace(/\*\*/g, '').replace(/\[\d{2}:\d{2}(?:\s*-\s*\d{2}:\d{2})?\]/g, (m) => m));
+  return stripEmojis(text.replace(/\*\*/g, ''));
 }
 
 function cleanBullets(text: string): string[] {
@@ -79,7 +79,6 @@ function cleanBullets(text: string): string[] {
     .filter(Boolean);
 }
 
-/** Clean timestamp: remove duplicate brackets, ensure clean format */
 function cleanTimestamp(ts: string): string {
   return ts.replace(/^\[+/, '').replace(/\]+$/, '').trim();
 }
@@ -160,12 +159,12 @@ class PDFBuilder {
     this.y += 6;
   }
 
-  subTitle(title: string) {
+  subTitle(title: string, indent = CARD_PAD) {
     this.ensureSpace(10);
     this.doc.setFontSize(10);
     this.doc.setFont('helvetica', 'bold');
     this.doc.setTextColor(COLORS.text);
-    this.doc.text(sanitize(title), MARGIN + CARD_PAD, this.y);
+    this.doc.text(sanitize(title), MARGIN + indent, this.y);
     this.y += 5;
   }
 
@@ -177,7 +176,7 @@ class PDFBuilder {
     for (const line of lines) {
       this.ensureSpace(5);
       this.doc.text(line, MARGIN + indent + CARD_PAD, this.y);
-      this.y += 4.2;
+      this.y += LINE_H;
     }
     this.y += 1;
   }
@@ -186,7 +185,7 @@ class PDFBuilder {
     for (const item of items) {
       const cleanItem = sanitize(item);
       const lines = this.doc.splitTextToSize(cleanItem, CONTENT_W - 8 - CARD_PAD * 2);
-      this.ensureSpace(lines.length * 4.2 + 2);
+      this.ensureSpace(lines.length * LINE_H + 2);
       this.doc.setFontSize(9);
       this.doc.setFont('helvetica', 'normal');
       this.doc.setTextColor(iconColor);
@@ -194,10 +193,20 @@ class PDFBuilder {
       this.doc.setTextColor(COLORS.textLight);
       for (let i = 0; i < lines.length; i++) {
         this.doc.text(lines[i], MARGIN + CARD_PAD + 8, this.y);
-        this.y += 4.2;
+        this.y += LINE_H;
       }
       this.y += 1;
     }
+  }
+
+  /** Count how many mm a set of text lines will need */
+  private countLinesHeight(textItems: string[], maxWidth: number): number {
+    let total = 0;
+    for (const item of textItems) {
+      const lines = this.doc.splitTextToSize(sanitize(item), maxWidth);
+      total += lines.length * LINE_H + 1;
+    }
+    return total;
   }
 
   scoreBox(label: string, score: number, x: number, w: number) {
@@ -211,8 +220,8 @@ class PDFBuilder {
 
     this.doc.setFontSize(20);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.setTextColor(score >= 70 ? COLORS.green : score >= 40 ? COLORS.orange : COLORS.red);
-    this.doc.text(`${score}`, x + w / 2, this.y + 12, { align: 'center' });
+    this.doc.setTextColor(COLORS.primary);
+    this.doc.text(`${Math.round(score)}`, x + w / 2, this.y + 12, { align: 'center' });
 
     this.doc.setFontSize(7);
     this.doc.setFont('helvetica', 'normal');
@@ -221,44 +230,24 @@ class PDFBuilder {
   }
 
   /**
-   * Two-pass card rendering: measures content height first, draws background, then re-renders content.
-   * This solves jsPDF's lack of z-order support.
+   * Draw a card background (left accent bar + light bg) then render content.
+   * Uses pre-calculated height estimation to avoid two-pass rendering bugs.
    */
-  renderInCard(renderContent: (measuring: boolean) => void) {
-    const startY = this.y;
-
-    // Pass 1: measure height (render silently)
-    const savedPage = this.page;
-    renderContent(true);
-    const measuredEndY = this.y;
-    const contentHeight = measuredEndY - startY;
-
-    // Reset position
-    this.y = startY;
-    // If we crossed pages during measurement, we can't easily draw a single bg.
-    // For simplicity, handle single-page cards.
-    if (this.page !== savedPage) {
-      // Multi-page card: just render without background
-      this.page = savedPage;
-      renderContent(false);
-      return;
-    }
-
-    // Draw background card
+  drawCardBg(estimatedHeight: number, accentColor = COLORS.primary) {
+    // Draw card background
     this.doc.setFillColor(COLORS.cardBg);
     this.doc.roundedRect(
       MARGIN - 2,
-      startY - CARD_PAD,
+      this.y - 2,
       CONTENT_W + 4,
-      contentHeight + CARD_PAD * 2,
+      estimatedHeight + CARD_PAD * 2 + 2,
       CARD_RADIUS,
       CARD_RADIUS,
       'F'
     );
-
-    // Pass 2: render content on top of the background
-    this.y = startY;
-    renderContent(false);
+    // Left accent bar
+    this.doc.setFillColor(accentColor);
+    this.doc.rect(MARGIN - 2, this.y - 2, 2.5, estimatedHeight + CARD_PAD * 2 + 2, 'F');
   }
 
   gap(mm = 4) {
@@ -307,18 +296,22 @@ export function generateViralPDF(analysis: ViralAnalysis) {
   // ═══════════════════════════════════════════
   b.sectionTitle('Visao Geral');
 
+  const roundedScore = Math.round(analysis.overallScore);
+
   // Giant score in brand purple
   doc.setFontSize(48);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(COLORS.primary);
-  doc.text(`${analysis.overallScore}`, MARGIN, b.y + 16);
+  doc.text(`${roundedScore}`, MARGIN, b.y + 16);
 
+  // Measure width of score text at 48pt to position "/100"
+  const scoreTextWidth = doc.getTextWidth(`${roundedScore}`);
   doc.setFontSize(14);
   doc.setTextColor(COLORS.textMuted);
-  doc.text('/ 100', MARGIN + doc.getTextWidth(`${analysis.overallScore}`) * (48 / 14) / 2.8 + 4, b.y + 16);
+  doc.text('/ 100', MARGIN + scoreTextWidth + 3, b.y + 16);
 
   // Classification badge
-  const badgeX = MARGIN + 60;
+  const badgeX = MARGIN + 70;
   const classText = sanitize(analysis.classification);
   doc.setFontSize(10);
   const badgeW = doc.getTextWidth(classText) + 14;
@@ -330,7 +323,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
 
   b.y += 26;
 
-  b.subTitle('Resumo');
+  b.subTitle('Resumo', 0);
   b.paragraph(analysis.summary);
   b.gap(4);
 
@@ -354,28 +347,46 @@ export function generateViralPDF(analysis: ViralAnalysis) {
   ];
 
   for (const section of pcrSections) {
-    b.ensureSpace(20);
+    const feedbackLines = cleanBullets(section.data.feedback);
+    const tipsClean = section.data.tips.map(t => sanitize(t));
 
-    b.renderInCard(() => {
-      b.subTitle(`${section.label} (${section.data.score}/100)`);
-      const feedbackLines = cleanBullets(section.data.feedback);
-      if (feedbackLines.length > 1) {
-        b.bulletList(feedbackLines, '-', COLORS.textLight);
-      } else {
-        b.paragraph(section.data.feedback, 2);
+    // Estimate card height
+    doc.setFontSize(9);
+    let estH = 7; // subtitle
+    for (const fl of feedbackLines) {
+      estH += doc.splitTextToSize(fl, CONTENT_W - 8 - CARD_PAD * 2).length * LINE_H + 1;
+    }
+    if (tipsClean.length > 0) {
+      estH += 6; // "DICAS:" label
+      for (const tip of tipsClean) {
+        estH += doc.splitTextToSize(tip, CONTENT_W - 8 - CARD_PAD * 2).length * LINE_H + 1;
       }
-      if (section.data.tips.length > 0) {
-        b.ensureSpace(8);
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(COLORS.primary);
-        doc.text('DICAS:', MARGIN + CARD_PAD + 2, b.y);
-        b.y += 4;
-        b.bulletList(section.data.tips.map(t => sanitize(t)), '>', COLORS.primary);
-      }
-    });
+    }
 
-    b.gap(6);
+    b.ensureSpace(Math.min(estH + 8, 60)); // don't require too much, allow natural page breaks
+
+    // Draw card background
+    const cardStartY = b.y;
+    b.drawCardBg(estH);
+
+    // Render content
+    b.subTitle(`${section.label} (${Math.round(section.data.score)}/100)`);
+    if (feedbackLines.length > 1) {
+      b.bulletList(feedbackLines, '-', COLORS.textLight);
+    } else {
+      b.paragraph(section.data.feedback, 2);
+    }
+    if (tipsClean.length > 0) {
+      b.ensureSpace(8);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(COLORS.primary);
+      doc.text('DICAS:', MARGIN + CARD_PAD + 2, b.y);
+      b.y += 4;
+      b.bulletList(tipsClean, '>', COLORS.primary);
+    }
+
+    b.gap(8);
   }
 
   // ═══════════════════════════════════════════
@@ -386,7 +397,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
     b.sectionTitle('Roteiro Otimizado');
 
     if (sb.exactHook) {
-      b.subTitle('Abertura Ideal');
+      b.subTitle('Abertura Ideal', 0);
       b.ensureSpace(8);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'italic');
@@ -395,34 +406,44 @@ export function generateViralPDF(analysis: ViralAnalysis) {
       for (const line of hookLines) {
         b.ensureSpace(5);
         doc.text(line, MARGIN + 3, b.y);
-        b.y += 4.2;
+        b.y += LINE_H;
       }
       b.gap(3);
     }
 
     if (sb.bodyPacing.length > 0) {
-      b.subTitle('Ritmo do Video');
+      b.subTitle('Ritmo do Video', 0);
       for (const cut of sb.bodyPacing) {
-        // Fix: clean duplicate brackets and ensure spacing
         const cleanTs = cleanTimestamp(sanitize(cut.timestamp));
         const tsText = `[${cleanTs}]`;
+        // Ensure action text has clean spacing - remove any leading brackets/spaces
         const actionText = sanitize(cut.action).replace(/^\s*\]?\s*/, '').trim();
-        const actionLines = doc.splitTextToSize(actionText, CONTENT_W - 25);
-        b.ensureSpace(actionLines.length * 4.2 + 2);
+        const fullLine = `${tsText}  ${actionText}`;
+        const actionLines = doc.splitTextToSize(fullLine, CONTENT_W - 4);
+        b.ensureSpace(actionLines.length * LINE_H + 2);
 
-        // Timestamp in bold purple
+        // Render full line with timestamp bold, then action normal
         doc.setFontSize(8.5);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(COLORS.primary);
         doc.text(tsText, MARGIN + 2, b.y);
 
-        // Action in normal dark
+        const tsWidth = doc.getTextWidth(tsText + '  ');
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(COLORS.textLight);
         doc.setFontSize(9);
-        for (const al of actionLines) {
-          doc.text(al, MARGIN + 22, b.y);
-          b.y += 4.2;
+
+        // First line: action starts after timestamp
+        const firstLineAction = doc.splitTextToSize(actionText, CONTENT_W - 4 - tsWidth);
+        if (firstLineAction.length > 0) {
+          doc.text(firstLineAction[0], MARGIN + 2 + tsWidth, b.y);
+          b.y += LINE_H;
+        }
+        // Remaining lines wrap normally
+        for (let i = 1; i < firstLineAction.length; i++) {
+          b.ensureSpace(5);
+          doc.text(firstLineAction[i], MARGIN + 4, b.y);
+          b.y += LINE_H;
         }
         b.y += 1;
       }
@@ -430,7 +451,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
     }
 
     if (sb.exactCta) {
-      b.subTitle('Encerramento Ideal');
+      b.subTitle('Encerramento Ideal', 0);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'italic');
       doc.setTextColor(COLORS.primary);
@@ -438,13 +459,13 @@ export function generateViralPDF(analysis: ViralAnalysis) {
       for (const line of ctaLines) {
         b.ensureSpace(5);
         doc.text(line, MARGIN + 3, b.y);
-        b.y += 4.2;
+        b.y += LINE_H;
       }
       b.gap(3);
     }
 
     if (sb.captions.length > 0) {
-      b.subTitle('Sugestoes de Legenda');
+      b.subTitle('Sugestoes de Legenda', 0);
       sb.captions.forEach((c, i) => {
         b.bulletList([`Opcao ${i + 1}: ${sanitize(c)}`], '>', COLORS.primary);
       });
@@ -457,28 +478,41 @@ export function generateViralPDF(analysis: ViralAnalysis) {
   // ═══════════════════════════════════════════
   b.sectionTitle('Diagnostico');
 
-  const renderDiagCard = (title: string, items: string[], icon: string, iconColor: string) => {
+  const renderDiagCard = (title: string, items: string[], icon: string, iconColor: string, accentColor: string) => {
     if (items.length === 0) return;
-    b.ensureSpace(16);
+    const cleanItems = items.map(i => sanitize(i));
 
-    b.renderInCard(() => {
-      b.subTitle(title);
-      b.bulletList(items.map(i => sanitize(i)), icon, iconColor);
-    });
+    // Estimate height
+    doc.setFontSize(9);
+    let estH = 7;
+    for (const item of cleanItems) {
+      estH += doc.splitTextToSize(item, CONTENT_W - 8 - CARD_PAD * 2).length * LINE_H + 1;
+    }
 
-    b.gap(4);
+    b.ensureSpace(Math.min(estH + 8, 50));
+    b.drawCardBg(estH, accentColor);
+
+    b.subTitle(title);
+    b.bulletList(cleanItems, icon, iconColor);
+    b.gap(6);
   };
 
-  renderDiagCard('Pontos Fortes', analysis.strengths, '+', COLORS.green);
-  renderDiagCard('Pontos Fracos', analysis.weaknesses, 'x', COLORS.red);
-  renderDiagCard('O que mata a retencao', analysis.retentionKillers, 'x', COLORS.red);
+  renderDiagCard('Pontos Fortes', analysis.strengths, '+', COLORS.green, COLORS.green);
+  renderDiagCard('Pontos Fracos', analysis.weaknesses, 'x', COLORS.red, COLORS.red);
+  renderDiagCard('O que mata a retencao', analysis.retentionKillers, 'x', COLORS.red, COLORS.red);
 
   if (analysis.retentionImprovements.length > 0) {
-    b.renderInCard(() => {
-      b.subTitle('Como melhorar a retencao');
-      b.bulletList(analysis.retentionImprovements.map(i => sanitize(i)), '>', COLORS.green);
-    });
-    b.gap(2);
+    const cleanItems = analysis.retentionImprovements.map(i => sanitize(i));
+    doc.setFontSize(9);
+    let estH = 7;
+    for (const item of cleanItems) {
+      estH += doc.splitTextToSize(item, CONTENT_W - 8 - CARD_PAD * 2).length * LINE_H + 1;
+    }
+    b.ensureSpace(Math.min(estH + 8, 50));
+    b.drawCardBg(estH, COLORS.green);
+    b.subTitle('Como melhorar a retencao');
+    b.bulletList(cleanItems, '>', COLORS.green);
+    b.gap(6);
   }
 
   // ═══════════════════════════════════════════
@@ -488,26 +522,35 @@ export function generateViralPDF(analysis: ViralAnalysis) {
     b.sectionTitle('Ideias de Videos Virais');
     for (const idea of analysis.viralVideoIdeas) {
       b.ensureSpace(18);
-      b.renderInCard(() => {
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(COLORS.text);
-        doc.text(sanitize(idea.title), MARGIN + CARD_PAD + 2, b.y);
-        b.y += 5;
-        b.paragraph(idea.description, 4);
-        if (idea.hookSuggestion) {
-          doc.setFontSize(8);
-          doc.setFont('helvetica', 'italic');
-          doc.setTextColor(COLORS.primary);
-          const hookLines = doc.splitTextToSize(`Hook: "${sanitize(idea.hookSuggestion)}"`, CONTENT_W - 8);
-          for (const line of hookLines) {
-            b.ensureSpace(5);
-            doc.text(line, MARGIN + CARD_PAD + 4, b.y);
-            b.y += 4;
-          }
+
+      // Estimate
+      doc.setFontSize(9);
+      let estH = 7;
+      estH += doc.splitTextToSize(sanitize(idea.description), CONTENT_W - 8).length * LINE_H + 2;
+      if (idea.hookSuggestion) {
+        estH += doc.splitTextToSize(sanitize(idea.hookSuggestion), CONTENT_W - 8).length * LINE_H + 2;
+      }
+
+      b.drawCardBg(estH, COLORS.primary);
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(COLORS.text);
+      doc.text(sanitize(idea.title), MARGIN + CARD_PAD + 2, b.y);
+      b.y += 5;
+      b.paragraph(idea.description, 4);
+      if (idea.hookSuggestion) {
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(COLORS.primary);
+        const hookLines = doc.splitTextToSize(`Hook: "${sanitize(idea.hookSuggestion)}"`, CONTENT_W - 8);
+        for (const line of hookLines) {
+          b.ensureSpace(5);
+          doc.text(line, MARGIN + CARD_PAD + 4, b.y);
+          b.y += 4;
         }
-      });
-      b.gap(4);
+      }
+      b.gap(6);
     }
   }
 
