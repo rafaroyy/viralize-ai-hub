@@ -11,3 +11,15 @@ verify_jwt = false
 
 [functions.model-post]
 verify_jwt = false
+
+[functions.tiktok-connect]
+verify_jwt = false
+
+[functions.tiktok-callback]
+verify_jwt = false
+
+[functions.tiktok-disconnect]
+verify_jwt = false
+
+[functions.tiktok-refresh]
+verify_jwt = false
