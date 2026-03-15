@@ -1,51 +1,51 @@
 
 
-# Nova Pagina de Vendas em /pagina
+# Plano: Histórico + UX/UI do Analisador Viral
 
-## Resumo
-Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
+## Contexto
 
-## Estrutura das Secoes
+O Analisador Viral já salva na tabela `user_history` (tipo `analise`), mas não exibe o histórico na página. Os cards de Hook/Corpo/CTA estão visualmente densos e usam termos técnicos que confundem o público leigo.
 
-1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
-2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
-3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
-4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
-5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
-6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
-7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
+---
 
-## Detalhes Tecnicos
+## Parte 1: Histórico de Análises
 
-### Arquivos criados
-- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
+**O que muda:** Adicionar uma seção de histórico abaixo do formulário de upload, com um botão "Ver Histórico" que expande/colapsa a lista. Ao clicar em um item, carrega a análise salva no mesmo layout de resultados (sem pop-up, como o usuário pediu).
 
-### Arquivos modificados
-- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
+- Carregar do `user_history` onde `tipo = 'analise'` e `user_id` do usuário logado
+- Exibir lista com título, data e nota geral
+- Ao clicar, popular o estado `analysis` com o payload salvo (reusa toda a UI de resultados existente)
+- Botão discreto com ícone de histórico (Clock) ao lado do botão "Analisar"
 
-### Componentes reutilizados
-- `ScrollReveal` (mesmo pattern da LandingPage)
-- `framer-motion` para animacoes
-- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
-- Logo existente no header
-- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
+## Parte 2: UX/UI dos Cards Hook / Corpo / CTA
 
-### Regras de UI seguidas conforme o prompt
-- Maximo 1 ideia por bloco
-- Frases de impacto em linha isolada (texto maior, peso bold)
-- Sem emojis no site
-- CTAs apenas no Hero + Oferta
-- Visual clean, contraste alto, bastante espaco
-- Navbar simplificada (logo + "Entrar" + CTA)
-- Footer minimalista
+**Problemas identificados na screenshot:**
+- Texto muito denso, sem espaçamento
+- Bold renderizado inline quebrando o fluxo visual
+- Dicas (tips) ficam grudadas no feedback
+- Termos como "Blueprint de Execução" são técnicos demais
 
-### Pricing
-- Preco: De R$645 por R$247
-- Pagamento unico
-- Link de checkout vitalicio reutilizado (CenterPag)
-- Suporte a affiliate slug mantido
+**Mudanças:**
 
-### Rota
-- `/pagina` como rota publica (nao protegida)
-- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
+1. **Renomear seções** para linguagem simples:
+   - "Blueprint de Execução" → "Roteiro Otimizado"
+   - "Hook Exato (Primeiros 3s)" → "Abertura Ideal"
+   - "Estrutura de Cortes (Pacing)" → "Ritmo do Vídeo"
+   - "CTA Exato (Final)" → "Encerramento Ideal"
+   - "Legendas Otimizadas" → "Sugestões de Legenda"
+   - Manter "Hook (Início)", "Corpo (Desenvolvimento)", "CTA (Final)" nos cards mas com subtítulos mais amigáveis
+
+2. **Layout dos cards Hook/Corpo/CTA:**
+   - Separar feedback e dicas com um divisor visual (`<hr>` ou `border-t`)
+   - Aumentar padding interno (`p-5` → `p-6`)
+   - Feedback como parágrafos com `space-y-3` em vez de lista colada
+   - Dicas em cards individuais com fundo `bg-secondary/30` e padding, em vez de texto inline
+   - Limitar feedback visível com "Ver mais" se ultrapassar ~3 bullets
+
+3. **Cards de Retenção e Pontos Fortes/Fracos:**
+   - Manter layout atual (já está ok), apenas ajustar spacing
+
+## Arquivos alterados
+
+- `src/pages/AnalisadorViral.tsx` — histórico + redesign dos cards de resultado
 
