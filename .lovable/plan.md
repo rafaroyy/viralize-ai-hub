@@ -1,51 +1,28 @@
 
 
-# Nova Pagina de Vendas em /pagina
+# Plano: Upgrade Visual do PDF para Dashboard B2B
 
-## Resumo
-Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
+O PDF já usa jsPDF com sanitização de emojis funcional. O pedido foca em 4 melhorias de layout e 1 correção de bug.
 
-## Estrutura das Secoes
+## Alterações em `src/lib/generateViralPDF.ts`
 
-1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
-2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
-3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
-4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
-5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
-6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
-7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
+### 1. Score Geral com destaque maior
+- Aumentar o `fontSize` do score de `42` para `48` e mudar a cor para `#7C3AED` (roxo da marca) em vez de verde/laranja/vermelho condicional.
+- Manter o `/100` ao lado com fonte menor.
 
-## Detalhes Tecnicos
+### 2. Caixas de fundo (containers) para P-C-R e Diagnóstico
+- **Problema atual**: As card boxes do diagnóstico usam uma abordagem de "estimar altura, desenhar fundo, depois conteúdo" que falha porque jsPDF não suporta z-order -- o fundo sobrepõe o texto.
+- **Solução**: Usar uma abordagem de **duas passagens** -- renderizar o conteúdo numa posição temporária para medir a altura, depois voltar atrás, desenhar o fundo `#F3F4F6` com `roundedRect(..., 'F')`, e re-renderizar o conteúdo por cima.
+- Aplicar isso tanto nas secções P-C-R (Hook/Body/CTA) como no Diagnóstico (Pontos Fortes/Fracos).
+- Padding interno de ~4mm e `borderRadius` de 3mm.
 
-### Arquivos criados
-- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
+### 3. Cabeçalho e divisórias branded
+- Já implementado parcialmente. Reforçar: a linha roxa do header deve ter `lineWidth: 2` (actualmente 0.8). Garantir que `sectionTitle` usa a cor roxa e bold (já faz).
 
-### Arquivos modificados
-- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
+### 4. Correção de timestamps no Roteiro
+- **Bug**: O `sanitize()` mantém timestamps `[00:00-00:05]` mas o `timestamp` do JSON já vem com colchetes, resultando em `[[00:00-00:05]]`. A `action` pode começar sem espaço.
+- **Fix**: Na secção bodyPacing, limpar colchetes duplicados do `cut.timestamp` com `.replace(/^\[+|\]+$/g, '')` antes de envolver em `[...]`. Garantir espaço antes da action.
 
-### Componentes reutilizados
-- `ScrollReveal` (mesmo pattern da LandingPage)
-- `framer-motion` para animacoes
-- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
-- Logo existente no header
-- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
-
-### Regras de UI seguidas conforme o prompt
-- Maximo 1 ideia por bloco
-- Frases de impacto em linha isolada (texto maior, peso bold)
-- Sem emojis no site
-- CTAs apenas no Hero + Oferta
-- Visual clean, contraste alto, bastante espaco
-- Navbar simplificada (logo + "Entrar" + CTA)
-- Footer minimalista
-
-### Pricing
-- Preco: De R$645 por R$247
-- Pagamento unico
-- Link de checkout vitalicio reutilizado (CenterPag)
-- Suporte a affiliate slug mantido
-
-### Rota
-- `/pagina` como rota publica (nao protegida)
-- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
+### Resumo de ficheiros alterados
+- `src/lib/generateViralPDF.ts` -- todas as alterações concentradas aqui.
 
