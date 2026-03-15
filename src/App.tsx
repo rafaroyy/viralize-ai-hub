@@ -50,6 +50,7 @@ const App = () => (
               <Route path="/analisador-viral" element={<AnalisadorViral />} />
               <Route path="/modelar-post" element={<ModelarPost />} />
               <Route path="/historico" element={<Historico />} />
+              <Route path="/affiliate-hub" element={<AffiliateHub />} />
             </Route>
             <Route path="/:affiliateSlug" element={<LandingPage />} />
             <Route path="*" element={<NotFound />} />
