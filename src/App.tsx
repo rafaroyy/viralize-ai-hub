@@ -18,6 +18,7 @@ import PaginaVendas from "./pages/PaginaVendas";
 import AnalisadorViral from "./pages/AnalisadorViral";
 import ModelarPost from "./pages/ModelarPost";
 import AffiliateHub from "./pages/AffiliateHub";
+import TikTokCallback from "./pages/TikTokCallback";
 
 const queryClient = new QueryClient();
 
