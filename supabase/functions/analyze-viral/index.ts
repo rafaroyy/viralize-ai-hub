@@ -292,7 +292,7 @@ Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R.`;
         "Authorization": `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-5.4",
+        model: "gpt-4o",
         temperature: 0.5,
         max_tokens: 2000,
         response_format: { type: "json_object" },
