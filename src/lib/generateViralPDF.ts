@@ -175,10 +175,11 @@ class PDFBuilder {
     this.doc.setFontSize(9);
     this.doc.setFont('helvetica', 'normal');
     this.doc.setTextColor(COLORS.textLight);
-    const lines = this.doc.splitTextToSize(sanitize(text), CONTENT_W - indent - CARD_PAD * 2);
+    const leftOffset = Math.max(indent, CARD_INNER_PAD);
+    const lines = this.doc.splitTextToSize(sanitize(text), CONTENT_W - leftOffset - CARD_PAD);
     for (const line of lines) {
       this.ensureSpace(5);
-      this.doc.text(line, MARGIN + indent + CARD_PAD, this.y);
+      this.doc.text(line, MARGIN + leftOffset, this.y);
       this.y += LINE_H;
     }
     this.y += 1;
