@@ -306,26 +306,23 @@ Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R.`;
       }),
     });
 
+    let finalAnalysis = geminiAnalysis;
+    let isFallback = false;
+
     if (!openaiResponse.ok) {
       const errText = await openaiResponse.text();
       console.error("OpenAI API error:", openaiResponse.status, errText);
       console.warn("Fallback: retornando análise do Gemini sem refinamento.");
-      return new Response(JSON.stringify({ success: true, analysis: geminiAnalysis, fallback: true }), {
-        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const openaiData = await openaiResponse.json();
-    const openaiContent = openaiData.choices?.[0]?.message?.content || "";
-
-    let finalAnalysis;
-    try {
-      finalAnalysis = JSON.parse(openaiContent);
-    } catch (e) {
-      console.error("Failed to parse OpenAI response:", openaiContent);
-      return new Response(JSON.stringify({ success: true, analysis: geminiAnalysis, fallback: true }), {
-        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      isFallback = true;
+    } else {
+      const openaiData = await openaiResponse.json();
+      const openaiContent = openaiData.choices?.[0]?.message?.content || "";
+      try {
+        finalAnalysis = JSON.parse(openaiContent);
+      } catch (e) {
+        console.error("Failed to parse OpenAI response:", openaiContent);
+        isFallback = true;
+      }
     }
 
     console.log("[Pipeline] ✅ Pipeline multi-agente finalizado.");
