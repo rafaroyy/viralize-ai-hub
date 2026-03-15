@@ -195,6 +195,7 @@ const AnalisadorViral = () => {
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [progressMessage, setProgressMessage] = useState('');
   const [isExporting, setIsExporting] = useState(false);
   const [analysis, setAnalysis] = useState<ViralAnalysis | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -280,6 +281,25 @@ const AnalisadorViral = () => {
     return urlData.publicUrl;
   };
 
+  // Progress messages cycling
+  const progressMessages = [
+    'A preparar o ambiente seguro...',
+    'Agente a extrair dados para a análise...',
+    'Agente a aplicar na análise o Método de viralização...',
+    'Refinando insights estratégicos...',
+  ];
+
+  useEffect(() => {
+    if (!isLoading || isUploading) return;
+    let idx = 0;
+    setProgressMessage(progressMessages[0]);
+    const interval = setInterval(() => {
+      idx = Math.min(idx + 1, progressMessages.length - 1);
+      setProgressMessage(progressMessages[idx]);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [isLoading, isUploading]);
+
   const handleAnalyze = async () => {
     if (!description.trim() && !videoFile) {
       toast({ title: 'Envie um vídeo ou descreva o conteúdo', variant: 'destructive' });
@@ -287,10 +307,12 @@ const AnalisadorViral = () => {
     }
     setIsLoading(true);
     setAnalysis(null);
+    setProgressMessage('');
     try {
       let videoUrl = '';
       if (videoFile) {
         setIsUploading(true);
+        setProgressMessage('Enviando vídeo...');
         videoUrl = await uploadVideo(videoFile);
         setIsUploading(false);
       }
@@ -314,7 +336,6 @@ const AnalisadorViral = () => {
           titulo,
           payload: data.analysis,
         });
-        // Refresh history cache
         setHistoryLoaded(false);
       }
     } catch (err: any) {
@@ -322,6 +343,7 @@ const AnalisadorViral = () => {
     } finally {
       setIsLoading(false);
       setIsUploading(false);
+      setProgressMessage('');
     }
   };
 
@@ -449,7 +471,7 @@ const AnalisadorViral = () => {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" /> {isUploading ? 'Enviando vídeo...' : 'Analisando...'}
+                    <Loader2 className="w-5 h-5 animate-spin" /> {progressMessage || 'Analisando...'}
                   </>
                 ) : (
                   <>
