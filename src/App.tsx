@@ -8,7 +8,6 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import CriarVideo from "./pages/CriarVideo";
-import AnaliseRoteiro from "./pages/AnaliseRoteiro";
 import Modelos from "./pages/Modelos";
 import ChatIA from "./pages/ChatIA";
 import MeusVideos from "./pages/MeusVideos";
@@ -17,7 +16,6 @@ import NotFound from "./pages/NotFound";
 import PaginaVendas from "./pages/PaginaVendas";
 import AnalisadorViral from "./pages/AnalisadorViral";
 import ModelarPost from "./pages/ModelarPost";
-import Historico from "./pages/Historico";
 import AffiliateHub from "./pages/AffiliateHub";
 
 const queryClient = new QueryClient();
