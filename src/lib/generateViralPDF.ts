@@ -363,7 +363,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
     if (tipsClean.length > 0) {
       estH += 6; // "DICAS:" label
       for (const tip of tipsClean) {
-        estH += doc.splitTextToSize(tip, CONTENT_W - 8 - CARD_PAD * 2).length * LINE_H + 1;
+        estH += doc.splitTextToSize(tip, CONTENT_W - CARD_INNER_PAD - 8).length * LINE_H + 1;
       }
     }
 
