@@ -1,51 +1,45 @@
 
 
-# Nova Pagina de Vendas em /pagina
+# Plano: Remover mocks, usar YouTube API real, marcar outras fontes como "Em breve"
 
-## Resumo
-Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
+## Problema Atual
+A YouTube API está funcionando (busca 50 vídeos), mas o **upsert falha** porque os unique indexes em `trends.external_id` e `trend_sources.external_id` são **parciais** (`WHERE external_id IS NOT NULL`), e o PostgREST não suporta `onConflict` com partial indexes. Resultado: 0 vídeos processados.
 
-## Estrutura das Secoes
+## Plano
 
-1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
-2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
-3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
-4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
-5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
-6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
-7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
+### 1. Corrigir unique constraints no banco (migration)
+- Dropar os partial indexes existentes
+- Criar **constraints UNIQUE reais** em `trends.external_id` e `trend_sources.external_id`
+- Isso permite o `upsert` com `onConflict` funcionar corretamente
 
-## Detalhes Tecnicos
+### 2. Remover mock data e fallbacks
+- **`src/data/radarMocks.ts`**: Remover `mockTrends` e `mockOpportunities`. Manter apenas os dicionários de labels (`sourceLabels`, `statusLabels`, `categoryLabels`, `nicheLabels`)
+- **`src/hooks/useRadarTrends.ts`**: Remover fallback para mocks. Iniciar com arrays vazios. Remover import de mocks
 
-### Arquivos criados
-- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
+### 3. Adaptar UI para dados reais do YouTube
+- **`useRadarTrends.ts`**: Iniciar `trends` como `[]` em vez de `mockTrends`, `opportunities` como `[]`
+- **`RadarDashboardTab`**: Mostrar estado vazio quando não há trends ("Clique em Atualizar YouTube para buscar trends reais")
+- **`RadarOportunidadesTab`**: Mostrar mensagem "Em breve — oportunidades serão geradas automaticamente com IA" quando vazio
 
-### Arquivos modificados
-- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
+### 4. Marcar fontes não-YouTube como "Em breve"
+- **`RadarFilters`**: No select de fontes, mostrar YouTube como ativa e Google/TikTok/Notícias com "(Em breve)" no label
+- **`RadarConfiguracoesTab`**: Nos switches de fontes, desabilitar Google/TikTok/Notícias com badge "Em breve", manter YouTube como única ativa
+- **`sourceLabels`**: Atualizar para incluir indicador visual nas fontes indisponíveis
 
-### Componentes reutilizados
-- `ScrollReveal` (mesmo pattern da LandingPage)
-- `framer-motion` para animacoes
-- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
-- Logo existente no header
-- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
+### 5. Melhorar edge function (robustez)
+- Na edge function, se o upsert de trend falhar, logar e usar `insert` como fallback (para o caso de primeiro insert)
 
-### Regras de UI seguidas conforme o prompt
-- Maximo 1 ideia por bloco
-- Frases de impacto em linha isolada (texto maior, peso bold)
-- Sem emojis no site
-- CTAs apenas no Hero + Oferta
-- Visual clean, contraste alto, bastante espaco
-- Navbar simplificada (logo + "Entrar" + CTA)
-- Footer minimalista
+---
 
-### Pricing
-- Preco: De R$645 por R$247
-- Pagamento unico
-- Link de checkout vitalicio reutilizado (CenterPag)
-- Suporte a affiliate slug mantido
+## Ficheiros
 
-### Rota
-- `/pagina` como rota publica (nao protegida)
-- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
+| Ação | Ficheiro |
+|------|----------|
+| Migration | Dropar partial indexes, criar UNIQUE constraints reais |
+| Editar | `src/data/radarMocks.ts` — remover mocks, manter labels |
+| Editar | `src/hooks/useRadarTrends.ts` — remover fallback mock |
+| Editar | `src/components/radar/RadarDashboardTab.tsx` — estado vazio |
+| Editar | `src/components/radar/RadarOportunidadesTab.tsx` — "Em breve" |
+| Editar | `src/components/radar/RadarFilters.tsx` — fontes "Em breve" |
+| Editar | `src/components/radar/RadarConfiguracoesTab.tsx` — fontes "Em breve" |
 
