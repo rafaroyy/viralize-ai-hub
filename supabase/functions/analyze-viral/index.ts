@@ -325,10 +325,10 @@ Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R.`;
       }
     }
 
-    console.log("[Pipeline] ✅ Pipeline multi-agente finalizado.");
+    console.log(`[Pipeline] ✅ Pipeline finalizado. Fallback: ${isFallback}`);
 
     // =============================================
-    // CACHE: Salvar análise para futuras requisições
+    // CACHE: Salvar análise para futuras requisições (inclui fallback)
     // =============================================
     if (url) {
       const { error: cacheErr } = await sb
@@ -338,7 +338,7 @@ Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R.`;
       else console.log("[Cache] ✅ Análise salva no cache.");
     }
 
-    return new Response(JSON.stringify({ success: true, analysis: finalAnalysis }), {
+    return new Response(JSON.stringify({ success: true, analysis: finalAnalysis, ...(isFallback && { fallback: true }) }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
