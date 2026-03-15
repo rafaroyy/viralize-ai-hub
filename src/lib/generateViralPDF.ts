@@ -530,9 +530,9 @@ export function generateViralPDF(analysis: ViralAnalysis) {
       // Estimate
       doc.setFontSize(9);
       let estH = 7;
-      estH += doc.splitTextToSize(sanitize(idea.description), CONTENT_W - 8).length * LINE_H + 2;
+      estH += doc.splitTextToSize(sanitize(idea.description), CONTENT_W - CARD_INNER_PAD).length * LINE_H + 2;
       if (idea.hookSuggestion) {
-        estH += doc.splitTextToSize(sanitize(idea.hookSuggestion), CONTENT_W - 8).length * LINE_H + 2;
+        estH += doc.splitTextToSize(sanitize(idea.hookSuggestion), CONTENT_W - CARD_INNER_PAD).length * LINE_H + 2;
       }
 
       b.drawCardBg(estH, COLORS.primary);
@@ -540,17 +540,17 @@ export function generateViralPDF(analysis: ViralAnalysis) {
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(COLORS.text);
-      doc.text(sanitize(idea.title), MARGIN + CARD_PAD + 2, b.y);
+      doc.text(sanitize(idea.title), MARGIN + CARD_INNER_PAD, b.y);
       b.y += 5;
-      b.paragraph(idea.description, 4);
+      b.paragraph(idea.description, CARD_INNER_PAD);
       if (idea.hookSuggestion) {
         doc.setFontSize(8);
         doc.setFont('helvetica', 'italic');
         doc.setTextColor(COLORS.primary);
-        const hookLines = doc.splitTextToSize(`Hook: "${sanitize(idea.hookSuggestion)}"`, CONTENT_W - 8);
+        const hookLines = doc.splitTextToSize(`Hook: "${sanitize(idea.hookSuggestion)}"`, CONTENT_W - CARD_INNER_PAD);
         for (const line of hookLines) {
           b.ensureSpace(5);
-          doc.text(line, MARGIN + CARD_PAD + 4, b.y);
+          doc.text(line, MARGIN + CARD_INNER_PAD, b.y);
           b.y += 4;
         }
       }
