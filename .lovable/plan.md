@@ -1,51 +1,50 @@
 
+## Plano para parar o erro de limite do Gemini e manter o Analisador funcionando
 
-# Nova Pagina de Vendas em /pagina
+### Diagnóstico confirmado
+Pelos logs, o problema não é upload nem URL do vídeo: o arquivo sobe e fica `ACTIVE` na File API, mas a etapa de geração retorna `429 RESOURCE_EXHAUSTED` (quota/billing do Gemini).  
+Ou seja: trocar chave não garante sucesso se a nova chave também estiver sem cota disponível.
 
-## Resumo
-Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
+### O que vou implementar
+1. **Padronizar erro de quota na função `analyze-viral`**
+   - Arquivo: `supabase/functions/analyze-viral/index.ts`
+   - Quando der 429 no Gemini, retornar payload com código legível pelo frontend, por exemplo:
+     - `success: false`
+     - `code: "GEMINI_QUOTA_EXCEEDED"`
+     - `error: "..."`
 
-## Estrutura das Secoes
+2. **Fallback automático no frontend (sem quebrar fluxo do usuário)**
+   - Arquivo: `src/pages/AnalisadorViral.tsx`
+   - Fluxo:
+     - Tenta `analyze-viral` normalmente (fluxo atual).
+     - Se vier `GEMINI_QUOTA_EXCEEDED`, ativa fallback automático usando `analyze-script`:
+       - **Com vídeo**: envia `FormData` (arquivo + campos de transcrição) para análise por transcrição.
+       - **Só texto**: envia o texto como roteiro.
+   - Em seguida, converte o retorno desse fallback para o formato `ViralAnalysis` já usado na tela.
 
-1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
-2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
-3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
-4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
-5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
-6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
-7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
+3. **Mapeamento de schema para não quebrar a UI**
+   - Converter campos de `analyze-script` (`pergunta`, `conflito`, `resposta`, `insights`) para:
+     - `hookAnalysis`, `bodyAnalysis`, `ctaAnalysis`
+     - `strengths`, `weaknesses`
+     - `overallScore`, `summary`
+   - Mantém compatibilidade com o layout atual e com exportação/histórico.
 
-## Detalhes Tecnicos
+4. **Transparência para o usuário na interface**
+   - Mostrar aviso discreto (badge/toast) quando o resultado vier do modo fallback:
+     - ex.: “Modo alternativo ativo (análise via transcrição)”.
 
-### Arquivos criados
-- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
+5. **Resiliência final**
+   - Se fallback também falhar, mostrar erro acionável (sem mensagem genérica).
+   - Manter salvamento em histórico funcionando no sucesso (normal ou fallback).
 
-### Arquivos modificados
-- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
+---
 
-### Componentes reutilizados
-- `ScrollReveal` (mesmo pattern da LandingPage)
-- `framer-motion` para animacoes
-- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
-- Logo existente no header
-- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
-
-### Regras de UI seguidas conforme o prompt
-- Maximo 1 ideia por bloco
-- Frases de impacto em linha isolada (texto maior, peso bold)
-- Sem emojis no site
-- CTAs apenas no Hero + Oferta
-- Visual clean, contraste alto, bastante espaco
-- Navbar simplificada (logo + "Entrar" + CTA)
-- Footer minimalista
-
-### Pricing
-- Preco: De R$645 por R$247
-- Pagamento unico
-- Link de checkout vitalicio reutilizado (CenterPag)
-- Suporte a affiliate slug mantido
-
-### Rota
-- `/pagina` como rota publica (nao protegida)
-- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
-
+## Detalhes técnicos (resumo)
+- **Sem migration de banco**.
+- **Sem mudar autenticação**.
+- **Arquivos alterados**:
+  - `supabase/functions/analyze-viral/index.ts`
+  - `src/pages/AnalisadorViral.tsx`
+- **Resultado esperado**:
+  - Mesmo com quota do Gemini estourada, o usuário ainda recebe análise em vez de erro bloqueante.
+  - Fluxo principal com Gemini continua sendo a primeira opção quando houver cota.
