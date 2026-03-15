@@ -47,6 +47,7 @@ function ImpactLine({ children, className }: {children: React.ReactNode;classNam
 
 }
 
+const CHECKOUT_MONTHLY = "https://pay.zouti.com.br/checkout?poi=prod_offer_qnohqjvl02nadr7v471icj";
 const CHECKOUT_LIFETIME = "https://pay.zouti.com.br/checkout?poi=prod_offer_xx1w0hy1pi5lhvnvcukmdo";
 
 /* ═══════════════════════════════════════════
@@ -415,24 +416,71 @@ function OfertaSection() {
           <div className="text-center mb-4">
             <SectionTag>Oferta exclusiva</SectionTag>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
-              Acesso vitalício à{" "}
+              Escolha seu{" "}
               <GradientText className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
-                Viralize
+                plano
               </GradientText>
             </h2>
             <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
-              Produto, vídeo e tráfego na mesma plataforma. Pague uma vez. Use para sempre.
+              Produto, vídeo e tráfego na mesma plataforma. Comece agora.
             </p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.1}>
-          <div className="max-w-md mx-auto mt-10">
+          <div className="max-w-3xl mx-auto mt-10 grid md:grid-cols-2 gap-6">
+            
+            {/* MENSAL */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
               className="relative glass-card rounded-2xl border border-border/60 p-8 overflow-hidden">
+
+              <div className="relative z-10">
+                <div className="mb-2">
+                  <h3 className="text-lg font-semibold text-foreground">Mensal</h3>
+                </div>
+
+                <p className="text-sm text-muted-foreground mb-6">
+                  Acesso completo com renovação mensal.
+                </p>
+
+                <div className="mb-6">
+                  <div className="flex items-end gap-1">
+                    <span className="text-sm text-muted-foreground">12x de R$</span>
+                    <span className="text-5xl font-bold text-foreground font-display tracking-tight">14,50</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">ou R$145 por mês</p>
+                </div>
+
+                <a
+                  href={CHECKOUT_MONTHLY}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-secondary text-foreground py-3.5 rounded-xl font-semibold hover:bg-secondary/80 transition-colors flex items-center justify-center gap-2 text-sm mb-6 border border-border/50">
+                  
+                  Começar agora
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+
+                <ul className="space-y-3">
+                  {features.map((f) =>
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                      <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      {f}
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </motion.div>
+
+            {/* VITALÍCIO */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="relative glass-card rounded-2xl border border-primary/30 p-8 overflow-hidden shadow-glow">
               
               <BorderTrail
                 className="bg-gradient-to-l from-primary via-primary/50 to-transparent"
@@ -441,7 +489,6 @@ function OfertaSection() {
               
 
               <div className="relative z-10">
-                {/* Header */}
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg font-semibold text-foreground">Vitalício</h3>
                   <span className="text-[10px] font-semibold bg-destructive/20 text-destructive px-2.5 py-1 rounded-full border border-destructive/30 flex items-center gap-1">
@@ -451,15 +498,14 @@ function OfertaSection() {
                 </div>
 
                 <p className="text-sm text-muted-foreground mb-6">
-                  Acesso permanente à plataforma completa.
+                  Pague uma vez. Acesso permanente.
                 </p>
 
-                {/* Price */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-base text-muted-foreground/50 line-through">De R$ 697,00</span>
                     <span className="text-xs font-bold bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full border border-green-500/30">
-                      OFERTA ESPECIAL
+                      MELHOR OFERTA
                     </span>
                   </div>
                   <div className="flex items-end gap-1">
@@ -469,7 +515,6 @@ function OfertaSection() {
                   <p className="text-sm text-muted-foreground mt-1">ou R$245 à vista</p>
                 </div>
 
-                {/* CTA */}
                 <a
                   href={CHECKOUT_LIFETIME}
                   target="_blank"
@@ -480,7 +525,6 @@ function OfertaSection() {
                   <ArrowRight className="h-4 w-4" />
                 </a>
 
-                {/* Features */}
                 <ul className="space-y-3">
                   {features.map((f) =>
                   <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
@@ -490,7 +534,6 @@ function OfertaSection() {
                   )}
                 </ul>
 
-                {/* Shield */}
                 <div className="mt-6 pt-5 border-t border-border/50 flex items-center gap-2 text-xs text-muted-foreground">
                   <Shield className="h-4 w-4 text-primary" />
                   Pagamento único. Acesso permanente. Sem taxas escondidas.
