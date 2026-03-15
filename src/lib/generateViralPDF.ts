@@ -390,7 +390,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
       b.bulletList(tipsClean, '>', COLORS.primary);
     }
 
-    b.gap(8);
+    b.gap(SECTION_GAP);
   }
 
   // ═══════════════════════════════════════════
