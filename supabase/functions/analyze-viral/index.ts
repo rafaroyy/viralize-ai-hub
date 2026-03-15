@@ -330,6 +330,17 @@ Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R.`;
 
     console.log("[Pipeline] ✅ Pipeline multi-agente finalizado.");
 
+    // =============================================
+    // CACHE: Salvar análise para futuras requisições
+    // =============================================
+    if (url) {
+      const { error: cacheErr } = await sb
+        .from("analysis_cache")
+        .upsert({ video_url: url, analysis: finalAnalysis }, { onConflict: "video_url" });
+      if (cacheErr) console.error("[Cache] Erro ao salvar:", cacheErr.message);
+      else console.log("[Cache] ✅ Análise salva no cache.");
+    }
+
     return new Response(JSON.stringify({ success: true, analysis: finalAnalysis }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
