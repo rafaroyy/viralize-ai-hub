@@ -1,75 +1,51 @@
 
 
-# Plano: Radar de Trends (como aba dentro da Viralize)
+# Nova Pagina de Vendas em /pagina
 
-O Radar de Trends será uma aba na sidebar, igual às outras (Criar Vídeo, Analisador Viral, etc.). A navegação interna entre as sub-telas (dashboard, lista, detalhe, oportunidades, configurações) será feita com **tabs internas** dentro de uma única página principal, e não com sub-rotas separadas. Isso mantém o padrão da app.
+## Resumo
+Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
 
----
+## Estrutura das Secoes
 
-## Arquitetura
+1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
+2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
+3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
+4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
+5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
+6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
+7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
 
-- **1 rota**: `/radar` (protegida, dentro do `ProtectedRoute`)
-- **1 página**: `src/pages/RadarTrends.tsx` — com tabs internas (Dashboard, Trends, Oportunidades, Configurações)
-- **Detalhe de trend**: abre num drawer/sheet lateral ou modal, sem rota separada
-- **1 entrada na sidebar**: ícone `Radar` do lucide, após "Analisador Viral"
+## Detalhes Tecnicos
 
-Isso segue o padrão existente onde cada item da sidebar é uma página única (ex: AnalisadorViral, AffiliateHub).
+### Arquivos criados
+- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
 
----
+### Arquivos modificados
+- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
 
-## Ficheiros a Criar
+### Componentes reutilizados
+- `ScrollReveal` (mesmo pattern da LandingPage)
+- `framer-motion` para animacoes
+- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
+- Logo existente no header
+- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
 
-```text
-src/types/radar.ts                          # Tipos (Trend, Opportunity, SourceSignal, etc.)
-src/data/radarMocks.ts                      # ~15 trends + ~8 oportunidades mockadas
-src/lib/radarScoreEngine.ts                 # Funções puras de scoring
-src/pages/RadarTrends.tsx                   # Página principal com tabs
-src/components/radar/RadarDashboardTab.tsx   # Tab 1 — KPIs, gráficos, ranking
-src/components/radar/RadarTrendsTab.tsx      # Tab 2 — Lista/tabela de trends
-src/components/radar/RadarOportunidadesTab.tsx # Tab 3 — Oportunidades
-src/components/radar/RadarConfiguracoesTab.tsx # Tab 4 — Configurações
-src/components/radar/TrendCard.tsx           # Card de trend
-src/components/radar/TrendStatusBadge.tsx    # Badge status
-src/components/radar/RiskBadge.tsx           # Badge risco
-src/components/radar/ScoreBar.tsx            # Barra de score
-src/components/radar/TrendTimeline.tsx       # Timeline
-src/components/radar/SourcesBlock.tsx        # Bloco de fontes
-src/components/radar/OpportunityBlock.tsx    # Bloco oportunidade
-src/components/radar/RadarFilters.tsx        # Filtros globais
-src/components/radar/RadarKpiCards.tsx       # KPI cards
-src/components/radar/TrendDetailSheet.tsx    # Sheet lateral com detalhe completo
-src/components/radar/GenerateHooksModal.tsx  # Modal gerar hooks
-src/components/radar/RadarCharts.tsx         # Gráficos recharts
-```
+### Regras de UI seguidas conforme o prompt
+- Maximo 1 ideia por bloco
+- Frases de impacto em linha isolada (texto maior, peso bold)
+- Sem emojis no site
+- CTAs apenas no Hero + Oferta
+- Visual clean, contraste alto, bastante espaco
+- Navbar simplificada (logo + "Entrar" + CTA)
+- Footer minimalista
 
-## Ficheiros a Editar
+### Pricing
+- Preco: De R$645 por R$247
+- Pagamento unico
+- Link de checkout vitalicio reutilizado (CenterPag)
+- Suporte a affiliate slug mantido
 
-- `src/App.tsx` — adicionar rota `/radar`
-- `src/components/AppSidebar.tsx` — adicionar link "Radar de Trends" com ícone `Radar`
-
-## Estrutura da Página
-
-A página `/radar` usa o componente `Tabs` (já existente em `src/components/ui/tabs.tsx`) com 4 abas:
-
-1. **Dashboard** — KPIs (total trends, novas 24h, acelerando, caindo, oportunidades), gráficos (volume por fonte, distribuição por categoria, evolução temporal), ranking top 10
-2. **Trends** — Tabela avançada com sorting, filtros, ações por linha (ver detalhe no Sheet, gerar hooks, salvar watchlist)
-3. **Oportunidades** — Cards de oportunidade com hooks prontos, ideias de vídeo, narrativa, CTA, score
-4. **Configurações** — Fontes ativas, frequência, nichos prioritários, palavras/categorias bloqueadas, sensibilidade
-
-O **detalhe da trend** abre num `Sheet` lateral (já existe `src/components/ui/sheet.tsx`) com todas as 11 seções do briefing original.
-
-## Backend (fase 2, depois do front)
-
-- Migração com tabelas: `trends`, `trend_sources`, `trend_snapshots`, `trend_clusters`, `trend_opportunities`, `trend_watchlist`, `trend_settings`, `trend_fetch_runs`, `blocked_terms`, `blocked_categories`
-- 4 edge functions stub: `radar-ingest`, `radar-recompute`, `radar-enrich`, `radar-webhook-n8n`
-- RLS por `user_id` nas tabelas de watchlist, settings, blocked
-
-## Ordem de Implementação
-
-1. Types + Mocks + Score Engine
-2. Componentes reutilizáveis (badges, cards, bars, charts, filters)
-3. 4 tabs + página principal + sheet de detalhe + modal
-4. Rota + Sidebar
-5. Migração DB
-6. Edge functions stub
+### Rota
+- `/pagina` como rota publica (nao protegida)
+- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
 

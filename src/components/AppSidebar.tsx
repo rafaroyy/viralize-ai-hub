@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/animated-sidebar";
-import { Video, LayoutGrid, MessageCircle, Film, Flame, Image as ImageIcon, Store } from "lucide-react";
+import { Video, LayoutGrid, MessageCircle, Film, Flame, Image as ImageIcon, Store, Radar } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import logoViralize from "@/assets/logo-viralize.png";
@@ -20,6 +20,11 @@ const navLinks = [
     label: "Analisador Viral",
     href: "/analisador-viral",
     icon: <Flame className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+  },
+  {
+    label: "Radar de Trends",
+    href: "/radar",
+    icon: <Radar className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
   },
   {
     label: "Modelar Post",
