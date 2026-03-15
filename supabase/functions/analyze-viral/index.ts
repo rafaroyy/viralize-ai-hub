@@ -292,7 +292,7 @@ Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R.`;
         "Authorization": `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-5.4",
+        model: "gpt-4o",
         temperature: 0.5,
         max_tokens: 2000,
         response_format: { type: "json_object" },
@@ -306,32 +306,29 @@ Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R.`;
       }),
     });
 
+    let finalAnalysis = geminiAnalysis;
+    let isFallback = false;
+
     if (!openaiResponse.ok) {
       const errText = await openaiResponse.text();
       console.error("OpenAI API error:", openaiResponse.status, errText);
       console.warn("Fallback: retornando análise do Gemini sem refinamento.");
-      return new Response(JSON.stringify({ success: true, analysis: geminiAnalysis, fallback: true }), {
-        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      isFallback = true;
+    } else {
+      const openaiData = await openaiResponse.json();
+      const openaiContent = openaiData.choices?.[0]?.message?.content || "";
+      try {
+        finalAnalysis = JSON.parse(openaiContent);
+      } catch (e) {
+        console.error("Failed to parse OpenAI response:", openaiContent);
+        isFallback = true;
+      }
     }
 
-    const openaiData = await openaiResponse.json();
-    const openaiContent = openaiData.choices?.[0]?.message?.content || "";
-
-    let finalAnalysis;
-    try {
-      finalAnalysis = JSON.parse(openaiContent);
-    } catch (e) {
-      console.error("Failed to parse OpenAI response:", openaiContent);
-      return new Response(JSON.stringify({ success: true, analysis: geminiAnalysis, fallback: true }), {
-        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    console.log("[Pipeline] ✅ Pipeline multi-agente finalizado.");
+    console.log(`[Pipeline] ✅ Pipeline finalizado. Fallback: ${isFallback}`);
 
     // =============================================
-    // CACHE: Salvar análise para futuras requisições
+    // CACHE: Salvar análise para futuras requisições (inclui fallback)
     // =============================================
     if (url) {
       const { error: cacheErr } = await sb
@@ -341,7 +338,7 @@ Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R.`;
       else console.log("[Cache] ✅ Análise salva no cache.");
     }
 
-    return new Response(JSON.stringify({ success: true, analysis: finalAnalysis }), {
+    return new Response(JSON.stringify({ success: true, analysis: finalAnalysis, ...(isFallback && { fallback: true }) }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
