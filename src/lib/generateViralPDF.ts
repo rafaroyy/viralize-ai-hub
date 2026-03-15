@@ -358,7 +358,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
     doc.setFontSize(9);
     let estH = 7; // subtitle
     for (const fl of feedbackLines) {
-      estH += doc.splitTextToSize(fl, CONTENT_W - 8 - CARD_PAD * 2).length * LINE_H + 1;
+      estH += doc.splitTextToSize(fl, CONTENT_W - CARD_INNER_PAD - 8).length * LINE_H + 1;
     }
     if (tipsClean.length > 0) {
       estH += 6; // "DICAS:" label
