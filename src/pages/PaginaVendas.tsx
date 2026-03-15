@@ -448,10 +448,10 @@ function OfertaSection() {
 
                 <div className="mb-6">
                   <div className="flex items-end gap-1">
-                    <span className="text-sm text-muted-foreground">12x de R$</span>
-                    <span className="text-5xl font-bold text-foreground font-display tracking-tight">14,50</span>
+                    <span className="text-sm text-muted-foreground">R$</span>
+                    <span className="text-5xl font-bold text-foreground font-display tracking-tight">145</span>
+                    <span className="text-sm text-muted-foreground mb-1.5">/mês</span>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">ou R$145 por mês</p>
                 </div>
 
                 <a
