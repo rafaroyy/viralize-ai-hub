@@ -65,6 +65,413 @@ export type Database = {
         }
         Relationships: []
       }
+      blocked_categories: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      blocked_terms: {
+        Row: {
+          created_at: string
+          id: string
+          term: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          term: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          term?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trend_clusters: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          trend_ids: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          trend_ids?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          trend_ids?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      trend_fetch_runs: {
+        Row: {
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          items_count: number | null
+          raw_payload: Json | null
+          source: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          items_count?: number | null
+          raw_payload?: Json | null
+          source: string
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          items_count?: number | null
+          raw_payload?: Json | null
+          source?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      trend_opportunities: {
+        Row: {
+          created_at: string
+          cta: string | null
+          hooks: string[] | null
+          id: string
+          narrative: string | null
+          niche: string
+          opportunity_score: number | null
+          suggested_product_keywords: string[] | null
+          trend_id: string
+          updated_at: string
+          video_ideas: string[] | null
+          why_now: string | null
+        }
+        Insert: {
+          created_at?: string
+          cta?: string | null
+          hooks?: string[] | null
+          id?: string
+          narrative?: string | null
+          niche: string
+          opportunity_score?: number | null
+          suggested_product_keywords?: string[] | null
+          trend_id: string
+          updated_at?: string
+          video_ideas?: string[] | null
+          why_now?: string | null
+        }
+        Update: {
+          created_at?: string
+          cta?: string | null
+          hooks?: string[] | null
+          id?: string
+          narrative?: string | null
+          niche?: string
+          opportunity_score?: number | null
+          suggested_product_keywords?: string[] | null
+          trend_id?: string
+          updated_at?: string
+          video_ideas?: string[] | null
+          why_now?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trend_opportunities_trend_id_fkey"
+            columns: ["trend_id"]
+            isOneToOne: false
+            referencedRelation: "trends"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trend_settings: {
+        Row: {
+          active_sources: string[] | null
+          alert_threshold: number | null
+          created_at: string
+          id: string
+          ingestion_mode: string | null
+          n8n_webhook_url: string | null
+          priority_niches: string[] | null
+          score_sensitivity: number | null
+          update_frequency: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active_sources?: string[] | null
+          alert_threshold?: number | null
+          created_at?: string
+          id?: string
+          ingestion_mode?: string | null
+          n8n_webhook_url?: string | null
+          priority_niches?: string[] | null
+          score_sensitivity?: number | null
+          update_frequency?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active_sources?: string[] | null
+          alert_threshold?: number | null
+          created_at?: string
+          id?: string
+          ingestion_mode?: string | null
+          n8n_webhook_url?: string | null
+          priority_niches?: string[] | null
+          score_sensitivity?: number | null
+          update_frequency?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trend_snapshots: {
+        Row: {
+          created_at: string
+          id: string
+          overall_score: number | null
+          snapshot_data: Json | null
+          trend_id: string
+          velocity_score: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          overall_score?: number | null
+          snapshot_data?: Json | null
+          trend_id: string
+          velocity_score?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          overall_score?: number | null
+          snapshot_data?: Json | null
+          trend_id?: string
+          velocity_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trend_snapshots_trend_id_fkey"
+            columns: ["trend_id"]
+            isOneToOne: false
+            referencedRelation: "trends"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trend_sources: {
+        Row: {
+          created_at: string
+          external_id: string | null
+          id: string
+          normalized_score: number | null
+          observed_at: string
+          raw_payload: Json | null
+          raw_score: number | null
+          region: string
+          signal_label: string
+          source: string
+          source_type: string
+          trend_id: string
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          normalized_score?: number | null
+          observed_at?: string
+          raw_payload?: Json | null
+          raw_score?: number | null
+          region?: string
+          signal_label: string
+          source: string
+          source_type: string
+          trend_id: string
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          normalized_score?: number | null
+          observed_at?: string
+          raw_payload?: Json | null
+          raw_score?: number | null
+          region?: string
+          signal_label?: string
+          source?: string
+          source_type?: string
+          trend_id?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trend_sources_trend_id_fkey"
+            columns: ["trend_id"]
+            isOneToOne: false
+            referencedRelation: "trends"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trend_watchlist: {
+        Row: {
+          created_at: string
+          id: string
+          trend_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          trend_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          trend_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trend_watchlist_trend_id_fkey"
+            columns: ["trend_id"]
+            isOneToOne: false
+            referencedRelation: "trends"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trends: {
+        Row: {
+          aliases: string[] | null
+          category: string
+          commerce_potential_score: number | null
+          country: string
+          created_at: string
+          cross_source_score: number | null
+          external_id: string | null
+          first_seen_at: string
+          id: string
+          label: string
+          last_seen_at: string
+          niches: string[] | null
+          novelty_score: number | null
+          overall_score: number | null
+          raw_payload: Json | null
+          recommended_angles: string[] | null
+          region: string
+          related_terms: string[] | null
+          risk_score: number | null
+          saturation_score: number | null
+          status: string
+          suggested_ctas: string[] | null
+          suggested_formats: string[] | null
+          suggested_hooks: string[] | null
+          summary: string | null
+          updated_at: string
+          velocity_score: number | null
+          viral_potential_score: number | null
+        }
+        Insert: {
+          aliases?: string[] | null
+          category?: string
+          commerce_potential_score?: number | null
+          country?: string
+          created_at?: string
+          cross_source_score?: number | null
+          external_id?: string | null
+          first_seen_at?: string
+          id?: string
+          label: string
+          last_seen_at?: string
+          niches?: string[] | null
+          novelty_score?: number | null
+          overall_score?: number | null
+          raw_payload?: Json | null
+          recommended_angles?: string[] | null
+          region?: string
+          related_terms?: string[] | null
+          risk_score?: number | null
+          saturation_score?: number | null
+          status?: string
+          suggested_ctas?: string[] | null
+          suggested_formats?: string[] | null
+          suggested_hooks?: string[] | null
+          summary?: string | null
+          updated_at?: string
+          velocity_score?: number | null
+          viral_potential_score?: number | null
+        }
+        Update: {
+          aliases?: string[] | null
+          category?: string
+          commerce_potential_score?: number | null
+          country?: string
+          created_at?: string
+          cross_source_score?: number | null
+          external_id?: string | null
+          first_seen_at?: string
+          id?: string
+          label?: string
+          last_seen_at?: string
+          niches?: string[] | null
+          novelty_score?: number | null
+          overall_score?: number | null
+          raw_payload?: Json | null
+          recommended_angles?: string[] | null
+          region?: string
+          related_terms?: string[] | null
+          risk_score?: number | null
+          saturation_score?: number | null
+          status?: string
+          suggested_ctas?: string[] | null
+          suggested_formats?: string[] | null
+          suggested_hooks?: string[] | null
+          summary?: string | null
+          updated_at?: string
+          velocity_score?: number | null
+          viral_potential_score?: number | null
+        }
+        Relationships: []
+      }
       user_history: {
         Row: {
           created_at: string | null
