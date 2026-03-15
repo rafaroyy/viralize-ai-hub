@@ -51,6 +51,11 @@ const navLinks = [
     href: "/historico",
     icon: <Clock className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
   },
+  {
+    label: "Affiliate Hub",
+    href: "/affiliate-hub",
+    icon: <Store className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+  },
 ];
 
 export function AppSidebar() {
