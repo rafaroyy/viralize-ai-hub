@@ -31,7 +31,7 @@ export function TrendDetailSheet({ trend, open, onClose }: Props) {
         <ScrollArea className="h-full">
           <div className="p-6 space-y-6">
             <SheetHeader>
-              <SheetTitle className="text-xl font-bold text-foreground font-['Space_Grotesk']">{trend.label}</SheetTitle>
+              <SheetTitle className="text-xl font-bold text-foreground">{trend.label}</SheetTitle>
               <SheetDescription className="text-sm text-muted-foreground">{trend.summary}</SheetDescription>
               <div className="flex items-center gap-2 pt-2">
                 <Badge variant="outline" className="text-[10px]">{categoryLabels[trend.category]}</Badge>
@@ -45,7 +45,7 @@ export function TrendDetailSheet({ trend, open, onClose }: Props) {
 
             {/* Score Geral */}
             <div className="text-center p-4 rounded-xl bg-secondary/50">
-              <div className="text-4xl font-bold text-primary font-['Space_Grotesk']">{trend.overallScore}</div>
+              <div className="text-4xl font-bold text-primary">{trend.overallScore}</div>
               <span className="text-xs text-muted-foreground">Score Geral</span>
             </div>
 
