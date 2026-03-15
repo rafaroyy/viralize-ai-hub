@@ -45,7 +45,7 @@ export function TrendDetailSheet({ trend, open, onClose }: Props) {
 
             {/* Score Geral */}
             <div className="text-center p-4 rounded-xl bg-secondary/50">
-              <div className="text-4xl font-bold text-primary font-['Space_Grotesk']">{trend.overallScore}</div>
+              <div className="text-4xl font-bold text-primary">{trend.overallScore}</div>
               <span className="text-xs text-muted-foreground">Score Geral</span>
             </div>
 

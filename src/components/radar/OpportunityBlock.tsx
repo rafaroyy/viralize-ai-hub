@@ -14,7 +14,7 @@ export function OpportunityBlock({ opp }: { opp: Opportunity }) {
             <Badge variant="outline" className="text-[10px] mt-1">{nicheLabels[opp.niche] || opp.niche}</Badge>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-primary font-['Space_Grotesk']">{opp.opportunityScore}</div>
+            <div className="text-2xl font-bold text-primary">{opp.opportunityScore}</div>
             <span className="text-[10px] text-muted-foreground">Score</span>
           </div>
         </div>

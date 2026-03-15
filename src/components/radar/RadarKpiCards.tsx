@@ -32,7 +32,7 @@ export function RadarKpiCards({ trends }: Props) {
               <k.icon className={`w-4 h-4 ${k.color}`} />
               <span className="text-[11px] text-muted-foreground">{k.label}</span>
             </div>
-            <span className="text-2xl font-bold text-foreground font-['Space_Grotesk']">{k.value}</span>
+            <span className="text-2xl font-bold text-foreground">{k.value}</span>
           </CardContent>
         </Card>
       ))}

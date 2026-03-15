@@ -35,7 +35,7 @@ export function TrendCard({ trend, onViewDetail, rank }: Props) {
             </div>
           </div>
           <div className="text-right shrink-0">
-            <div className="text-2xl font-bold text-primary font-['Space_Grotesk']">{trend.overallScore}</div>
+            <div className="text-2xl font-bold text-primary">{trend.overallScore}</div>
             <span className="text-[10px] text-muted-foreground">Score</span>
           </div>
         </div>

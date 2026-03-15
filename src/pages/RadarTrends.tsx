@@ -53,7 +53,7 @@ export default function RadarTrendsPage() {
           <Radar className="w-5 h-5 text-primary-foreground" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-foreground font-['Space_Grotesk']">Radar de Trends</h1>
+          <h1 className="text-xl font-bold text-foreground">Radar de Trends</h1>
           <p className="text-xs text-muted-foreground">Descubra trends quentes e transforme em oportunidades de conteúdo</p>
         </div>
       </div>
