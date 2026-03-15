@@ -510,7 +510,7 @@ function OfertaSection() {
                   </div>
                   <div className="flex items-end gap-1">
                     <span className="text-sm text-muted-foreground">12x de R$</span>
-                    <span className="text-5xl font-bold text-foreground font-display tracking-tight mx-[20px]">24,50</span>
+                    <span className="text-5xl font-bold text-foreground font-display tracking-tight mx-[20px]">25,19</span>
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">ou R$245 à vista</p>
                 </div>
@@ -556,7 +556,7 @@ function FAQSection() {
 
   const faqs = [
   { q: "O que é a Viralize?", a: "A Viralize é uma plataforma que junta catálogo de produtos para afiliação e criação de vídeos virais com IA. Você encontra o produto, cria o vídeo e usa o TikTok para gerar tráfego e vendas." },
-  { q: "Como funciona o acesso vitalício?", a: "Você paga uma única vez (R$245 à vista ou 12x de R$24,50) e tem acesso permanente a todas as funcionalidades, incluindo o catálogo de produtos e o motor de vídeos." },
+  { q: "Como funciona o acesso vitalício?", a: "Você paga uma única vez (R$245 à vista ou 12x de R$25,19) e tem acesso permanente a todas as funcionalidades, incluindo o catálogo de produtos e o motor de vídeos." },
   { q: "Tem garantia?", a: "Sim. Você tem 7 dias de garantia incondicional. Se não fizer sentido para você, devolvemos 100% do valor." },
   { q: "Preciso ter experiência?", a: "Não. A Viralize foi feita para iniciantes. Você escolhe o produto no catálogo, a IA cria o roteiro do vídeo e você só precisa postar." },
   { q: "Que tipo de produtos posso promover?", a: "O catálogo inclui infoprodutos de plataformas como Kiwify, Hotmart e Monetizze, além de produtos físicos disponíveis no TikTok Shop." },
@@ -632,7 +632,7 @@ function FechamentoSection() {
             <p className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display leading-tight">
               Acesso vitalício por{" "}
               <span className="text-muted-foreground/50 line-through text-2xl sm:text-3xl">R$697</span>{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">12x de R$24,50
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">12x de R$25,19
 
               </span>
             </p>
