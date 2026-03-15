@@ -498,7 +498,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
 
     b.subTitle(title);
     b.bulletList(cleanItems, icon, iconColor);
-    b.gap(6);
+    b.gap(SECTION_GAP);
   };
 
   renderDiagCard('Pontos Fortes', analysis.strengths, '+', COLORS.green, COLORS.green);
