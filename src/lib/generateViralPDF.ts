@@ -329,7 +329,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
 
   b.subTitle('Resumo', 0);
   b.paragraph(analysis.summary);
-  b.gap(4);
+  b.gap(SECTION_GAP);
 
   // ═══════════════════════════════════════════
   // 2. ANALISE P-C-R
