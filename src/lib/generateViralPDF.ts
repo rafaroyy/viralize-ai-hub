@@ -188,15 +188,15 @@ class PDFBuilder {
   bulletList(items: string[], icon = '-', iconColor = COLORS.textLight) {
     for (const item of items) {
       const cleanItem = sanitize(item);
-      const lines = this.doc.splitTextToSize(cleanItem, CONTENT_W - 8 - CARD_PAD * 2);
+      const lines = this.doc.splitTextToSize(cleanItem, CONTENT_W - CARD_INNER_PAD - 8);
       this.ensureSpace(lines.length * LINE_H + 2);
       this.doc.setFontSize(9);
       this.doc.setFont('helvetica', 'normal');
       this.doc.setTextColor(iconColor);
-      this.doc.text(icon, MARGIN + CARD_PAD + 2, this.y);
+      this.doc.text(icon, MARGIN + CARD_INNER_PAD, this.y);
       this.doc.setTextColor(COLORS.textLight);
       for (let i = 0; i < lines.length; i++) {
-        this.doc.text(lines[i], MARGIN + CARD_PAD + 8, this.y);
+        this.doc.text(lines[i], MARGIN + CARD_INNER_PAD + 6, this.y);
         this.y += LINE_H;
       }
       this.y += 1;
