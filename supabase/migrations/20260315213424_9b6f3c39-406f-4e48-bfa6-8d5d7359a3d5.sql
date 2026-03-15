@@ -1,0 +1,2 @@
+CREATE UNIQUE INDEX IF NOT EXISTS trends_external_id_unique ON public.trends (external_id) WHERE external_id IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS trend_sources_external_id_unique ON public.trend_sources (external_id) WHERE external_id IS NOT NULL;
