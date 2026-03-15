@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback } from 'react';
-import { Flame, Loader2, TrendingUp, TrendingDown, Lightbulb, Target, Eye, Upload, X, AlertTriangle, CheckCircle2, PlayCircle, Sparkles, FileText, Clock, Hash, Scissors, Download, MessageCircle } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { Flame, Loader2, TrendingUp, TrendingDown, Lightbulb, Target, Eye, Upload, X, AlertTriangle, CheckCircle2, PlayCircle, Sparkles, FileText, Clock, Hash, Scissors, Download, MessageCircle, History, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -49,6 +49,13 @@ interface ViralAnalysis {
   viralVideoIdeas: VideoIdea[];
 }
 
+interface HistoryItem {
+  id: string;
+  titulo: string;
+  created_at: string;
+  payload: any;
+}
+
 function getScoreColor(score: number) {
   if (score >= 81) return 'text-green-400';
   if (score >= 61) return 'text-emerald-400';
@@ -67,7 +74,7 @@ function FormattedText({ text }: { text: string }) {
   const lines = text.split(/(?:^|\n)•\s*/g).filter(Boolean);
   if (lines.length > 1) {
     return (
-      <ul className="space-y-1.5">
+      <ul className="space-y-2.5">
         {lines.map((line, i) => (
           <li key={i} className="text-sm text-foreground/80 flex gap-2">
             <span className="text-primary shrink-0 mt-0.5">•</span>
@@ -127,6 +134,61 @@ function ScoreRing({ score }: { score: number }) {
   );
 }
 
+function normalizeAnalysis(raw: any): ViralAnalysis {
+  const normalized = {
+    ...raw,
+    overallScore: raw.overallScore ?? raw.viralScore ?? 0,
+    classification: raw.classification ?? 'Moderado',
+    summary: raw.summary ?? '',
+    strengths: raw.strengths ?? raw.pontosFortes ?? [],
+    weaknesses: raw.weaknesses ?? raw.pontosFracos ?? [],
+    retentionKillers: raw.retentionKillers ?? [],
+    retentionImprovements: raw.retentionImprovements ?? [],
+    hookAnalysis: raw.hookAnalysis ?? { score: 0, feedback: '', tips: [] },
+    bodyAnalysis: raw.bodyAnalysis ?? { score: 0, feedback: '', tips: [] },
+    ctaAnalysis: raw.ctaAnalysis ?? { score: 0, feedback: '', tips: [] },
+    scriptBlueprint: raw.scriptBlueprint ?? {
+      captions: raw.roteiroMelhorado?.legendas ?? [],
+      exactHook: raw.roteiroMelhorado?.hook ?? '',
+      bodyPacing: [],
+      exactCta: raw.roteiroMelhorado?.cta ?? '',
+    },
+    viralVideoIdeas: raw.viralVideoIdeas ?? [],
+  };
+  normalized.hookAnalysis.tips = normalized.hookAnalysis.tips ?? [];
+  normalized.bodyAnalysis.tips = normalized.bodyAnalysis.tips ?? [];
+  normalized.ctaAnalysis.tips = normalized.ctaAnalysis.tips ?? [];
+  normalized.scriptBlueprint.bodyPacing = normalized.scriptBlueprint.bodyPacing ?? [];
+  normalized.scriptBlueprint.captions = normalized.scriptBlueprint.captions ?? [];
+  return normalized;
+}
+
+/** Expandable tips section — shows max 3 by default */
+function ExpandableTips({ tips }: { tips: string[] }) {
+  const [expanded, setExpanded] = useState(false);
+  const visible = expanded ? tips : tips.slice(0, 3);
+  const hasMore = tips.length > 3;
+
+  return (
+    <div className="space-y-2">
+      {visible.map((tip, i) => (
+        <div key={i} className="rounded-lg bg-secondary/30 p-3 flex gap-2.5 items-start">
+          <Lightbulb className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+          <p className="text-xs text-foreground/70 leading-relaxed"><InlineFormatted text={tip} /></p>
+        </div>
+      ))}
+      {hasMore && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-xs text-primary hover:underline flex items-center gap-1"
+        >
+          {expanded ? <><ChevronUp className="w-3 h-3" /> Ver menos</> : <><ChevronDown className="w-3 h-3" /> Ver mais {tips.length - 3} dicas</>}
+        </button>
+      )}
+    </div>
+  );
+}
+
 const AnalisadorViral = () => {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -139,6 +201,46 @@ const AnalisadorViral = () => {
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+
+  // History state
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
+
+  const loadHistory = async () => {
+    if (!user || historyLoaded) return;
+    setHistoryLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('user_history' as any)
+        .select('id, titulo, created_at, payload')
+        .eq('user_id', String(user.user_id))
+        .eq('tipo', 'analise')
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      setHistoryItems((data as any[]) || []);
+      setHistoryLoaded(true);
+    } catch {
+      toast({ title: 'Erro ao carregar histórico', variant: 'destructive' });
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const toggleHistory = () => {
+    const next = !historyOpen;
+    setHistoryOpen(next);
+    if (next && !historyLoaded) loadHistory();
+  };
+
+  const loadFromHistory = (item: HistoryItem) => {
+    if (!item.payload) return;
+    setAnalysis(normalizeAnalysis(item.payload));
+    setHistoryOpen(false);
+    toast({ title: `Análise "${item.titulo}" carregada` });
+  };
 
   const handleFileSelect = useCallback((file: File) => {
     if (!file.type.startsWith('video/')) {
@@ -197,36 +299,8 @@ const AnalisadorViral = () => {
       });
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || 'Erro na análise');
-      
-      // Normalize: OpenAI agent uses different keys than Gemini agent
-      const raw = data.analysis || {};
-      const normalized = {
-        ...raw,
-        overallScore: raw.overallScore ?? raw.viralScore ?? 0,
-        classification: raw.classification ?? 'Moderado',
-        summary: raw.summary ?? '',
-        strengths: raw.strengths ?? raw.pontosFortes ?? [],
-        weaknesses: raw.weaknesses ?? raw.pontosFracos ?? [],
-        retentionKillers: raw.retentionKillers ?? [],
-        retentionImprovements: raw.retentionImprovements ?? [],
-        hookAnalysis: raw.hookAnalysis ?? { score: 0, feedback: '', tips: [] },
-        bodyAnalysis: raw.bodyAnalysis ?? { score: 0, feedback: '', tips: [] },
-        ctaAnalysis: raw.ctaAnalysis ?? { score: 0, feedback: '', tips: [] },
-        scriptBlueprint: raw.scriptBlueprint ?? {
-          captions: raw.roteiroMelhorado?.legendas ?? [],
-          exactHook: raw.roteiroMelhorado?.hook ?? '',
-          bodyPacing: [],
-          exactCta: raw.roteiroMelhorado?.cta ?? '',
-        },
-        viralVideoIdeas: raw.viralVideoIdeas ?? [],
-      };
-      // Ensure nested arrays have defaults
-      normalized.hookAnalysis.tips = normalized.hookAnalysis.tips ?? [];
-      normalized.bodyAnalysis.tips = normalized.bodyAnalysis.tips ?? [];
-      normalized.ctaAnalysis.tips = normalized.ctaAnalysis.tips ?? [];
-      normalized.scriptBlueprint.bodyPacing = normalized.scriptBlueprint.bodyPacing ?? [];
-      normalized.scriptBlueprint.captions = normalized.scriptBlueprint.captions ?? [];
-      
+
+      const normalized = normalizeAnalysis(data.analysis || {});
       setAnalysis(normalized);
 
       // Save to history
@@ -240,6 +314,8 @@ const AnalisadorViral = () => {
           titulo,
           payload: data.analysis,
         });
+        // Refresh history cache
+        setHistoryLoaded(false);
       }
     } catch (err: any) {
       toast({ title: 'Erro na análise', description: err.message, variant: 'destructive' });
@@ -365,21 +441,72 @@ const AnalisadorViral = () => {
               />
             </div>
 
-            <Button
-              onClick={handleAnalyze}
-              disabled={isLoading}
-              className="w-full h-12 text-base font-semibold gap-2 rounded-xl"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" /> {isUploading ? 'Enviando vídeo...' : 'Analisando...'}
-                </>
-              ) : (
-                <>
-                  <Flame className="w-5 h-5" /> Analisar Potencial Viral
-                </>
+            <div className="flex gap-3">
+              <Button
+                onClick={handleAnalyze}
+                disabled={isLoading}
+                className="flex-1 h-12 text-base font-semibold gap-2 rounded-xl"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" /> {isUploading ? 'Enviando vídeo...' : 'Analisando...'}
+                  </>
+                ) : (
+                  <>
+                    <Flame className="w-5 h-5" /> Analisar Potencial Viral
+                  </>
+                )}
+              </Button>
+              {user && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-12 w-12 rounded-xl shrink-0"
+                  onClick={toggleHistory}
+                  title="Ver histórico de análises"
+                >
+                  <History className="w-5 h-5" />
+                </Button>
               )}
-            </Button>
+            </div>
+
+            {/* History Section */}
+            {historyOpen && (
+              <div className="rounded-2xl border border-border bg-card p-4 space-y-3 animate-in fade-in-0 slide-in-from-top-2 duration-300">
+                <h3 className="font-semibold text-sm flex items-center gap-2">
+                  <History className="w-4 h-4 text-primary" /> Histórico de Análises
+                </h3>
+                {historyLoading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : historyItems.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">Nenhuma análise salva ainda.</p>
+                ) : (
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {historyItems.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => loadFromHistory(item)}
+                        className="w-full text-left rounded-xl bg-secondary/30 hover:bg-secondary/50 p-3 transition-colors flex items-center justify-between gap-3"
+                      >
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">{item.titulo}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(item.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
+                        {item.payload?.overallScore != null && (
+                          <span className={`text-sm font-bold shrink-0 ${getScoreColor(item.payload.overallScore)}`}>
+                            {item.payload.overallScore}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Results */}
@@ -414,7 +541,7 @@ const AnalisadorViral = () => {
                 </div>
               </div>
 
-              {/* Blueprint de Execução */}
+              {/* Roteiro Otimizado (formerly Blueprint) */}
               {analysis.scriptBlueprint && (
                 <div className="rounded-2xl border-2 border-primary/30 bg-card p-6 space-y-5">
                   <div className="flex items-center gap-2">
@@ -422,14 +549,14 @@ const AnalisadorViral = () => {
                       <FileText className="w-4 h-4 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-lg">Blueprint de Execução</h3>
-                      <p className="text-xs text-muted-foreground">Script refatorado para máxima viralização</p>
+                      <h3 className="font-bold text-lg">Roteiro Otimizado</h3>
+                      <p className="text-xs text-muted-foreground">Versão melhorada do seu roteiro para viralizar</p>
                     </div>
                   </div>
 
                   <div className="rounded-xl bg-primary/5 border border-primary/20 p-4 space-y-2">
                     <h4 className="font-semibold text-sm flex items-center gap-2">
-                      <Eye className="w-4 h-4 text-primary" /> Hook Exato (Primeiros 3s)
+                      <Eye className="w-4 h-4 text-primary" /> Abertura Ideal
                     </h4>
                     <p className="text-sm text-foreground leading-relaxed italic border-l-2 border-primary pl-3">
                       "{analysis.scriptBlueprint.exactHook}"
@@ -438,7 +565,7 @@ const AnalisadorViral = () => {
 
                   <div className="space-y-2">
                     <h4 className="font-semibold text-sm flex items-center gap-2">
-                      <Scissors className="w-4 h-4 text-primary" /> Estrutura de Cortes (Pacing)
+                      <Scissors className="w-4 h-4 text-primary" /> Ritmo do Vídeo
                     </h4>
                     <div className="space-y-2">
                       {analysis.scriptBlueprint.bodyPacing.map((cut, i) => (
@@ -455,7 +582,7 @@ const AnalisadorViral = () => {
 
                   <div className="rounded-xl bg-primary/5 border border-primary/20 p-4 space-y-2">
                     <h4 className="font-semibold text-sm flex items-center gap-2">
-                      <Target className="w-4 h-4 text-primary" /> CTA Exato (Final)
+                      <Target className="w-4 h-4 text-primary" /> Encerramento Ideal
                     </h4>
                     <p className="text-sm text-foreground leading-relaxed italic border-l-2 border-primary pl-3">
                       "{analysis.scriptBlueprint.exactCta}"
@@ -464,7 +591,7 @@ const AnalisadorViral = () => {
 
                   <div className="space-y-2">
                     <h4 className="font-semibold text-sm flex items-center gap-2">
-                      <Hash className="w-4 h-4 text-primary" /> Legendas Otimizadas
+                      <Hash className="w-4 h-4 text-primary" /> Sugestões de Legenda
                     </h4>
                     <div className="space-y-2">
                       {analysis.scriptBlueprint.captions.map((caption, i) => (
@@ -482,32 +609,46 @@ const AnalisadorViral = () => {
                 </div>
               )}
 
-              {/* Hook / Body / CTA Breakdown */}
+              {/* Hook / Body / CTA Breakdown — Redesigned */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {([
-                  { data: analysis.hookAnalysis, label: 'Hook (Início)', icon: Eye, desc: 'Primeiros 3 segundos' },
-                  { data: analysis.bodyAnalysis, label: 'Corpo (Desenvolvimento)', icon: PlayCircle, desc: 'Conteúdo principal' },
-                  { data: analysis.ctaAnalysis, label: 'CTA (Final)', icon: MessageCircle, desc: 'Encerramento e chamada' },
+                  { data: analysis.hookAnalysis, label: 'Abertura', icon: Eye, desc: 'Os primeiros segundos do vídeo' },
+                  { data: analysis.bodyAnalysis, label: 'Conteúdo', icon: PlayCircle, desc: 'O desenvolvimento do vídeo' },
+                  { data: analysis.ctaAnalysis, label: 'Encerramento', icon: MessageCircle, desc: 'Como você finaliza o vídeo' },
                 ] as const).map(({ data, label, icon: Icon, desc }) => (
-                  <div key={label} className="rounded-2xl border border-border bg-card p-5 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Icon className="w-4 h-4 text-primary" />
-                        <h3 className="font-semibold text-sm">{label}</h3>
+                  <div key={label} className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                    {/* Header with score */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Icon className="w-3.5 h-3.5 text-primary" />
+                          </div>
+                          <h3 className="font-semibold">{label}</h3>
+                        </div>
+                        <span className={`text-xl font-bold ${getScoreColor(data.score)}`}>{data.score}</span>
                       </div>
-                      <span className={`text-lg font-bold ${getScoreColor(data.score)}`}>{data.score}</span>
+                      <Progress value={data.score} className="h-2" />
+                      <p className="text-xs text-muted-foreground">{desc}</p>
                     </div>
-                    <Progress value={data.score} className="h-2" />
-                    <p className="text-xs text-muted-foreground">{desc}</p>
-                    <FormattedText text={data.feedback} />
-                    <div className="space-y-1.5 pt-1">
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Dicas</span>
-                      {data.tips.map((tip, i) => (
-                        <p key={i} className="text-xs text-muted-foreground flex gap-2">
-                          <Lightbulb className="w-3 h-3 text-primary shrink-0 mt-0.5" /> <InlineFormatted text={tip} />
-                        </p>
-                      ))}
+
+                    {/* Feedback */}
+                    <div className="space-y-3">
+                      <span className="text-xs font-semibold text-foreground/60 uppercase tracking-wider">Avaliação</span>
+                      <FormattedText text={data.feedback} />
                     </div>
+
+                    {/* Divider */}
+                    {data.tips.length > 0 && (
+                      <>
+                        <div className="border-t border-border" />
+                        {/* Tips */}
+                        <div className="space-y-2.5">
+                          <span className="text-xs font-semibold text-foreground/60 uppercase tracking-wider">Como melhorar</span>
+                          <ExpandableTips tips={data.tips} />
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>
