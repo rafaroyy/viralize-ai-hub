@@ -1,8 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Flame, Loader2, TrendingUp, TrendingDown, Lightbulb, Target, Eye, Upload, X, AlertTriangle, CheckCircle2, PlayCircle, Sparkles, FileText, Clock, Hash, Scissors, Download, MessageCircle, History, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { generateViralPDF } from '@/lib/generateViralPDF';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
