@@ -15,6 +15,7 @@ interface Props {
 
 export function RadarDashboardTab({ trends, onViewDetail, loading, fetching, onFetchYouTube }: Props) {
   const top10 = [...trends].sort((a, b) => b.overallScore - a.overallScore).slice(0, 10);
+  const isEmpty = !loading && trends.length === 0;
 
   return (
     <div className="space-y-6">
@@ -37,12 +38,29 @@ export function RadarDashboardTab({ trends, onViewDetail, loading, fetching, onF
           </Button>
         )}
       </div>
-      <RadarCharts trends={trends} />
+
+      {!isEmpty && <RadarCharts trends={trends} />}
 
       <div>
         <h3 className="text-sm font-semibold text-foreground mb-3">🔥 Top Trends do Momento</h3>
         {loading ? (
           <div className="text-sm text-muted-foreground py-8 text-center">Carregando trends...</div>
+        ) : isEmpty ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center space-y-4">
+            <Youtube className="w-12 h-12 text-muted-foreground/40" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Nenhuma trend carregada ainda</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Clique em <span className="font-semibold text-red-500">"Atualizar YouTube"</span> para buscar os vídeos trending reais do Brasil.
+              </p>
+            </div>
+            {onFetchYouTube && (
+              <Button onClick={onFetchYouTube} disabled={fetching} className="gap-2">
+                {fetching ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Youtube className="w-4 h-4" />}
+                {fetching ? "Buscando..." : "Buscar Trends do YouTube"}
+              </Button>
+            )}
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {top10.map((t, i) => (

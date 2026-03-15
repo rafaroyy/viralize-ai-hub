@@ -1,256 +1,38 @@
-import type { Trend, Opportunity, SourceSignal } from "@/types/radar";
+import type { SourceType, TrendStatus, TrendCategory, NicheType } from "@/types/radar";
 
-const now = new Date();
-const h = (hours: number) => new Date(now.getTime() - hours * 3600000).toISOString();
-
-function sig(id: string, source: SourceSignal["source"], label: string, hoursAgo: number, raw: number, norm: number, url = ""): SourceSignal {
-  return { id, source, sourceType: source, signalLabel: label, observedAt: h(hoursAgo), region: "BR", rawScore: raw, normalizedScore: norm, url };
-}
-
-export const mockTrends: Trend[] = [
-  {
-    id: "t1", label: "IA no Reels", aliases: ["inteligência artificial reels", "AI reels"], category: "assunto", country: "BR", region: "BR",
-    sourceSignals: [sig("s1","google","IA reels",2,80,85), sig("s2","tiktok","IA reels trend",1,90,92), sig("s3","youtube","como usar IA reels",4,70,75)],
-    firstSeenAt: h(6), lastSeenAt: h(0.5), status: "subindo", velocityScore: 88, crossSourceScore: 75, noveltyScore: 90, saturationScore: 20, riskScore: 5,
-    viralPotentialScore: 85, commercePotentialScore: 78, overallScore: 82,
-    relatedTerms: ["inteligência artificial", "automação reels", "IA para criadores"], niches: ["creator-economy","marketing","tecnologia"],
-    recommendedAngles: ["Tutorial rápido mostrando IA criando reels em 30s", "Comparação: Reel manual vs IA", "Os 5 melhores prompts para Reels virais"],
-    suggestedHooks: ["Fiz 30 Reels em 10 minutos usando IA…", "Essa IA vai acabar com os designers de Reels", "Pare de perder tempo editando Reels manualmente"],
-    suggestedFormats: ["tutorial", "comparação", "lista", "react"], suggestedCtas: ["Salva pra testar depois", "Comenta 'IA' que eu mando o link", "Link na bio"],
-    summary: "Crescimento explosivo de buscas por ferramentas de IA para criação de Reels. Confirmado em 3 fontes.",
-    timeline: [{date:h(6),score:30},{date:h(4),score:50},{date:h(2),score:75},{date:h(1),score:88},{date:h(0.5),score:92}],
-  },
-  {
-    id: "t2", label: "Renda Extra com Print on Demand", aliases: ["POD renda extra","print on demand brasil"], category: "produto", country: "BR", region: "BR",
-    sourceSignals: [sig("s4","youtube","renda extra POD",8,60,65), sig("s5","google","print on demand",6,55,60), sig("s6","tiktok","POD lado",3,78,82)],
-    firstSeenAt: h(24), lastSeenAt: h(1), status: "subindo", velocityScore: 72, crossSourceScore: 75, noveltyScore: 60, saturationScore: 35, riskScore: 8,
-    viralPotentialScore: 70, commercePotentialScore: 92, overallScore: 74,
-    relatedTerms: ["camisetas personalizadas","shopify brasil","renda passiva"], niches: ["e-commerce","renda-extra"],
-    recommendedAngles: ["Como comecei a ganhar R$3k/mês sem estoque", "Print on Demand: o negócio mais fácil de 2025?"],
-    suggestedHooks: ["Eu faturo R$5.000/mês sem sair de casa com isso", "O negócio que ninguém te conta sobre camisetas"],
-    suggestedFormats: ["storytelling","tutorial","UGC"], suggestedCtas: ["Link do curso na bio","Comenta 'POD' pra receber o guia"],
-    summary: "Busca crescente por formas de monetizar via Print on Demand. TikTok acelerando.",
-    timeline: [{date:h(24),score:20},{date:h(18),score:35},{date:h(12),score:50},{date:h(6),score:65},{date:h(1),score:78}],
-  },
-  {
-    id: "t3", label: "Escândalo Influencer X", aliases: ["influencer polêmica","cancelamento influencer"], category: "pessoa", country: "BR", region: "BR",
-    sourceSignals: [sig("s7","noticias","influencer escândalo",1,95,98), sig("s8","tiktok","polêmica influencer",0.5,92,95), sig("s9","google","quem é influencer X",1,88,90)],
-    firstSeenAt: h(3), lastSeenAt: h(0.2), status: "pico", velocityScore: 95, crossSourceScore: 75, noveltyScore: 95, saturationScore: 15, riskScore: 85,
-    viralPotentialScore: 90, commercePotentialScore: 15, overallScore: 62,
-    relatedTerms: ["cancelamento","exposed","fofoca digital"], niches: ["creator-economy"],
-    recommendedAngles: ["O que podemos aprender com esse caso (sem expor)", "Como proteger sua marca de polêmicas"],
-    suggestedHooks: ["Todo mundo está falando disso, mas ninguém viu por esse ângulo", "O erro que pode destruir qualquer carreira digital"],
-    suggestedFormats: ["comentário","opinião","react"], suggestedCtas: ["Me segue pra mais análises","Comenta o que você acha"],
-    summary: "Polêmica viral com alto risco reputacional. Atenção ao ângulo.",
-    timeline: [{date:h(3),score:10},{date:h(2),score:45},{date:h(1),score:85},{date:h(0.5),score:95},{date:h(0.2),score:98}],
-  },
-  {
-    id: "t4", label: "Método Pomodoro 2.0", aliases: ["produtividade pomodoro","técnica foco"], category: "assunto", country: "BR", region: "BR",
-    sourceSignals: [sig("s10","youtube","pomodoro 2.0",12,50,55), sig("s11","google","pomodoro técnica",10,45,50)],
-    firstSeenAt: h(48), lastSeenAt: h(6), status: "caindo", velocityScore: 30, crossSourceScore: 50, noveltyScore: 25, saturationScore: 70, riskScore: 2,
-    viralPotentialScore: 35, commercePotentialScore: 55, overallScore: 38,
-    relatedTerms: ["foco","produtividade","estudo"], niches: ["lifestyle"],
-    recommendedAngles: ["Por que Pomodoro não funciona mais sozinho"], suggestedHooks: ["Esqueça o Pomodoro — esse método é 3x melhor"],
-    suggestedFormats: ["opinião","lista"], suggestedCtas: ["Salva esse hack"],
-    summary: "Trend madura, saturação alta. Ainda funciona com ângulo contrário.", timeline: [{date:h(48),score:60},{date:h(36),score:55},{date:h(24),score:45},{date:h(12),score:35},{date:h(6),score:28}],
-  },
-  {
-    id: "t5", label: "TikTok Shop Brasil", aliases: ["tiktok shop","loja tiktok"], category: "empresa", country: "BR", region: "BR",
-    sourceSignals: [sig("s12","tiktok","tiktok shop",2,90,92), sig("s13","noticias","tiktok lança loja",3,85,88), sig("s14","google","tiktok shop como vender",1,80,85), sig("s15","youtube","tiktok shop tutorial",4,70,75)],
-    firstSeenAt: h(12), lastSeenAt: h(0.3), status: "subindo", velocityScore: 90, crossSourceScore: 100, noveltyScore: 80, saturationScore: 10, riskScore: 10,
-    viralPotentialScore: 92, commercePotentialScore: 95, overallScore: 90,
-    relatedTerms: ["e-commerce social","vender no tiktok","afiliado tiktok"], niches: ["e-commerce","renda-extra","marketing"],
-    recommendedAngles: ["Primeiros passos no TikTok Shop", "Como ser afiliado TikTok Shop", "TikTok Shop vs Shopee"],
-    suggestedHooks: ["O TikTok acabou de liberar isso no Brasil e ninguém sabe", "R$10.000 em 7 dias no TikTok Shop — é real?"],
-    suggestedFormats: ["tutorial","notícia","UGC","storytelling"], suggestedCtas: ["Link na bio pro guia completo","Comenta 'SHOP'"],
-    summary: "Lançamento do TikTok Shop no Brasil está gerando buzz massivo. 4 fontes confirmam.",
-    timeline: [{date:h(12),score:20},{date:h(8),score:45},{date:h(4),score:70},{date:h(2),score:85},{date:h(0.3),score:95}],
-  },
-  {
-    id: "t6", label: "Copa do Mundo 2026", aliases: ["world cup 2026","mundial 2026"], category: "esporte", country: "BR", region: "BR",
-    sourceSignals: [sig("s16","google","copa 2026",6,70,72), sig("s17","noticias","convocação copa",4,80,82)],
-    firstSeenAt: h(72), lastSeenAt: h(2), status: "subindo", velocityScore: 55, crossSourceScore: 50, noveltyScore: 40, saturationScore: 30, riskScore: 5,
-    viralPotentialScore: 60, commercePotentialScore: 50, overallScore: 52,
-    relatedTerms: ["seleção brasileira","ingressos copa","futebol"], niches: ["lifestyle"],
-    recommendedAngles: ["Curiosidades da Copa 2026 que ninguém conta"], suggestedHooks: ["A Copa 2026 vai ser MUITO diferente — veja por quê"],
-    suggestedFormats: ["lista","notícia","react"], suggestedCtas: ["Segue pra acompanhar tudo da Copa"],
-    summary: "Interesse crescente com aproximação do evento. Potencial comercial moderado.", timeline: [{date:h(72),score:20},{date:h(48),score:30},{date:h(24),score:45},{date:h(6),score:60},{date:h(2),score:68}],
-  },
-  {
-    id: "t7", label: "Curso de Copywriting Gratuito", aliases: ["copywriting grátis","aprender copy"], category: "assunto", country: "BR", region: "BR",
-    sourceSignals: [sig("s18","youtube","copy grátis",5,60,65), sig("s19","google","curso copy",3,55,58)],
-    firstSeenAt: h(36), lastSeenAt: h(2), status: "subindo", velocityScore: 50, crossSourceScore: 50, noveltyScore: 45, saturationScore: 50, riskScore: 5,
-    viralPotentialScore: 50, commercePotentialScore: 80, overallScore: 55,
-    relatedTerms: ["marketing digital","escrita persuasiva","vendas online"], niches: ["marketing","negocios","renda-extra"],
-    recommendedAngles: ["5 técnicas de copy que vendem sozinhas"], suggestedHooks: ["Aprendi copywriting de graça e faturei R$10k no mês seguinte"],
-    suggestedFormats: ["tutorial","storytelling","lista"], suggestedCtas: ["Link do curso na bio"],
-    summary: "Interesse constante por conteúdo educacional de copy gratuito.", timeline: [{date:h(36),score:25},{date:h(24),score:35},{date:h(12),score:48},{date:h(5),score:55},{date:h(2),score:60}],
-  },
-  {
-    id: "t8", label: "Crise Econômica Argentina", aliases: ["argentina crise","milei economia"], category: "economia", country: "BR", region: "BR",
-    sourceSignals: [sig("s20","noticias","crise argentina",1,90,92), sig("s21","google","argentina economia",2,75,78)],
-    firstSeenAt: h(8), lastSeenAt: h(0.5), status: "pico", velocityScore: 80, crossSourceScore: 50, noveltyScore: 75, saturationScore: 25, riskScore: 55,
-    viralPotentialScore: 70, commercePotentialScore: 30, overallScore: 58,
-    relatedTerms: ["dólar blue","inflação","América Latina"], niches: ["financas","negocios"],
-    recommendedAngles: ["O que o Brasil pode aprender com a crise argentina"], suggestedHooks: ["A Argentina está colapsando — e o Brasil pode ser o próximo?"],
-    suggestedFormats: ["opinião","notícia","comentário"], suggestedCtas: ["Comenta o que você acha"],
-    summary: "Crise econômica gerando interesse jornalístico. Risco médio por ser tema politizado.", timeline: [{date:h(8),score:15},{date:h(6),score:40},{date:h(3),score:70},{date:h(1),score:88},{date:h(0.5),score:92}],
-  },
-  {
-    id: "t9", label: "Meme do Gato Laranja", aliases: ["orange cat","gato laranja meme"], category: "meme", country: "BR", region: "BR",
-    sourceSignals: [sig("s22","tiktok","gato laranja",1,95,97), sig("s23","youtube","orange cat compilation",3,70,72)],
-    firstSeenAt: h(4), lastSeenAt: h(0.3), status: "pico", velocityScore: 92, crossSourceScore: 50, noveltyScore: 88, saturationScore: 15, riskScore: 0,
-    viralPotentialScore: 85, commercePotentialScore: 25, overallScore: 65,
-    relatedTerms: ["meme gato","pets virais","humor animal"], niches: ["creator-economy","lifestyle"],
-    recommendedAngles: ["React ao meme do gato laranja", "Por que gatos laranjas dominam a internet"],
-    suggestedHooks: ["Se você tem gato laranja, esse vídeo é sobre VOCÊ", "O gato laranja mais burro da internet kkkk"],
-    suggestedFormats: ["react","UGC","lista"], suggestedCtas: ["Marca alguém que tem gato laranja"],
-    summary: "Meme viral de alta velocidade e zero risco. Excelente pra engajamento.", timeline: [{date:h(4),score:10},{date:h(3),score:35},{date:h(2),score:65},{date:h(1),score:88},{date:h(0.3),score:97}],
-  },
-  {
-    id: "t10", label: "Novo Algoritmo Instagram 2025", aliases: ["algoritmo instagram","instagram update"], category: "assunto", country: "BR", region: "BR",
-    sourceSignals: [sig("s24","youtube","algoritmo insta 2025",6,80,82), sig("s25","google","instagram algoritmo",4,75,78), sig("s26","tiktok","hack insta",2,85,88)],
-    firstSeenAt: h(18), lastSeenAt: h(1), status: "subindo", velocityScore: 78, crossSourceScore: 75, noveltyScore: 65, saturationScore: 30, riskScore: 3,
-    viralPotentialScore: 75, commercePotentialScore: 70, overallScore: 72,
-    relatedTerms: ["instagram 2025","engajamento","reach orgânico"], niches: ["marketing","creator-economy"],
-    recommendedAngles: ["As 3 mudanças do algoritmo que ninguém te contou","Como hackear o novo algoritmo em 5 passos"],
-    suggestedHooks: ["O Instagram mudou TUDO — e quase ninguém percebeu","Se seu alcance caiu, a culpa é dessa mudança"],
-    suggestedFormats: ["tutorial","lista","opinião"], suggestedCtas: ["Salva pra aplicar agora","Comenta 'ALGO' que eu mando o resumo"],
-    summary: "Mudanças no algoritmo do Instagram gerando buzz entre criadores.", timeline: [{date:h(18),score:20},{date:h(12),score:40},{date:h(6),score:60},{date:h(3),score:72},{date:h(1),score:80}],
-  },
-  {
-    id: "t11", label: "Dropshipping Nacional", aliases: ["dropshipping brasil","fornecedor nacional"], category: "produto", country: "BR", region: "BR",
-    sourceSignals: [sig("s27","youtube","drop nacional",10,55,58), sig("s28","google","dropshipping brasil",8,50,52)],
-    firstSeenAt: h(120), lastSeenAt: h(12), status: "caindo", velocityScore: 20, crossSourceScore: 50, noveltyScore: 15, saturationScore: 80, riskScore: 15,
-    viralPotentialScore: 25, commercePotentialScore: 70, overallScore: 35,
-    relatedTerms: ["fornecedores nacionais","e-commerce sem estoque"], niches: ["e-commerce","renda-extra"],
-    recommendedAngles: ["Por que dropshipping nacional ainda funciona em 2025"],
-    suggestedHooks: ["Dropshipping morreu? Eu faturei R$20k este mês"],
-    suggestedFormats: ["storytelling","opinião"], suggestedCtas: ["Link da lista de fornecedores na bio"],
-    summary: "Trend madura e saturada, mas ainda com potencial comercial.", timeline: [{date:h(120),score:50},{date:h(96),score:45},{date:h(72),score:40},{date:h(48),score:35},{date:h(12),score:22}],
-  },
-  {
-    id: "t12", label: "Música Viral Funk 2025", aliases: ["funk viral","hit funk"], category: "musica", country: "BR", region: "BR",
-    sourceSignals: [sig("s29","tiktok","funk viral",1,98,99), sig("s30","youtube","funk 2025 hit",3,80,83)],
-    firstSeenAt: h(5), lastSeenAt: h(0.2), status: "pico", velocityScore: 95, crossSourceScore: 50, noveltyScore: 90, saturationScore: 10, riskScore: 10,
-    viralPotentialScore: 88, commercePotentialScore: 20, overallScore: 68,
-    relatedTerms: ["dancinha","trend tiktok","baile funk"], niches: ["creator-economy","lifestyle"],
-    recommendedAngles: ["Tutorial da dancinha","React às melhores versões"],
-    suggestedHooks: ["Essa música vai dominar o TikTok essa semana","Aprenda a dancinha em 15 segundos"],
-    suggestedFormats: ["UGC","react","tutorial"], suggestedCtas: ["Faz um dueto comigo","Marca quem dança melhor"],
-    summary: "Hit de funk viral explodindo no TikTok.", timeline: [{date:h(5),score:10},{date:h(3),score:45},{date:h(2),score:70},{date:h(1),score:90},{date:h(0.2),score:99}],
-  },
-  {
-    id: "t13", label: "ChatGPT Plugins Novos", aliases: ["chatgpt plugins","openai plugins"], category: "produto", country: "BR", region: "BR",
-    sourceSignals: [sig("s31","noticias","chatgpt novos plugins",4,70,72), sig("s32","google","chatgpt plugins",3,65,68), sig("s33","youtube","melhores plugins chatgpt",6,60,62)],
-    firstSeenAt: h(20), lastSeenAt: h(2), status: "subindo", velocityScore: 65, crossSourceScore: 75, noveltyScore: 55, saturationScore: 35, riskScore: 3,
-    viralPotentialScore: 68, commercePotentialScore: 75, overallScore: 67,
-    relatedTerms: ["inteligência artificial","produtividade IA","ferramentas AI"], niches: ["tecnologia","marketing","negocios"],
-    recommendedAngles: ["Os 7 plugins que vão mudar como você usa o ChatGPT"],
-    suggestedHooks: ["Esses plugins transformaram meu ChatGPT numa máquina de dinheiro"],
-    suggestedFormats: ["lista","tutorial","comparação"], suggestedCtas: ["Comenta 'PLUGIN' que mando a lista"],
-    summary: "Novos plugins gerando interesse crescente, especialmente no nicho de produtividade.", timeline: [{date:h(20),score:15},{date:h(14),score:30},{date:h(8),score:50},{date:h(4),score:62},{date:h(2),score:70}],
-  },
-  {
-    id: "t14", label: "Eleições Municipais Resultado", aliases: ["eleições 2025","resultado eleição"], category: "politica", country: "BR", region: "BR",
-    sourceSignals: [sig("s34","noticias","resultado eleições",0.5,98,100), sig("s35","google","quem ganhou eleição",0.3,95,97)],
-    firstSeenAt: h(2), lastSeenAt: h(0.1), status: "pico", velocityScore: 98, crossSourceScore: 50, noveltyScore: 98, saturationScore: 5, riskScore: 90,
-    viralPotentialScore: 80, commercePotentialScore: 5, overallScore: 48,
-    relatedTerms: ["política brasileira","prefeito","vereador"], niches: ["lifestyle"],
-    recommendedAngles: ["Análise apartidária dos resultados"],
-    suggestedHooks: ["O resultado que ninguém esperava"],
-    suggestedFormats: ["comentário","notícia"], suggestedCtas: ["Comenta sua cidade"],
-    summary: "Alta viralidade mas risco reputacional altíssimo. Cuidado com posicionamento.", timeline: [{date:h(2),score:20},{date:h(1.5),score:50},{date:h(1),score:80},{date:h(0.5),score:95},{date:h(0.1),score:100}],
-  },
-  {
-    id: "t15", label: "Receita Viral de Bolo de Caneca", aliases: ["bolo caneca","mug cake"], category: "lifestyle", country: "BR", region: "BR",
-    sourceSignals: [sig("s36","tiktok","bolo caneca",3,75,78), sig("s37","youtube","receita bolo caneca",5,60,62)],
-    firstSeenAt: h(30), lastSeenAt: h(2), status: "subindo", velocityScore: 45, crossSourceScore: 50, noveltyScore: 40, saturationScore: 45, riskScore: 0,
-    viralPotentialScore: 50, commercePotentialScore: 40, overallScore: 45,
-    relatedTerms: ["receita fácil","sobremesa rápida","tiktok food"], niches: ["lifestyle","creator-economy"],
-    recommendedAngles: ["A receita de 2 minutos que viralizou no TikTok"],
-    suggestedHooks: ["Esse bolo fica pronto em 2 MINUTOS no micro-ondas"],
-    suggestedFormats: ["UGC","tutorial"], suggestedCtas: ["Salva pra fazer hoje","Marca alguém que precisa aprender isso"],
-    summary: "Receita simples que viraliza por ser visual e rápida de reproduzir.", timeline: [{date:h(30),score:15},{date:h(20),score:25},{date:h(10),score:40},{date:h(5),score:55},{date:h(2),score:62}],
-  },
-];
-
-export const mockOpportunities: Opportunity[] = [
-  {
-    id: "o1", trendId: "t5", trendLabel: "TikTok Shop Brasil", niche: "e-commerce", whyNow: "Lançamento recente no Brasil com baixa saturação. Janela de oportunidade para early adopters.",
-    hooks: ["O TikTok acabou de liberar isso no Brasil e ninguém sabe", "Eu fiz R$2.000 em 3 dias no TikTok Shop — veja como", "Se você não entrar agora no TikTok Shop, vai se arrepender"],
-    videoIdeas: ["Tutorial passo-a-passo de como configurar sua loja no TikTok Shop", "Desafio: vender R$1.000 em 24h no TikTok Shop do zero", "TikTok Shop vs Shopee vs Mercado Livre — qual rende mais?"],
-    narrative: "O TikTok acaba de abrir as portas da sua loja no Brasil. Eu fui um dos primeiros a testar, configurei em 20 minutos, postei 3 vídeos e já vendi. Nesse vídeo vou te mostrar exatamente como fazer o mesmo.",
-    cta: "Comenta 'SHOP' que eu mando o passo-a-passo completo", suggestedProductKeywords: ["acessórios celular","skincare coreano","gadgets criativos"], opportunityScore: 95,
-  },
-  {
-    id: "o2", trendId: "t1", trendLabel: "IA no Reels", niche: "creator-economy", whyNow: "Criadores buscam eficiência. IA para Reels resolve a dor de produzir conteúdo em escala.",
-    hooks: ["Fiz 30 Reels em 10 minutos usando IA", "Essa IA vai substituir 90% dos editores de Reels", "O segredo dos criadores que postam todo dia"],
-    videoIdeas: ["Review das 5 melhores IAs para Reels em 2025", "Minha rotina de conteúdo usando IA (mostrar bastidores)", "Experimento: Reels feitos por IA vs feitos à mão — qual performa melhor?"],
-    narrative: "Eu produzia 3 Reels por semana e estava exausto. Descobri essas ferramentas de IA e agora produzo conteúdo pra semana inteira em 1 hora. Vou te mostrar as 3 que uso.",
-    cta: "Salva pra testar depois e comenta qual você usa", suggestedProductKeywords: ["ferramenta IA","editor de vídeo","automação marketing"], opportunityScore: 88,
-  },
-  {
-    id: "o3", trendId: "t2", trendLabel: "Renda Extra com Print on Demand", niche: "renda-extra", whyNow: "Pessoas buscando renda extra sem investimento alto. POD tem barreira de entrada baixa.",
-    hooks: ["Comecei sem dinheiro e hoje faturo R$5k/mês com camisetas", "O negócio mais fácil de começar em 2025", "Trabalho de casa e nunca toquei numa camiseta"],
-    videoIdeas: ["Do zero ao primeiro R$1.000 com Print on Demand", "Os 3 erros que fazem 90% desistir do POD", "Como encontrar nichos lucrativos para camisetas"],
-    narrative: "Há 6 meses eu estava desempregado. Descobri Print on Demand, criei minha primeira estampa no Canva, subi numa plataforma e em 30 dias já tinha vendido 47 camisetas. Sem estoque, sem investimento.",
-    cta: "Link do guia completo na bio", suggestedProductKeywords: ["camisetas","canecas personalizadas","plataforma POD"], opportunityScore: 82,
-  },
-  {
-    id: "o4", trendId: "t10", trendLabel: "Novo Algoritmo Instagram 2025", niche: "marketing", whyNow: "Mudança de algoritmo gera pânico entre criadores. Conteúdo explicativo tem demanda imediata.",
-    hooks: ["O Instagram mudou TUDO e quase ninguém percebeu", "Seu alcance caiu? A culpa é dessa mudança", "3 hacks pro novo algoritmo que estão funcionando AGORA"],
-    videoIdeas: ["O guia definitivo do novo algoritmo Instagram 2025", "Teste: postei seguindo as novas regras por 7 dias", "O que o Instagram NÃO te conta sobre alcance orgânico"],
-    narrative: "Semana passada meu alcance despencou 60%. Pesquisei, testei e descobri que o Instagram mudou 3 coisas no algoritmo. Depois de aplicar os ajustes, meu alcance voltou em 48h. Vou te mostrar o que fiz.",
-    cta: "Salva e aplica HOJE no seu perfil", suggestedProductKeywords: ["curso instagram","ferramenta analytics","gestão redes sociais"], opportunityScore: 78,
-  },
-  {
-    id: "o5", trendId: "t13", trendLabel: "ChatGPT Plugins Novos", niche: "tecnologia", whyNow: "Novos plugins expandem capacidades. Público quer curadoria e tutoriais práticos.",
-    hooks: ["Esses 7 plugins transformaram meu ChatGPT", "Você está usando o ChatGPT errado — veja a diferença com plugins", "Plugin que faz o ChatGPT ganhar dinheiro pra você"],
-    videoIdeas: ["Top 7 plugins do ChatGPT que você PRECISA instalar", "ChatGPT com plugins vs sem plugins — comparação real", "Como automatizar seu negócio inteiro com plugins do ChatGPT"],
-    narrative: "Eu achava que já usava o ChatGPT bem. Aí testei esses plugins e percebi que estava usando 20% do potencial. O plugin de análise de dados me economiza 5 horas por semana.",
-    cta: "Comenta 'PLUGIN' que eu mando a lista completa", suggestedProductKeywords: ["ChatGPT Plus","ferramentas IA","automação"], opportunityScore: 75,
-  },
-  {
-    id: "o6", trendId: "t9", trendLabel: "Meme do Gato Laranja", niche: "creator-economy", whyNow: "Meme em pico viral. Janela curta de 24-48h para surfar o engajamento.",
-    hooks: ["Se você tem gato laranja, CUIDADO", "A ciência provou: gatos laranjas são os mais burros", "Compilação dos gatos laranjas mais carismáticos"],
-    videoIdeas: ["React aos melhores memes de gato laranja", "Meu gato laranja tentando ser inteligente", "Gato laranja vs gato preto: quem é mais esperto?"],
-    narrative: "A internet decidiu que gatos laranjas compartilham uma única célula cerebral, e honestamente… meu gato comprova. Olha o que ele fez hoje.",
-    cta: "Marca alguém que tem gato laranja", suggestedProductKeywords: ["produtos pet","acessórios gato","ração premium"], opportunityScore: 70,
-  },
-  {
-    id: "o7", trendId: "t7", trendLabel: "Curso de Copywriting Gratuito", niche: "negocios", whyNow: "Demanda por educação gratuita em alta. Copy é skill monetizável imediatamente.",
-    hooks: ["Aprendi copy de graça e faturei R$10k","A habilidade mais lucrativa de 2025 é grátis","Por que todo empreendedor precisa aprender copywriting"],
-    videoIdeas: ["Mini-curso de copy em 10 minutos","5 técnicas de copy que vendem sozinhas","Reescrevi anúncios ruins ao vivo com copy profissional"],
-    narrative: "Copywriting mudou minha vida. Eu era CLT ganhando R$2.500 e decidi aprender copy em cursos gratuitos no YouTube. 6 meses depois, cobro R$3.000 por página de vendas.",
-    cta: "Link do curso gratuito na bio", suggestedProductKeywords: ["curso copywriting","livro persuasão","ferramenta escrita"], opportunityScore: 72,
-  },
-  {
-    id: "o8", trendId: "t6", trendLabel: "Copa do Mundo 2026", niche: "lifestyle", whyNow: "Interesse crescente com aproximação do evento. Conteúdo early ganha autoridade.",
-    hooks: ["5 coisas que vão ser DIFERENTES na Copa 2026","A Copa 2026 vai ter 3 países sede — e isso muda tudo","Quanto custa ir pra Copa 2026?"],
-    videoIdeas: ["Guia completo: como se preparar para a Copa 2026","Curiosidades malucas sobre a Copa 2026","Quanto você precisa economizar para ir à Copa"],
-    narrative: "A Copa 2026 vai ser a maior da história: 48 seleções, 3 países, 104 jogos. Comecei a pesquisar agora e descobri coisas que poucos sabem. Vou te contar as 5 mais surpreendentes.",
-    cta: "Segue pra acompanhar tudo da Copa 2026", suggestedProductKeywords: ["camiseta seleção","viagem EUA","pacote copa"], opportunityScore: 60,
-  },
-];
-
-export const sourceLabels: Record<string, string> = {
+export const sourceLabels: Record<SourceType, string> = {
   google: "Google Trends",
   tiktok: "TikTok",
   youtube: "YouTube",
   noticias: "Notícias",
 };
 
-export const statusLabels: Record<string, string> = {
-  nova: "Nova", subindo: "Subindo", pico: "Pico", caindo: "Caindo", morta: "Morta",
+export const availableSources: SourceType[] = ["youtube"];
+export const comingSoonSources: SourceType[] = ["google", "tiktok", "noticias"];
+
+export const statusLabels: Record<TrendStatus, string> = {
+  nova: "Nova",
+  subindo: "Subindo",
+  pico: "Pico",
+  caindo: "Caindo",
+  estavel: "Estável",
 };
 
-export const categoryLabels: Record<string, string> = {
-  pessoa: "Pessoa", empresa: "Empresa", assunto: "Assunto", produto: "Produto", meme: "Meme",
-  musica: "Música", politica: "Política", esporte: "Esporte", economia: "Economia", lifestyle: "Lifestyle",
+export const categoryLabels: Record<TrendCategory, string> = {
+  assunto: "Assunto",
+  som: "Som/Áudio",
+  formato: "Formato",
+  hashtag: "Hashtag",
+  desafio: "Desafio",
 };
 
-export const nicheLabels: Record<string, string> = {
-  marketing: "Marketing", negocios: "Negócios", "renda-extra": "Renda Extra", financas: "Finanças",
-  lifestyle: "Lifestyle", "creator-economy": "Creator Economy", tecnologia: "Tecnologia", "e-commerce": "E-commerce",
+export const nicheLabels: Record<NicheType, string> = {
+  "marketing": "Marketing Digital",
+  "creator-economy": "Creator Economy",
+  "e-commerce": "E-commerce",
+  "saude": "Saúde & Bem-estar",
+  "financas": "Finanças",
+  "educacao": "Educação",
+  "entretenimento": "Entretenimento",
+  "tecnologia": "Tecnologia",
 };
