@@ -554,7 +554,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
           b.y += 4;
         }
       }
-      b.gap(6);
+      b.gap(SECTION_GAP);
     }
   }
 
