@@ -516,7 +516,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
     b.drawCardBg(estH, COLORS.green);
     b.subTitle('Como melhorar a retencao');
     b.bulletList(cleanItems, '>', COLORS.green);
-    b.gap(6);
+    b.gap(SECTION_GAP);
   }
 
   // ═══════════════════════════════════════════
