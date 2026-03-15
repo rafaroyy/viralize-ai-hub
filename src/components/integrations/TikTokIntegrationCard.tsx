@@ -97,7 +97,7 @@ export function TikTokIntegrationCard() {
           {(status === "disconnected" || status === "error") && (
             <Button
               onClick={connect}
-              disabled={loading || status === "connecting"}
+              disabled={loading}
               className="gap-2"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Link2 className="w-4 h-4" />}

@@ -40,6 +40,7 @@ const App = () => (
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/pagina" element={<PaginaVendas />} />
+            <Route path="/auth/tiktok/callback" element={<TikTokCallback />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/criar" element={<CriarVideo />} />
               <Route path="/radar" element={<RadarTrendsPage />} />
