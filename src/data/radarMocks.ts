@@ -15,24 +15,29 @@ export const statusLabels: Record<TrendStatus, string> = {
   subindo: "Subindo",
   pico: "Pico",
   caindo: "Caindo",
-  estavel: "Estável",
+  morta: "Morta",
 };
 
 export const categoryLabels: Record<TrendCategory, string> = {
+  pessoa: "Pessoa",
+  empresa: "Empresa",
   assunto: "Assunto",
-  som: "Som/Áudio",
-  formato: "Formato",
-  hashtag: "Hashtag",
-  desafio: "Desafio",
+  produto: "Produto",
+  meme: "Meme",
+  musica: "Música",
+  politica: "Política",
+  esporte: "Esporte",
+  economia: "Economia",
+  lifestyle: "Lifestyle",
 };
 
 export const nicheLabels: Record<NicheType, string> = {
-  "marketing": "Marketing Digital",
+  marketing: "Marketing Digital",
+  negocios: "Negócios",
+  "renda-extra": "Renda Extra",
+  financas: "Finanças",
+  lifestyle: "Lifestyle",
   "creator-economy": "Creator Economy",
+  tecnologia: "Tecnologia",
   "e-commerce": "E-commerce",
-  "saude": "Saúde & Bem-estar",
-  "financas": "Finanças",
-  "educacao": "Educação",
-  "entretenimento": "Entretenimento",
-  "tecnologia": "Tecnologia",
 };
