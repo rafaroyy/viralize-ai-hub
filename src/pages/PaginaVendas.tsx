@@ -501,9 +501,10 @@ function OfertaSection() {
                 </p>
 
                 <div className="mb-6">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-base text-muted-foreground">12x de R$</span>
-                    <span className="text-5xl font-bold text-foreground font-display tracking-tight">25,19</span>
+                  <span className="text-base text-foreground/70 font-medium">12x de</span>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="text-2xl font-bold text-foreground">R$</span>
+                    <span className="text-6xl font-extrabold text-foreground font-display tracking-tighter">25,19</span>
                   </div>
                   <p className="text-sm text-muted-foreground/70 mt-2">ou R$245 à vista</p>
                 </div>
