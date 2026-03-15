@@ -1,51 +1,29 @@
 
 
-# Nova Pagina de Vendas em /pagina
+# Integrar Catalog Hub (Affiliate Hub) na Viralize
 
 ## Resumo
-Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
 
-## Estrutura das Secoes
+O projeto [Catalog Hub](/projects/7727210d-f6c3-404c-b0eb-9b0889770315) é simples: uma única página com 5 cards de marketplaces de afiliação (TikTok Shop, Kiwify, Hotmart, Monetizze, Cakto). Vou trazê-lo como uma nova aba na sidebar da Viralize.
 
-1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
-2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
-3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
-4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
-5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
-6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
-7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
+## O que será feito
 
-## Detalhes Tecnicos
+### 1. Criar página `src/pages/AffiliateHub.tsx`
+- Copiar o conteúdo do `Index.tsx` do Catalog Hub (hero + grid de cards)
+- Remover header e footer standalone (já temos a sidebar do AppLayout)
+- Manter os dados dos 5 catálogos, animações framer-motion e design dos cards
 
-### Arquivos criados
-- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
+### 2. Adicionar rota protegida no `src/App.tsx`
+- Nova rota `/affiliate-hub` → `AffiliateHub` dentro do bloco `<ProtectedRoute />`
 
-### Arquivos modificados
-- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
+### 3. Adicionar link na sidebar `src/components/AppSidebar.tsx`
+- Novo item "Affiliate Hub" com ícone `Store` do Lucide, apontando para `/affiliate-hub`
 
-### Componentes reutilizados
-- `ScrollReveal` (mesmo pattern da LandingPage)
-- `framer-motion` para animacoes
-- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
-- Logo existente no header
-- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
+## Arquivos
 
-### Regras de UI seguidas conforme o prompt
-- Maximo 1 ideia por bloco
-- Frases de impacto em linha isolada (texto maior, peso bold)
-- Sem emojis no site
-- CTAs apenas no Hero + Oferta
-- Visual clean, contraste alto, bastante espaco
-- Navbar simplificada (logo + "Entrar" + CTA)
-- Footer minimalista
-
-### Pricing
-- Preco: De R$645 por R$247
-- Pagamento unico
-- Link de checkout vitalicio reutilizado (CenterPag)
-- Suporte a affiliate slug mantido
-
-### Rota
-- `/pagina` como rota publica (nao protegida)
-- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
+| Ação | Arquivo |
+|------|---------|
+| Criar | `src/pages/AffiliateHub.tsx` |
+| Editar | `src/App.tsx` (1 import + 1 rota) |
+| Editar | `src/components/AppSidebar.tsx` (1 link na nav) |
 
