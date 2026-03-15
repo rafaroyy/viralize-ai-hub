@@ -195,6 +195,7 @@ const AnalisadorViral = () => {
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [progressMessage, setProgressMessage] = useState('');
   const [isExporting, setIsExporting] = useState(false);
   const [analysis, setAnalysis] = useState<ViralAnalysis | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
