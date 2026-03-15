@@ -491,10 +491,10 @@ function OfertaSection() {
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg font-semibold text-foreground">Vitalício</h3>
-                  <span className="text-[10px] font-semibold bg-destructive/20 text-destructive px-2.5 py-1 rounded-full border border-destructive/30 flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {String(timer.min).padStart(2, '0')}:{String(timer.sec).padStart(2, '0')}
-                  </span>
+                  
+
+
+                  
                 </div>
 
                 <p className="text-sm text-muted-foreground mb-6">
