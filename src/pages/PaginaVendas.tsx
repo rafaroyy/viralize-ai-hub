@@ -632,7 +632,7 @@ function FechamentoSection() {
             <p className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display leading-tight">
               Acesso vitalício por{" "}
               <span className="text-muted-foreground/50 line-through text-2xl sm:text-3xl">R$697</span>{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">12x de R$24,50
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">12x de R$25,19
 
               </span>
             </p>
