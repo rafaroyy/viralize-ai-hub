@@ -624,10 +624,9 @@ function FechamentoSection() {
           <div className="flex flex-col items-center gap-6">
             <p className="text-lg text-muted-foreground">Produto para vender. Vídeo para viralizar. Tráfego para converter.</p>
             <p className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display leading-tight">
-              Acesso vitalício por{" "}
-              {" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">12x de R$25,19
-
+              Acesso vitalício por <br />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">
+                12x de R$25,19
               </span>
             </p>
             <p className="text-muted-foreground text-sm max-w-md">
