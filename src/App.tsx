@@ -40,14 +40,12 @@ const App = () => (
             <Route path="/pagina" element={<PaginaVendas />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/criar" element={<CriarVideo />} />
-              <Route path="/analise" element={<AnaliseRoteiro />} />
               <Route path="/modelos" element={<Modelos />} />
               <Route path="/chat" element={<ChatIA />} />
               <Route path="/meus-videos" element={<MeusVideos />} />
               <Route path="/perfil" element={<Perfil />} />
               <Route path="/analisador-viral" element={<AnalisadorViral />} />
               <Route path="/modelar-post" element={<ModelarPost />} />
-              <Route path="/historico" element={<Historico />} />
               <Route path="/affiliate-hub" element={<AffiliateHub />} />
             </Route>
             <Route path="/:affiliateSlug" element={<LandingPage />} />
