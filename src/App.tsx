@@ -41,6 +41,7 @@ const App = () => (
             <Route path="/pagina" element={<PaginaVendas />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/criar" element={<CriarVideo />} />
+              <Route path="/radar" element={<RadarTrendsPage />} />
               <Route path="/modelos" element={<Modelos />} />
               <Route path="/chat" element={<ChatIA />} />
               <Route path="/meus-videos" element={<MeusVideos />} />

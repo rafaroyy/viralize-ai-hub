@@ -22,6 +22,11 @@ const navLinks = [
     icon: <Flame className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
   },
   {
+    label: "Radar de Trends",
+    href: "/radar",
+    icon: <Radar className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+  },
+  {
     label: "Modelar Post",
     href: "/modelar-post",
     icon: <ImageIcon className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
