@@ -1,51 +1,76 @@
 
 
-# Nova Pagina de Vendas em /pagina
+# Plano: Integrar YouTube Data API v3 no Radar de Trends
 
-## Resumo
-Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
+Conectar a `YOUTUBE_API_KEY` (já configurada nos secrets) ao Radar para buscar vídeos trending reais do Brasil, persistir no banco e exibir dados reais ao lado dos mocks.
 
-## Estrutura das Secoes
+---
 
-1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
-2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
-3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
-4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
-5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
-6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
-7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
+## Arquitetura
 
-## Detalhes Tecnicos
+```text
+Frontend (RadarTrends)
+  → botão "Atualizar YouTube" ou auto-fetch
+  → chama edge function radar-youtube-fetch
+  → edge function usa YOUTUBE_API_KEY para chamar YouTube Data API v3
+  → upsert trends + trend_sources no banco (via service_role)
+  → frontend lê dados reais da tabela trends + trend_sources
+```
 
-### Arquivos criados
-- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
+---
 
-### Arquivos modificados
-- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
+## 1. Nova Edge Function: `radar-youtube-fetch`
 
-### Componentes reutilizados
-- `ScrollReveal` (mesmo pattern da LandingPage)
-- `framer-motion` para animacoes
-- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
-- Logo existente no header
-- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
+- Usa `YOUTUBE_API_KEY` para chamar `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&regionCode=BR&maxResults=50`
+- Para cada vídeo trending: upsert na tabela `trends` (usando `external_id` = video ID para deduplicar) e insere em `trend_sources`
+- Calcula scores básicos (velocity, novelty, etc.) usando a lógica do scoring engine
+- Registra a execução em `trend_fetch_runs`
+- Retorna quantidade de trends processados
 
-### Regras de UI seguidas conforme o prompt
-- Maximo 1 ideia por bloco
-- Frases de impacto em linha isolada (texto maior, peso bold)
-- Sem emojis no site
-- CTAs apenas no Hero + Oferta
-- Visual clean, contraste alto, bastante espaco
-- Navbar simplificada (logo + "Entrar" + CTA)
-- Footer minimalista
+## 2. Atualizar `radar-ingest` 
 
-### Pricing
-- Preco: De R$645 por R$247
-- Pagamento unico
-- Link de checkout vitalicio reutilizado (CenterPag)
-- Suporte a affiliate slug mantido
+- Implementar a lógica real de persistência (já tem as tabelas prontas mas o código é stub)
+- O `radar-youtube-fetch` pode chamar internamente o padrão de ingest ou fazer direto
 
-### Rota
-- `/pagina` como rota publica (nao protegida)
-- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
+## 3. Frontend: Buscar dados reais do banco
+
+- No `RadarTrendsPage`, adicionar hook `useRadarTrends` que:
+  - Busca trends da tabela `trends` com seus `trend_sources` via Supabase client
+  - Faz merge com mocks (se banco vazio, usa mocks como fallback)
+  - Mapeia colunas do banco para o tipo `Trend` do frontend
+- Adicionar botão "Buscar Trends YouTube" na aba Dashboard que invoca `radar-youtube-fetch`
+- Mostrar indicador de loading durante fetch
+
+## 4. Config.toml
+
+- Adicionar `[functions.radar-youtube-fetch]` com `verify_jwt = false`
+
+---
+
+## Ficheiros
+
+| Ação | Ficheiro |
+|------|----------|
+| Criar | `supabase/functions/radar-youtube-fetch/index.ts` |
+| Criar | `src/hooks/useRadarTrends.ts` |
+| Editar | `src/pages/RadarTrends.tsx` — usar hook real + botão fetch |
+| Editar | `src/components/radar/RadarDashboardTab.tsx` — botão atualizar |
+
+---
+
+## Detalhes Técnicos
+
+**Edge Function `radar-youtube-fetch`:**
+- Usa `YOUTUBE_API_KEY` e `SUPABASE_SERVICE_ROLE_KEY` dos secrets
+- Chama YouTube `videos.list` (chart=mostPopular, regionCode=BR, maxResults=50, part=snippet,statistics,contentDetails)
+- Para cada vídeo: cria/atualiza trend com label=title, category="assunto", source="youtube", external_id=videoId
+- Insere trend_source com url, raw_score (viewCount normalizado), signal_label
+- Calcula velocity/novelty scores baseado em publishedAt e viewCount
+- Registra run em trend_fetch_runs
+
+**Hook `useRadarTrends`:**
+- Query `trends` com join em `trend_sources` 
+- Transforma rows do banco no tipo `Trend` do frontend
+- Fallback para mockTrends se banco vazio
+- Expõe `fetchYouTube()` que invoca a edge function e refaz a query
 
