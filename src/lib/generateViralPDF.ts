@@ -510,7 +510,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
     doc.setFontSize(9);
     let estH = 7;
     for (const item of cleanItems) {
-      estH += doc.splitTextToSize(item, CONTENT_W - 8 - CARD_PAD * 2).length * LINE_H + 1;
+      estH += doc.splitTextToSize(item, CONTENT_W - CARD_INNER_PAD - 8).length * LINE_H + 1;
     }
     b.ensureSpace(Math.min(estH + 8, 50));
     b.drawCardBg(estH, COLORS.green);
