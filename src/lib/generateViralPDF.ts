@@ -385,7 +385,7 @@ export function generateViralPDF(analysis: ViralAnalysis) {
       doc.setFontSize(8);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(COLORS.primary);
-      doc.text('DICAS:', MARGIN + CARD_PAD + 2, b.y);
+      doc.text('DICAS:', MARGIN + CARD_INNER_PAD, b.y);
       b.y += 4;
       b.bulletList(tipsClean, '>', COLORS.primary);
     }
