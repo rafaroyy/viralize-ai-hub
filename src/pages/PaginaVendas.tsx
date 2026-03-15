@@ -47,6 +47,7 @@ function ImpactLine({ children, className }: {children: React.ReactNode;classNam
 
 }
 
+const CHECKOUT_MONTHLY = "https://pay.zouti.com.br/checkout?poi=prod_offer_qnohqjvl02nadr7v471icj";
 const CHECKOUT_LIFETIME = "https://pay.zouti.com.br/checkout?poi=prod_offer_xx1w0hy1pi5lhvnvcukmdo";
 
 /* ═══════════════════════════════════════════
