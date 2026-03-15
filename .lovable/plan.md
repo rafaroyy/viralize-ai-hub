@@ -1,24 +1,51 @@
 
 
-# Plano: Corrigir visibilidade dos dados do Radar
+# Nova Pagina de Vendas em /pagina
 
-## Problema
-A edge function `radar-youtube-fetch` processou 50 vídeos com sucesso (confirmado no banco). Porém, as queries do frontend retornam `[]` porque:
-- As tabelas `trends` e `trend_sources` têm RLS policy apenas para role `authenticated`
-- O app usa autenticação externa (api.viralizeia.com), então o Supabase client opera com o token `anon`
-- O role `anon` não tem permissão de SELECT nessas tabelas
+## Resumo
+Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
 
-## Solução
-Criar uma migration que adicione políticas de leitura para o role `anon` nas tabelas:
-- `trends` — permitir SELECT para `anon`
-- `trend_sources` — permitir SELECT para `anon`
+## Estrutura das Secoes
 
-```sql
-CREATE POLICY "Anon read trends" ON public.trends FOR SELECT TO anon USING (true);
-CREATE POLICY "Anon read trend_sources" ON public.trend_sources FOR SELECT TO anon USING (true);
-```
+1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
+2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
+3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
+4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
+5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
+6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
+7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
 
-## Impacto
-- Apenas 1 migration SQL, zero mudanças no frontend
-- Os dados já existentes aparecerão imediatamente após aplicar a policy
+## Detalhes Tecnicos
+
+### Arquivos criados
+- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
+
+### Arquivos modificados
+- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
+
+### Componentes reutilizados
+- `ScrollReveal` (mesmo pattern da LandingPage)
+- `framer-motion` para animacoes
+- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
+- Logo existente no header
+- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
+
+### Regras de UI seguidas conforme o prompt
+- Maximo 1 ideia por bloco
+- Frases de impacto em linha isolada (texto maior, peso bold)
+- Sem emojis no site
+- CTAs apenas no Hero + Oferta
+- Visual clean, contraste alto, bastante espaco
+- Navbar simplificada (logo + "Entrar" + CTA)
+- Footer minimalista
+
+### Pricing
+- Preco: De R$645 por R$247
+- Pagamento unico
+- Link de checkout vitalicio reutilizado (CenterPag)
+- Suporte a affiliate slug mantido
+
+### Rota
+- `/pagina` como rota publica (nao protegida)
+- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
 
