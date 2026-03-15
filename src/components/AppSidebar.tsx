@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/animated-sidebar";
-import { Video, FileSearch, LayoutGrid, MessageCircle, Film, Flame, Image as ImageIcon, Clock, Store } from "lucide-react";
+import { Video, LayoutGrid, MessageCircle, Film, Flame, Image as ImageIcon, Store } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import logoViralize from "@/assets/logo-viralize.png";
@@ -17,11 +17,6 @@ const navLinks = [
     icon: <Video className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
   },
   {
-    label: "Análise de Roteiro",
-    href: "/analise",
-    icon: <FileSearch className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
-  },
-  {
     label: "Analisador Viral",
     href: "/analisador-viral",
     icon: <Flame className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
@@ -30,11 +25,6 @@ const navLinks = [
     label: "Modelar Post",
     href: "/modelar-post",
     icon: <ImageIcon className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
-  },
-  {
-    label: "Modelos",
-    href: "/modelos",
-    icon: <LayoutGrid className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
   },
   {
     label: "Chat IA",
@@ -47,14 +37,14 @@ const navLinks = [
     icon: <Film className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
   },
   {
-    label: "Histórico",
-    href: "/historico",
-    icon: <Clock className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
-  },
-  {
     label: "Affiliate Hub",
     href: "/affiliate-hub",
     icon: <Store className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+  },
+  {
+    label: "Modelos",
+    href: "/modelos",
+    icon: <LayoutGrid className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
   },
 ];
 
