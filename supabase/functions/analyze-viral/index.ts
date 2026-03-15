@@ -291,7 +291,7 @@ IMPORTANTE: Use EXATAMENTE os mesmos nomes de campo listados abaixo. NÃO renome
         "Authorization": `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-5.4",
         temperature: 0.7,
         response_format: { type: "json_object" },
         messages: [
