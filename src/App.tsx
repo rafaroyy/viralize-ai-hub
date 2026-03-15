@@ -18,6 +18,7 @@ import PaginaVendas from "./pages/PaginaVendas";
 import AnalisadorViral from "./pages/AnalisadorViral";
 import ModelarPost from "./pages/ModelarPost";
 import Historico from "./pages/Historico";
+import AffiliateHub from "./pages/AffiliateHub";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
               <Route path="/analisador-viral" element={<AnalisadorViral />} />
               <Route path="/modelar-post" element={<ModelarPost />} />
               <Route path="/historico" element={<Historico />} />
+              <Route path="/affiliate-hub" element={<AffiliateHub />} />
             </Route>
             <Route path="/:affiliateSlug" element={<LandingPage />} />
             <Route path="*" element={<NotFound />} />
