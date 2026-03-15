@@ -416,13 +416,13 @@ function OfertaSection() {
           <div className="text-center mb-4">
             <SectionTag>Oferta exclusiva</SectionTag>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
-              Acesso vitalício à{" "}
+              Escolha seu{" "}
               <GradientText className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
-                Viralize
+                plano
               </GradientText>
             </h2>
             <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
-              Produto, vídeo e tráfego na mesma plataforma. Pague uma vez. Use para sempre.
+              Produto, vídeo e tráfego na mesma plataforma. Comece agora.
             </p>
           </div>
         </ScrollReveal>
