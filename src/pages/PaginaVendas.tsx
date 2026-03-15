@@ -489,12 +489,11 @@ function OfertaSection() {
               
 
               <div className="relative z-10">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-3 mb-2">
                   <h3 className="text-lg font-semibold text-foreground">Vitalício</h3>
-                  
-
-
-                  
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-primary/15 text-primary px-2.5 py-1 rounded-full border border-primary/30">
+                    Melhor oferta
+                  </span>
                 </div>
 
                 <p className="text-sm text-muted-foreground mb-6">
@@ -502,17 +501,12 @@ function OfertaSection() {
                 </p>
 
                 <div className="mb-6">
-                  <div className="flex items-center gap-2 mb-1">
-                    
-                    <span className="text-xs font-bold bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full border border-green-500/30">
-                      MELHOR OFERTA
-                    </span>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-sm text-muted-foreground leading-none">12x de</span>
+                    <span className="text-lg text-muted-foreground leading-none">R$</span>
+                    <span className="text-5xl font-bold text-foreground font-display tracking-tight leading-none">25,19</span>
                   </div>
-                  <div className="flex items-end gap-1">
-                    <span className="text-sm text-muted-foreground">12x de R$</span>
-                    <span className="text-5xl font-bold text-foreground font-display tracking-tight mx-[20px]">25,19</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">ou R$245 à vista</p>
+                  <p className="text-sm text-muted-foreground/70 mt-2">ou R$245 à vista</p>
                 </div>
 
                 <a
