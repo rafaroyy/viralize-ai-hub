@@ -7,7 +7,7 @@ import { RadarOportunidadesTab } from "@/components/radar/RadarOportunidadesTab"
 import { RadarConfiguracoesTab } from "@/components/radar/RadarConfiguracoesTab";
 import { TrendDetailSheet } from "@/components/radar/TrendDetailSheet";
 import { GenerateHooksModal } from "@/components/radar/GenerateHooksModal";
-import { mockTrends, mockOpportunities } from "@/data/radarMocks";
+import { useRadarTrends } from "@/hooks/useRadarTrends";
 import type { Trend, RadarFiltersState } from "@/types/radar";
 import { Radar } from "lucide-react";
 
@@ -28,8 +28,10 @@ export default function RadarTrendsPage() {
   const [hooksTrend, setHooksTrend] = useState<Trend | null>(null);
   const [hooksOpen, setHooksOpen] = useState(false);
 
+  const { trends: allTrends, opportunities, loading, fetching, fetchYouTube } = useRadarTrends();
+
   const filtered = useMemo(() => {
-    return mockTrends.filter(t => {
+    return allTrends.filter(t => {
       if (filters.search && !t.label.toLowerCase().includes(filters.search.toLowerCase()) && !t.aliases.some(a => a.toLowerCase().includes(filters.search.toLowerCase()))) return false;
       if (filters.sources.length && !t.sourceSignals.some(s => filters.sources.includes(s.source))) return false;
       if (filters.categories.length && !filters.categories.includes(t.category)) return false;
@@ -41,7 +43,7 @@ export default function RadarTrendsPage() {
       }
       return true;
     });
-  }, [filters]);
+  }, [filters, allTrends]);
 
   const openDetail = (t: Trend) => { setSelectedTrend(t); setDetailOpen(true); };
   const openHooks = (t: Trend) => { setHooksTrend(t); setHooksOpen(true); };
@@ -70,13 +72,19 @@ export default function RadarTrendsPage() {
         </div>
 
         <TabsContent value="dashboard">
-          <RadarDashboardTab trends={filtered} onViewDetail={openDetail} />
+          <RadarDashboardTab
+            trends={filtered}
+            onViewDetail={openDetail}
+            loading={loading}
+            fetching={fetching}
+            onFetchYouTube={fetchYouTube}
+          />
         </TabsContent>
         <TabsContent value="trends">
           <RadarTrendsTab trends={filtered} onViewDetail={openDetail} onGenerateHooks={openHooks} />
         </TabsContent>
         <TabsContent value="oportunidades">
-          <RadarOportunidadesTab opportunities={mockOpportunities} />
+          <RadarOportunidadesTab opportunities={opportunities} />
         </TabsContent>
         <TabsContent value="configuracoes">
           <RadarConfiguracoesTab />
