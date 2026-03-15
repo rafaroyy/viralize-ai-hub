@@ -215,8 +215,13 @@ Sem markdown, sem code fences. APENAS JSON válido.`;
     if (!geminiResponse.ok) {
       const errText = await geminiResponse.text();
       console.error("Gemini API error:", geminiResponse.status, errText);
+      if (geminiResponse.status === 429) {
+        console.warn("[Pipeline] Gemini quota exceeded (429). Retornando código para fallback.");
+        return new Response(JSON.stringify({ success: false, code: "GEMINI_QUOTA_EXCEEDED", error: "Limite de requisições Gemini excedido." }), {
+          status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       let errorMsg = "Erro na análise de IA (Gemini)";
-      if (geminiResponse.status === 429) errorMsg = "Limite de requisições Gemini excedido. Tente novamente em instantes.";
       if (geminiResponse.status === 403) errorMsg = "Chave Gemini inválida ou sem permissão.";
       return new Response(JSON.stringify({ success: false, error: errorMsg }), {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },

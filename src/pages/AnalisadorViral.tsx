@@ -299,6 +299,51 @@ const AnalisadorViral = () => {
     return () => clearInterval(interval);
   }, [isLoading, isUploading]);
 
+  /** Convert analyze-script P-C-R response to ViralAnalysis format */
+  const mapScriptToViralAnalysis = (raw: any): any => {
+    const positiveInsights = (raw.insights || []).filter((i: any) => i.type === 'positive').map((i: any) => i.text);
+    const warningInsights = (raw.insights || []).filter((i: any) => i.type === 'warning').map((i: any) => i.text);
+    return {
+      overallScore: raw.overallScore ?? 50,
+      classification: (raw.overallScore ?? 50) >= 80 ? 'Viral' : (raw.overallScore ?? 50) >= 60 ? 'Alto' : (raw.overallScore ?? 50) >= 40 ? 'Moderado' : 'Baixo',
+      summary: raw.emotionalPeak || 'Análise via transcrição (modo alternativo).',
+      hookAnalysis: { score: raw.pergunta?.score ?? 0, feedback: raw.pergunta?.feedback ?? '', tips: [] },
+      bodyAnalysis: { score: raw.conflito?.score ?? 0, feedback: raw.conflito?.feedback ?? '', tips: [] },
+      ctaAnalysis: { score: raw.resposta?.score ?? 0, feedback: raw.resposta?.feedback ?? raw.ctaFeedback ?? '', tips: [] },
+      retentionKillers: warningInsights.slice(0, 3),
+      retentionImprovements: [],
+      strengths: positiveInsights.slice(0, 2),
+      weaknesses: warningInsights.slice(0, 2),
+      scriptBlueprint: { captions: [], exactHook: '', bodyPacing: [], exactCta: '' },
+      viralVideoIdeas: [],
+    };
+  };
+
+  const runFallbackAnalysis = async (): Promise<any> => {
+    setProgressMessage('Modo alternativo: analisando via transcrição...');
+    if (videoFile) {
+      const formData = new FormData();
+      formData.append('file', videoFile);
+      formData.append('model_id', 'scribe_v2');
+      formData.append('language_code', 'por');
+
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const res = await fetch(`https://${projectId}.supabase.co/functions/v1/analyze-script`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) throw new Error('Falha na análise alternativa por transcrição.');
+      return await res.json();
+    } else {
+      const { data, error } = await supabase.functions.invoke('analyze-script', {
+        body: { script: description.trim() },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    }
+  };
+
   const handleAnalyze = async () => {
     if (!description.trim() && !videoFile) {
       toast({ title: 'Envie um vídeo ou descreva o conteúdo', variant: 'destructive' });
@@ -307,6 +352,7 @@ const AnalisadorViral = () => {
     setIsLoading(true);
     setAnalysis(null);
     setProgressMessage('');
+    let isFallback = false;
     try {
       let videoUrl = '';
       if (videoFile) {
@@ -319,10 +365,30 @@ const AnalisadorViral = () => {
         body: { url: videoUrl, description: description.trim(), isVideoUpload: !!videoFile },
       });
       if (error) throw error;
-      if (!data?.success) throw new Error(data?.error || 'Erro na análise');
 
-      const normalized = normalizeAnalysis(data.analysis || {});
+      let analysisData: any;
+
+      // Check for Gemini quota exceeded → fallback
+      if (!data?.success && data?.code === 'GEMINI_QUOTA_EXCEEDED') {
+        console.warn('[Fallback] Gemini quota exceeded, using analyze-script fallback...');
+        const fallbackRaw = await runFallbackAnalysis();
+        analysisData = mapScriptToViralAnalysis(fallbackRaw);
+        isFallback = true;
+      } else if (!data?.success) {
+        throw new Error(data?.error || 'Erro na análise');
+      } else {
+        analysisData = data.analysis;
+      }
+
+      const normalized = normalizeAnalysis(analysisData || {});
       setAnalysis(normalized);
+
+      if (isFallback) {
+        toast({
+          title: '⚡ Modo alternativo ativo',
+          description: 'Análise feita via transcrição. A análise visual será restaurada em breve.',
+        });
+      }
 
       // Save to history
       if (user) {
@@ -332,8 +398,8 @@ const AnalisadorViral = () => {
         await supabase.from('user_history' as any).insert({
           user_id: String(user.user_id),
           tipo: 'analise',
-          titulo,
-          payload: data.analysis,
+          titulo: isFallback ? `[Alt] ${titulo}` : titulo,
+          payload: analysisData,
         });
         setHistoryLoaded(false);
       }
