@@ -18,6 +18,7 @@ import PaginaVendas from "./pages/PaginaVendas";
 import AnalisadorViral from "./pages/AnalisadorViral";
 import ModelarPost from "./pages/ModelarPost";
 import Historico from "./pages/Historico";
+import AffiliateHub from "./pages/AffiliateHub";
 
 const queryClient = new QueryClient();
 
