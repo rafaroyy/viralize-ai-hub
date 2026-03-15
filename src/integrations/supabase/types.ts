@@ -44,6 +44,27 @@ export type Database = {
         }
         Relationships: []
       }
+      analysis_cache: {
+        Row: {
+          analysis: Json
+          created_at: string
+          id: string
+          video_url: string
+        }
+        Insert: {
+          analysis: Json
+          created_at?: string
+          id?: string
+          video_url: string
+        }
+        Update: {
+          analysis?: Json
+          created_at?: string
+          id?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
       user_history: {
         Row: {
           created_at: string | null

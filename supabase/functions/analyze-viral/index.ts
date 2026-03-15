@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SYSTEM_PROMPT_BASE, FRAMEWORK_ROTEIROS, DIRETRIZES_CRIATIVAS } from "../_shared/knowledge_base.ts";
 
 const corsHeaders = {
@@ -100,6 +101,29 @@ serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // =============================================
+    // CACHE: Verificar se já existe análise para esta URL
+    // =============================================
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const sb = createClient(supabaseUrl, supabaseKey);
+
+    if (url) {
+      const { data: cached } = await sb
+        .from("analysis_cache")
+        .select("analysis")
+        .eq("video_url", url)
+        .maybeSingle();
+
+      if (cached) {
+        console.log("[Cache] ✅ Hit! Retornando análise cacheada.");
+        return new Response(JSON.stringify({ success: true, analysis: cached.analysis, cached: true }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      console.log("[Cache] Miss. Iniciando pipeline completo.");
     }
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
@@ -305,6 +329,17 @@ Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R.`;
     }
 
     console.log("[Pipeline] ✅ Pipeline multi-agente finalizado.");
+
+    // =============================================
+    // CACHE: Salvar análise para futuras requisições
+    // =============================================
+    if (url) {
+      const { error: cacheErr } = await sb
+        .from("analysis_cache")
+        .upsert({ video_url: url, analysis: finalAnalysis }, { onConflict: "video_url" });
+      if (cacheErr) console.error("[Cache] Erro ao salvar:", cacheErr.message);
+      else console.log("[Cache] ✅ Análise salva no cache.");
+    }
 
     return new Response(JSON.stringify({ success: true, analysis: finalAnalysis }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
