@@ -1,51 +1,65 @@
 
+# README Profissional — Viralize AI
 
-# Nova Pagina de Vendas em /pagina
+## Análise do projeto
 
-## Resumo
-Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
+Após explorar o código, identifiquei:
 
-## Estrutura das Secoes
+**Nome**: Viralize AI (viralizeia.com)  
+**Propósito**: Plataforma SaaS para criação de vídeos virais usando IA, com frameworks proprietários de retenção e conversão
 
-1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
-2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
-3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
-4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
-5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
-6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
-7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
+**Stack principal**:
+- Frontend: React 18 + TypeScript + Vite
+- UI: shadcn-ui + Tailwind CSS + Framer Motion
+- Backend: Lovable Cloud (Supabase) com 14 Edge Functions
+- Auth: Sistema externo (api.viralizeia.com) com JWT
+- DB: PostgreSQL com 15 tabelas (trends, affiliates, oauth_integrations, etc.)
 
-## Detalhes Tecnicos
+**Funcionalidades principais** (baseado nas rotas + edge functions):
+1. **Radar de Trends** — scraping YouTube + análise de oportunidades virais
+2. **Analisador Viral** — análise de vídeos com Gemini + fallback para transcrição
+3. **Modelar Post** — geração de roteiros usando framework P-C-R
+4. **Criar Vídeo** — geração de vídeos com IA usando avatares
+5. **Chat IA** — assistente especializado em conteúdo viral
+6. **Integração TikTok** — OAuth + gestão de conexões
+7. **Sistema de Afiliados** — landing pages personalizadas por slug
 
-### Arquivos criados
-- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
+**Secrets necessários**:
+- `GEMINI_API_KEY` (análise de vídeo)
+- `OPENAI_API_KEY` + `OPENAI_PROJECT_KEY` (chat + análise estratégica)
+- `N8N_WEBHOOK_URL` (radar webhook)
+- `YOUTUBE_API_KEY` (scraping trends)
+- `TIKTOK_CLIENT_KEY` + `TIKTOK_CLIENT_SECRET` (OAuth)
 
-### Arquivos modificados
-- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
+## O que vou criar
 
-### Componentes reutilizados
-- `ScrollReveal` (mesmo pattern da LandingPage)
-- `framer-motion` para animacoes
-- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
-- Logo existente no header
-- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
+Um README.md completo com:
 
-### Regras de UI seguidas conforme o prompt
-- Maximo 1 ideia por bloco
-- Frases de impacto em linha isolada (texto maior, peso bold)
-- Sem emojis no site
-- CTAs apenas no Hero + Oferta
-- Visual clean, contraste alto, bastante espaco
-- Navbar simplificada (logo + "Entrar" + CTA)
-- Footer minimalista
+1. **Header** — logo + badges + descrição one-liner
+2. **Sobre o Projeto** — problema resolvido + diferenciais
+3. **Features** — lista das 7 funcionalidades principais com emojis
+4. **Stack Tecnológica** — tabela organizada (frontend/backend/cloud)
+5. **Pré-requisitos** — Node.js, npm/bun, contas necessárias
+6. **Instalação** — clone, install, env setup
+7. **Configuração** — secrets detalhados + como obter cada chave
+8. **Uso** — como rodar local + deploy + principais comandos
+9. **Estrutura de Pastas** — tree das pastas principais
+10. **Edge Functions** — tabela descritiva de cada função
+11. **Banco de Dados** — lista de tabelas + propósito
+12. **Contribuição** — guia para PRs
+13. **Membros** — seção dedicada (deixarei placeholder para você preencher nomes)
+14. **Licença** — MIT (padrão open source permissivo)
+15. **Roadmap** — features planejadas (baseado em funcionalidades existentes)
 
-### Pricing
-- Preco: De R$645 por R$247
-- Pagamento unico
-- Link de checkout vitalicio reutilizado (CenterPag)
-- Suporte a affiliate slug mantido
+## Diferencial
 
-### Rota
-- `/pagina` como rota publica (nao protegida)
-- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
+- Formatação Markdown profissional com emojis estratégicos
+- Tabelas para melhor organização visual
+- Seção de troubleshooting comum
+- Links úteis (docs Supabase, APIs usadas)
+- Instruções claras de como obter cada API key
+- Destaque para frameworks proprietários (P-C-R, HDC, PPMO)
 
+## Arquivos
+
+Substituirá completamente o `README.md` atual (que é template genérico do Lovable).
