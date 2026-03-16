@@ -273,11 +273,11 @@ Contribuições são bem-vindas! Siga os passos:
 
 ## 👥 Membros
 
-| Nome | Role | GitHub |
-|------|------|--------|
-| Rafael Roy | Fundador / Full-stack | [@rafaelroy](https://github.com/rafaelroy) |
-| Maria Clara | Desenvolvedora | [@mariaclara](https://github.com/mariaclara) |
-| Thalis | Desenvolvedor | [@thalis](https://github.com/thalis) |
+| Nome | Role |
+|------|------|
+| Rafael Roy | Fundador / Full-stack |
+| Maria Clara | Desenvolvedora |
+| Thalis | Desenvolvedor |
 
 ---
 
