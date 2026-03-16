@@ -273,15 +273,11 @@ Contribuições são bem-vindas! Siga os passos:
 
 ## 👥 Membros
 
-<!-- Adicione os membros do projeto aqui -->
-
 | Nome | Role | GitHub |
 |------|------|--------|
-| _Seu Nome_ | Fundador / Full-stack | [@seu-usuario](https://github.com/seu-usuario) |
-| _Membro 2_ | Frontend | [@membro2](https://github.com/membro2) |
-| _Membro 3_ | Backend | [@membro3](https://github.com/membro3) |
-
-> Atualize esta seção com os membros reais do projeto.
+| Rafael Roy | Fundador / Full-stack | [@rafaelroy](https://github.com/rafaelroy) |
+| Maria Clara | Desenvolvedora | [@mariaclara](https://github.com/mariaclara) |
+| Thalis | Desenvolvedor | [@thalis](https://github.com/thalis) |
 
 ---
 
