@@ -89,7 +89,7 @@ const MeusVideos = () => {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {completedVideos.map((video) => (
-            <VideoThumbnail key={video.job_id} video={video} onClick={() => handleSelect(video)} />
+            <VideoThumbnail key={video.job_id} video={video} onClick={() => handleSelect(video)} onUnavailable={handleUnavailable} />
           ))}
           {otherVideos.map((video) => (
             <VideoThumbnail key={video.job_id} video={video} onClick={() => {}} disabled />
