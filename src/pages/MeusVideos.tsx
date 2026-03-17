@@ -52,7 +52,11 @@ const MeusVideos = () => {
     }
   };
 
-  const completedVideos = videos.filter((v) => v.status === "completed");
+  const handleUnavailable = (jobId: string) => {
+    setUnavailableIds((prev) => new Set(prev).add(jobId));
+  };
+
+  const completedVideos = videos.filter((v) => v.status === "completed" && !unavailableIds.has(v.job_id));
   const otherVideos = videos.filter((v) => v.status !== "completed");
 
   return (
