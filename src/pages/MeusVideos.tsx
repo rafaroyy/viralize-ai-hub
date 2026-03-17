@@ -65,7 +65,7 @@ const MeusVideos = () => {
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground">Meus Vídeos</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {completedVideos.length} vídeo{completedVideos.length !== 1 ? "s" : ""} gerado{completedVideos.length !== 1 ? "s" : ""}
+            {completedVideos.length} vídeo{completedVideos.length !== 1 ? "s" : ""} disponíve{completedVideos.length !== 1 ? "is" : "l"}
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={fetchVideos} disabled={loading}>
