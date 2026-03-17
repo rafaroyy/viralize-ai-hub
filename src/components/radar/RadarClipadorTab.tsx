@@ -85,41 +85,25 @@ export function RadarClipadorTab({ trends, onViewDetail }: Props) {
               return (
                 <Card
                   key={t.id}
-                  className="overflow-hidden hover:border-primary/50 transition-colors cursor-pointer group"
+                  className="hover:border-primary/50 transition-colors cursor-pointer group"
                   onClick={() => onViewDetail(t)}
                 >
-                  {/* Thumbnail */}
-                  <div className="relative aspect-video bg-muted overflow-hidden">
-                    {raw.videoId || thumbnail ? (
-                      <img
-                        src={thumbnail}
-                        alt={t.label}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Scissors className="w-8 h-8 text-muted-foreground/40" />
+                  <CardContent className="p-4 space-y-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-sm font-semibold text-foreground line-clamp-2 leading-tight flex-1">
+                        {t.label}
+                      </h3>
+                      <div className="flex items-center gap-1 bg-primary/10 rounded-md px-2 py-1 shrink-0">
+                        <TrendingUp className="w-3 h-3 text-primary" />
+                        <span className="text-xs font-bold text-primary">{t.clipScore}</span>
                       </div>
-                    )}
-                    {/* Clip score badge */}
-                    <div className="absolute top-2 right-2 bg-background/90 backdrop-blur-sm rounded-md px-2 py-1 flex items-center gap-1">
-                      <TrendingUp className="w-3 h-3 text-primary" />
-                      <span className="text-xs font-bold text-primary">{t.clipScore}</span>
                     </div>
-                  </div>
 
-                  <CardContent className="p-3 space-y-2">
-                    <h3 className="text-sm font-semibold text-foreground line-clamp-2 leading-tight">
-                      {t.label}
-                    </h3>
-
-                    <div className="flex items-center justify-between gap-2">
-                      {channel && (
-                        <span className="text-[11px] text-muted-foreground truncate">{channel}</span>
-                      )}
+                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                      {channel && <span className="truncate">{channel}</span>}
+                      {channel && t.summary && <span>·</span>}
                       {t.summary && (
-                        <span className="text-[11px] text-muted-foreground flex items-center gap-1 shrink-0">
+                        <span className="flex items-center gap-1 shrink-0">
                           <Eye className="w-3 h-3" />
                           {formatViews(t.summary) || t.summary}
                         </span>
@@ -127,7 +111,7 @@ export function RadarClipadorTab({ trends, onViewDetail }: Props) {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <ScoreBar label="Clip" score={t.clipScore} />
+                      <ScoreBar label="Clip" score={t.clipScore} className="flex-1" />
                       <a
                         href={videoUrl}
                         target="_blank"
