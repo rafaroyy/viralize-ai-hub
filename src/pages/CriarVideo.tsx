@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { FlickeringGrid } from "@/components/ui/flickering-grid";
+
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
@@ -441,9 +441,7 @@ const CriarVideo = () => {
   if (mode === "choose") {
     return (
       <div className="relative flex min-h-screen md:h-screen overflow-x-hidden overflow-y-auto md:overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <FlickeringGrid color="hsl(263 70% 58%)" maxOpacity={0.12} flickerChance={0.1} squareSize={4} gridGap={6} />
-        </div>
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(hsl(var(--primary)/0.08)_1px,transparent_1px)] [background-size:16px_16px]" />
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
 
         <div className="relative z-10 flex-1 overflow-auto p-4 md:p-8 animate-fade-in">
@@ -515,9 +513,7 @@ const CriarVideo = () => {
   if (mode === "manual") {
     return (
       <div className="relative flex min-h-screen md:h-screen overflow-x-hidden overflow-y-auto md:overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <FlickeringGrid color="hsl(263 70% 58%)" maxOpacity={0.08} flickerChance={0.08} squareSize={4} gridGap={6} />
-        </div>
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(hsl(var(--primary)/0.06)_1px,transparent_1px)] [background-size:16px_16px]" />
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/90 via-background/70 to-background" />
 
         <div className="relative z-10 flex-1 overflow-auto p-4 md:p-8 animate-fade-in">
@@ -667,9 +663,7 @@ const CriarVideo = () => {
   // Assisted mode
   return (
     <div className="relative flex min-h-screen md:h-screen overflow-x-hidden overflow-y-auto md:overflow-hidden">
-      <div className="absolute inset-0 z-0">
-        <FlickeringGrid color="hsl(263 70% 58%)" maxOpacity={0.08} flickerChance={0.08} squareSize={4} gridGap={6} />
-      </div>
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(hsl(var(--primary)/0.06)_1px,transparent_1px)] [background-size:16px_16px]" />
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/90 via-background/70 to-background" />
 
       <div className="relative z-10 flex-1 overflow-auto p-4 md:p-8 animate-fade-in">
