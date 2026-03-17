@@ -88,6 +88,9 @@ export default function RadarTrendsPage() {
         <TabsContent value="oportunidades">
           <RadarOportunidadesTab opportunities={opportunities} />
         </TabsContent>
+        <TabsContent value="clipador">
+          <RadarClipadorTab trends={filtered} onViewDetail={openDetail} />
+        </TabsContent>
         <TabsContent value="configuracoes">
           <RadarConfiguracoesTab />
         </TabsContent>
