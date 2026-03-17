@@ -35,9 +35,12 @@ const MeusVideos = () => {
     setSelectedVideo(video);
     setLoadingPreview(true);
     try {
-      const blob = await api.previewVideoBlob(video.job_id);
-      setPreviewUrl(blob);
-    } catch {
+      const url = await getVideoUrl(video.job_id);
+      if (url) {
+        setPreviewUrl(url);
+      } else {
+        throw new Error("unavailable");
+      }
       toast({ title: "Erro", description: "Não foi possível carregar o preview.", variant: "destructive" });
       setSelectedVideo(null);
     } finally {
