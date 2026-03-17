@@ -127,7 +127,7 @@ export function RadarClipadorTab({ trends, onViewDetail }: Props) {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <ScoreBar label="Clip" value={t.clipScore} />
+                      <ScoreBar label="Clip" score={t.clipScore} />
                       <a
                         href={videoUrl}
                         target="_blank"
