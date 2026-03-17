@@ -4,6 +4,7 @@ import { RadarFilters } from "@/components/radar/RadarFilters";
 import { RadarDashboardTab } from "@/components/radar/RadarDashboardTab";
 import { RadarTrendsTab } from "@/components/radar/RadarTrendsTab";
 import { RadarOportunidadesTab } from "@/components/radar/RadarOportunidadesTab";
+import { RadarClipadorTab } from "@/components/radar/RadarClipadorTab";
 import { RadarConfiguracoesTab } from "@/components/radar/RadarConfiguracoesTab";
 import { TrendDetailSheet } from "@/components/radar/TrendDetailSheet";
 import { GenerateHooksModal } from "@/components/radar/GenerateHooksModal";
@@ -66,6 +67,7 @@ export default function RadarTrendsPage() {
             <TabsTrigger value="dashboard" className="text-xs">Dashboard</TabsTrigger>
             <TabsTrigger value="trends" className="text-xs">Trends</TabsTrigger>
             <TabsTrigger value="oportunidades" className="text-xs">Oportunidades</TabsTrigger>
+            <TabsTrigger value="clipador" className="text-xs">Clipador</TabsTrigger>
             <TabsTrigger value="configuracoes" className="text-xs">Configurações</TabsTrigger>
           </TabsList>
           <RadarFilters filters={filters} onChange={setFilters} />
@@ -85,6 +87,9 @@ export default function RadarTrendsPage() {
         </TabsContent>
         <TabsContent value="oportunidades">
           <RadarOportunidadesTab opportunities={opportunities} />
+        </TabsContent>
+        <TabsContent value="clipador">
+          <RadarClipadorTab trends={filtered} onViewDetail={openDetail} />
         </TabsContent>
         <TabsContent value="configuracoes">
           <RadarConfiguracoesTab />

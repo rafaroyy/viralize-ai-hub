@@ -1,55 +1,51 @@
 
 
-# Nova aba "Clipador" no Radar de Trends
+# Nova Pagina de Vendas em /pagina
 
-## O que existe hoje
+## Resumo
+Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
 
-Os dados do YouTube já armazenam em `raw_payload`: `videoId`, `channelTitle`, `categoryId`, `thumbnail`. Além disso, cada trend tem `label` (título do vídeo), `summary` (views), scores de velocidade/viral/saturação, `related_terms` (tags), e a URL do vídeo em `trend_sources.url`. Tudo necessário para montar a aba sem precisar de migration.
+## Estrutura das Secoes
 
-## O que vou criar
+1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
+2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
+3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
+4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
+5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
+6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
+7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
 
-### 1. Nova aba "Clipador" na TabsList do Radar
+## Detalhes Tecnicos
 
-Adicionar entre "Oportunidades" e "Configurações" em `RadarTrendsPage`:
-```
-Dashboard | Trends | Oportunidades | 🎬 Clipador | Configurações
-```
+### Arquivos criados
+- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
 
-### 2. Componente `RadarClipadorTab`
+### Arquivos modificados
+- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
 
-Novo arquivo `src/components/radar/RadarClipadorTab.tsx` com:
+### Componentes reutilizados
+- `ScrollReveal` (mesmo pattern da LandingPage)
+- `framer-motion` para animacoes
+- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
+- Logo existente no header
+- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
 
-**Seção 1 — Top Vídeos para Clipar** (grid de cards visuais)
-- Thumbnail do vídeo (de `raw_payload.thumbnail`)
-- Título do vídeo + canal
-- Badge de "potencial de clip" (calculado: alto velocityScore + alto viralPotentialScore + baixa saturação = melhor para clipar)
-- Views formatadas
-- Link direto para o YouTube
-- Score de "clipabilidade" (fórmula: velocity * 0.35 + viralPotential * 0.35 + novelty * 0.2 + (100 - saturation) * 0.1)
+### Regras de UI seguidas conforme o prompt
+- Maximo 1 ideia por bloco
+- Frases de impacto em linha isolada (texto maior, peso bold)
+- Sem emojis no site
+- CTAs apenas no Hero + Oferta
+- Visual clean, contraste alto, bastante espaco
+- Navbar simplificada (logo + "Entrar" + CTA)
+- Footer minimalista
 
-**Seção 2 — Polêmicas & Menções Quentes** (lista compacta)
-- Trends com `riskScore >= 30` OU `status === "pico"` — são as polêmicas/tendências que geram engajamento
-- Card com: label, por que é quente (summary), tags relacionadas para usar como palavras-chave no vídeo
-- Ícone de "fogo" para polêmicas ativas
+### Pricing
+- Preco: De R$645 por R$247
+- Pagamento unico
+- Link de checkout vitalicio reutilizado (CenterPag)
+- Suporte a affiliate slug mantido
 
-**Seção 3 — Ideias de Corte por Trend** (accordion ou lista)
-- Para cada top trend, sugestões prontas de:
-  - "Mencione X no seu vídeo" (termos relacionados de alta busca)
-  - Ângulos de corte sugeridos (baseado nos `recommendedAngles` já existentes)
-  - Hashtags sugeridas (derivadas dos `aliases` e `relatedTerms`)
-
-### 3. Lógica de filtragem e ordenação
-
-- Filtrar apenas trends com `raw_payload.videoId` (são vídeos reais do YouTube)
-- Ordenar por score de "clipabilidade" (novo cálculo local, sem banco)
-- Os filtros gerais do Radar (busca, categoria, etc.) continuam funcionando
-
-### 4. Arquivos alterados
-
-| Arquivo | Mudança |
-|---------|---------|
-| `src/pages/RadarTrends.tsx` | Adicionar aba "Clipador" na TabsList + TabsContent |
-| `src/components/radar/RadarClipadorTab.tsx` | **Novo** — componente completo da aba |
-
-Nenhuma migration de banco necessária — todos os dados já existem nas tabelas `trends` e `trend_sources`.
+### Rota
+- `/pagina` como rota publica (nao protegida)
+- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
 
