@@ -50,10 +50,10 @@ const MeusVideos = () => {
 
   const handleClose = () => {
     setSelectedVideo(null);
-    if (previewUrl) {
+    if (previewUrl?.startsWith("blob:")) {
       URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
     }
+    setPreviewUrl(null);
   };
 
   const handleUnavailable = (jobId: string) => {
