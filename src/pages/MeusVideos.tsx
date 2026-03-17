@@ -170,6 +170,7 @@ function VideoThumbnail({
       disabled={disabled}
       className="group relative aspect-[9/16] rounded-xl overflow-hidden border border-border bg-secondary/50 transition-all hover:border-primary/50 hover:shadow-glow focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed"
     >
+      {thumbUrl ? (
         <video
           src={thumbUrl}
           muted
