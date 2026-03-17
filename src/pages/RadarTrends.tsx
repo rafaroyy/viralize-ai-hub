@@ -4,6 +4,7 @@ import { RadarFilters } from "@/components/radar/RadarFilters";
 import { RadarDashboardTab } from "@/components/radar/RadarDashboardTab";
 import { RadarTrendsTab } from "@/components/radar/RadarTrendsTab";
 import { RadarOportunidadesTab } from "@/components/radar/RadarOportunidadesTab";
+import { RadarClipadorTab } from "@/components/radar/RadarClipadorTab";
 import { RadarConfiguracoesTab } from "@/components/radar/RadarConfiguracoesTab";
 import { TrendDetailSheet } from "@/components/radar/TrendDetailSheet";
 import { GenerateHooksModal } from "@/components/radar/GenerateHooksModal";
