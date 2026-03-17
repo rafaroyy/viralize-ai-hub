@@ -67,6 +67,7 @@ export default function RadarTrendsPage() {
             <TabsTrigger value="dashboard" className="text-xs">Dashboard</TabsTrigger>
             <TabsTrigger value="trends" className="text-xs">Trends</TabsTrigger>
             <TabsTrigger value="oportunidades" className="text-xs">Oportunidades</TabsTrigger>
+            <TabsTrigger value="clipador" className="text-xs">Clipador</TabsTrigger>
             <TabsTrigger value="configuracoes" className="text-xs">Configurações</TabsTrigger>
           </TabsList>
           <RadarFilters filters={filters} onChange={setFilters} />
