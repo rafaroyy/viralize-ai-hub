@@ -3,7 +3,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppLayout } from "@/components/AppLayout";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import LandingPage from "./pages/LandingPage";
@@ -25,47 +24,41 @@ const queryClient = new QueryClient();
 
 function ProtectedRoute() {
   const { isAuthenticated, loading } = useAuth();
-  if (loading) return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-    </div>
-  );
+  if (loading) return null;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   return <AppLayout><Outlet /></AppLayout>;
 }
 
 const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/pagina" element={<PaginaVendas />} />
-              <Route path="/auth/tiktok/callback" element={<TikTokCallback />} />
-              <Route element={<ProtectedRoute />}>
-                <Route path="/criar" element={<CriarVideo />} />
-                <Route path="/radar" element={<RadarTrendsPage />} />
-                <Route path="/modelos" element={<Modelos />} />
-                <Route path="/chat" element={<ChatIA />} />
-                <Route path="/meus-videos" element={<MeusVideos />} />
-                <Route path="/perfil" element={<Perfil />} />
-                <Route path="/analisador-viral" element={<AnalisadorViral />} />
-                <Route path="/modelar-post" element={<ModelarPost />} />
-                <Route path="/affiliate-hub" element={<AffiliateHub />} />
-              </Route>
-              <Route path="/:affiliateSlug" element={<LandingPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/pagina" element={<PaginaVendas />} />
+            <Route path="/auth/tiktok/callback" element={<TikTokCallback />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/criar" element={<CriarVideo />} />
+              <Route path="/radar" element={<RadarTrendsPage />} />
+              <Route path="/modelos" element={<Modelos />} />
+              <Route path="/chat" element={<ChatIA />} />
+              <Route path="/meus-videos" element={<MeusVideos />} />
+              <Route path="/perfil" element={<Perfil />} />
+              <Route path="/analisador-viral" element={<AnalisadorViral />} />
+              <Route path="/modelar-post" element={<ModelarPost />} />
+              <Route path="/affiliate-hub" element={<AffiliateHub />} />
+            </Route>
+            <Route path="/:affiliateSlug" element={<LandingPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
 );
 
 export default App;
