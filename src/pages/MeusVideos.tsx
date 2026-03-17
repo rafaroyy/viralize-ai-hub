@@ -137,10 +137,12 @@ function VideoThumbnail({
   video,
   onClick,
   disabled,
+  onUnavailable,
 }: {
   video: VideoListItem;
   onClick: () => void;
   disabled?: boolean;
+  onUnavailable?: (jobId: string) => void;
 }) {
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
