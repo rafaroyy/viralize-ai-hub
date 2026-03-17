@@ -171,6 +171,8 @@ const CriarVideo = () => {
           pollRef.current = null;
           // Auto-load preview into the card
           handlePreview(id);
+          // Persist to storage in background
+          persistVideoToStorage(id).catch(console.error);
         } else if (status.status === "failed") {
           if (pollRef.current) clearInterval(pollRef.current);
           pollRef.current = null;
