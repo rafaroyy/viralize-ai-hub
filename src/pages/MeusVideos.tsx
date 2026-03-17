@@ -9,6 +9,7 @@ const MeusVideos = () => {
   const [videos, setVideos] = useState<VideoListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<VideoListItem | null>(null);
+  const [unavailableIds, setUnavailableIds] = useState<Set<string>>(new Set());
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const { toast } = useToast();
@@ -51,7 +52,11 @@ const MeusVideos = () => {
     }
   };
 
-  const completedVideos = videos.filter((v) => v.status === "completed");
+  const handleUnavailable = (jobId: string) => {
+    setUnavailableIds((prev) => new Set(prev).add(jobId));
+  };
+
+  const completedVideos = videos.filter((v) => v.status === "completed" && !unavailableIds.has(v.job_id));
   const otherVideos = videos.filter((v) => v.status !== "completed");
 
   return (
@@ -60,7 +65,7 @@ const MeusVideos = () => {
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground">Meus Vídeos</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {completedVideos.length} vídeo{completedVideos.length !== 1 ? "s" : ""} gerado{completedVideos.length !== 1 ? "s" : ""}
+            {completedVideos.length} vídeo{completedVideos.length !== 1 ? "s" : ""} disponíve{completedVideos.length !== 1 ? "is" : "l"}
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={fetchVideos} disabled={loading}>
@@ -84,7 +89,7 @@ const MeusVideos = () => {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {completedVideos.map((video) => (
-            <VideoThumbnail key={video.job_id} video={video} onClick={() => handleSelect(video)} />
+            <VideoThumbnail key={video.job_id} video={video} onClick={() => handleSelect(video)} onUnavailable={handleUnavailable} />
           ))}
           {otherVideos.map((video) => (
             <VideoThumbnail key={video.job_id} video={video} onClick={() => {}} disabled />
@@ -132,10 +137,12 @@ function VideoThumbnail({
   video,
   onClick,
   disabled,
+  onUnavailable,
 }: {
   video: VideoListItem;
   onClick: () => void;
   disabled?: boolean;
+  onUnavailable?: (jobId: string) => void;
 }) {
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -147,7 +154,7 @@ function VideoThumbnail({
     api.previewVideoBlob(video.job_id).then((url) => {
       revoke = url;
       setThumbUrl(url);
-    }).catch(() => { setLoadFailed(true); });
+    }).catch(() => { setLoadFailed(true); onUnavailable?.(video.job_id); });
     return () => { if (revoke) URL.revokeObjectURL(revoke); };
   }, [video.job_id, isCompleted]);
 
@@ -155,18 +162,15 @@ function VideoThumbnail({
     ? new Date(video.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
     : "";
 
+  if (loadFailed) return null;
+
   return (
     <button
       onClick={onClick}
-      disabled={disabled || loadFailed}
+      disabled={disabled}
       className="group relative aspect-[9/16] rounded-xl overflow-hidden border border-border bg-secondary/50 transition-all hover:border-primary/50 hover:shadow-glow focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed"
     >
-      {loadFailed ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-2">
-          <Film className="w-6 h-6 text-muted-foreground/60" />
-          <span className="text-[10px] text-muted-foreground text-center leading-tight">Arquivo indisponível</span>
-        </div>
-      ) : thumbUrl ? (
+      {thumbUrl ? (
         <video
           src={thumbUrl}
           muted
