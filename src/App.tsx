@@ -31,35 +31,37 @@ function ProtectedRoute() {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/pagina" element={<PaginaVendas />} />
-            <Route path="/auth/tiktok/callback" element={<TikTokCallback />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="/criar" element={<CriarVideo />} />
-              <Route path="/radar" element={<RadarTrendsPage />} />
-              <Route path="/modelos" element={<Modelos />} />
-              <Route path="/chat" element={<ChatIA />} />
-              <Route path="/meus-videos" element={<MeusVideos />} />
-              <Route path="/perfil" element={<Perfil />} />
-              <Route path="/analisador-viral" element={<AnalisadorViral />} />
-              <Route path="/modelar-post" element={<ModelarPost />} />
-              <Route path="/affiliate-hub" element={<AffiliateHub />} />
-            </Route>
-            <Route path="/:affiliateSlug" element={<LandingPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/pagina" element={<PaginaVendas />} />
+              <Route path="/auth/tiktok/callback" element={<TikTokCallback />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/criar" element={<CriarVideo />} />
+                <Route path="/radar" element={<RadarTrendsPage />} />
+                <Route path="/modelos" element={<Modelos />} />
+                <Route path="/chat" element={<ChatIA />} />
+                <Route path="/meus-videos" element={<MeusVideos />} />
+                <Route path="/perfil" element={<Perfil />} />
+                <Route path="/analisador-viral" element={<AnalisadorViral />} />
+                <Route path="/modelar-post" element={<ModelarPost />} />
+                <Route path="/affiliate-hub" element={<AffiliateHub />} />
+              </Route>
+              <Route path="/:affiliateSlug" element={<LandingPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
