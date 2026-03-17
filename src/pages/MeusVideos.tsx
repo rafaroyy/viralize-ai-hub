@@ -154,7 +154,7 @@ function VideoThumbnail({
     api.previewVideoBlob(video.job_id).then((url) => {
       revoke = url;
       setThumbUrl(url);
-    }).catch(() => { setLoadFailed(true); });
+    }).catch(() => { setLoadFailed(true); onUnavailable?.(video.job_id); });
     return () => { if (revoke) URL.revokeObjectURL(revoke); };
   }, [video.job_id, isCompleted]);
 
