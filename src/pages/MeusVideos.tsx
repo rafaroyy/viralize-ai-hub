@@ -162,18 +162,14 @@ function VideoThumbnail({
     ? new Date(video.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })
     : "";
 
+  if (loadFailed) return null;
+
   return (
     <button
       onClick={onClick}
-      disabled={disabled || loadFailed}
+      disabled={disabled}
       className="group relative aspect-[9/16] rounded-xl overflow-hidden border border-border bg-secondary/50 transition-all hover:border-primary/50 hover:shadow-glow focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed"
     >
-      {loadFailed ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-2">
-          <Film className="w-6 h-6 text-muted-foreground/60" />
-          <span className="text-[10px] text-muted-foreground text-center leading-tight">Arquivo indisponível</span>
-        </div>
-      ) : thumbUrl ? (
         <video
           src={thumbUrl}
           muted
