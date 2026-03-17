@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { api, VideoListItem } from "@/lib/api";
+import { getVideoUrl, persistVideoToStorage } from "@/lib/videoStorage";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Play, Film, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,9 +35,12 @@ const MeusVideos = () => {
     setSelectedVideo(video);
     setLoadingPreview(true);
     try {
-      const blob = await api.previewVideoBlob(video.job_id);
-      setPreviewUrl(blob);
-    } catch {
+      const url = await getVideoUrl(video.job_id);
+      if (url) {
+        setPreviewUrl(url);
+      } else {
+        throw new Error("unavailable");
+      }
       toast({ title: "Erro", description: "Não foi possível carregar o preview.", variant: "destructive" });
       setSelectedVideo(null);
     } finally {
@@ -46,10 +50,10 @@ const MeusVideos = () => {
 
   const handleClose = () => {
     setSelectedVideo(null);
-    if (previewUrl) {
+    if (previewUrl?.startsWith("blob:")) {
       URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
     }
+    setPreviewUrl(null);
   };
 
   const handleUnavailable = (jobId: string) => {
@@ -150,12 +154,21 @@ function VideoThumbnail({
 
   useEffect(() => {
     if (!isCompleted) return;
-    let revoke = "";
-    api.previewVideoBlob(video.job_id).then((url) => {
-      revoke = url;
-      setThumbUrl(url);
+    let cancelled = false;
+    getVideoUrl(video.job_id).then((url) => {
+      if (cancelled) return;
+      if (url) {
+        setThumbUrl(url);
+        // If it came from the API, persist to storage in background
+        if (url.startsWith("blob:")) {
+          persistVideoToStorage(video.job_id).catch(console.error);
+        }
+      } else {
+        setLoadFailed(true);
+        onUnavailable?.(video.job_id);
+      }
     }).catch(() => { setLoadFailed(true); onUnavailable?.(video.job_id); });
-    return () => { if (revoke) URL.revokeObjectURL(revoke); };
+    return () => { cancelled = true; };
   }, [video.job_id, isCompleted]);
 
   const dateStr = video.created_at

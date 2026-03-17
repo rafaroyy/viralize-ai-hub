@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { api, CaptionStyle, JobStatus } from "@/lib/api";
+import { persistVideoToStorage } from "@/lib/videoStorage";
 import { Slider } from "@/components/ui/slider";
 import { VideoUploadCard } from "@/components/ui/video-upload-card";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -170,6 +171,8 @@ const CriarVideo = () => {
           pollRef.current = null;
           // Auto-load preview into the card
           handlePreview(id);
+          // Persist to storage in background
+          persistVideoToStorage(id).catch(console.error);
         } else if (status.status === "failed") {
           if (pollRef.current) clearInterval(pollRef.current);
           pollRef.current = null;
