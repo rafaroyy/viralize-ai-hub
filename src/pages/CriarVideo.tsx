@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { api, CaptionStyle, JobStatus } from "@/lib/api";
+import { persistVideoToStorage } from "@/lib/videoStorage";
 import { Slider } from "@/components/ui/slider";
 import { VideoUploadCard } from "@/components/ui/video-upload-card";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
