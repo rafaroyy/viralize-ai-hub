@@ -242,6 +242,104 @@ export function CreatorProfileForm() {
           />
         </div>
 
+        {/* Personal Branding (Avançado) */}
+        <Collapsible open={brandingOpen} onOpenChange={setBrandingOpen}>
+          <CollapsibleTrigger asChild>
+            <button className="w-full flex items-center justify-between p-3 rounded-lg border border-border/50 hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-2">
+                <Crown className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold">Personal Branding (Avançado)</span>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${brandingOpen ? 'rotate-180' : ''}`} />
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-5 pt-4">
+            <p className="text-xs text-muted-foreground">
+              Defina seu posicionamento magnético. Esses dados serão usados para avaliar se seus vídeos estão alinhados com sua marca pessoal.
+            </p>
+
+            {/* Causa */}
+            <div className="space-y-2">
+              <Label>Causa — sua bandeira</Label>
+              <Textarea
+                value={form.brand_cause}
+                onChange={e => set('brand_cause', e.target.value)}
+                placeholder="Qual visão de mundo você defende? Ex: Jovens não precisam esperar 10 anos pra ganhar dinheiro"
+                rows={2}
+              />
+            </div>
+
+            {/* Tribo */}
+            <div className="space-y-2">
+              <Label>Tribo — quem se identifica com você</Label>
+              <Textarea
+                value={form.brand_tribe}
+                onChange={e => set('brand_tribe', e.target.value)}
+                placeholder="Ex: Empreendedores iniciantes cansados de guru que só fala e não faz"
+                rows={2}
+              />
+            </div>
+
+            {/* Inimigo em comum */}
+            <div className="space-y-2">
+              <Label>Inimigo em comum</Label>
+              <Textarea
+                value={form.brand_enemy}
+                onChange={e => set('brand_enemy', e.target.value)}
+                placeholder="O que sua audiência rejeita? Ex: Promessas milagrosas, gurus sem prova"
+                rows={2}
+              />
+            </div>
+
+            {/* Arquétipo */}
+            <div className="space-y-2">
+              <Label>Arquétipo dominante</Label>
+              <Select value={form.brand_archetype} onValueChange={v => set('brand_archetype', v)}>
+                <SelectTrigger><SelectValue placeholder="Selecione seu arquétipo" /></SelectTrigger>
+                <SelectContent>
+                  {ARCHETYPES.map(a => (
+                    <SelectItem key={a.value} value={a.value}>
+                      {a.label} — {a.desc}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* História de origem */}
+            <div className="space-y-2">
+              <Label>História de origem</Label>
+              <Textarea
+                value={form.brand_origin_story}
+                onChange={e => set('brand_origin_story', e.target.value)}
+                placeholder="Resuma sua trajetória: de onde veio, o conflito e a transformação"
+                rows={3}
+              />
+            </div>
+
+            {/* Reconhecimento desejado */}
+            <div className="space-y-2">
+              <Label>Reconhecimento desejado</Label>
+              <Input
+                value={form.brand_recognition}
+                onChange={e => set('brand_recognition', e.target.value)}
+                placeholder="Por que quer ser lembrado? Ex: O mais prático, o que realmente executa"
+              />
+            </div>
+
+            {/* Ponto fraco do concorrente */}
+            <div className="space-y-2">
+              <Label>Ponto fraco do concorrente</Label>
+              <Textarea
+                value={form.brand_competitor_weakness}
+                onChange={e => set('brand_competitor_weakness', e.target.value)}
+                placeholder="Qual o ponto fraco dos seus concorrentes que você transforma em força?"
+                rows={2}
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
         <Button onClick={handleSave} disabled={saving} className="w-full gap-2">
           <Save className="w-4 h-4" />
           {saving ? 'Salvando...' : 'Salvar perfil de criador'}

@@ -227,6 +227,23 @@ Sem markdown, sem code fences. APENAS JSON válido.`;
 
 Avalie o vídeo considerando SE ele é adequado para ESTE perfil específico.
 Compare com benchmarks DO NICHO do criador. Recomendações devem ser direcionadas ao público-alvo e estilo declarados.`;
+
+      // Inject branding context if available
+      if (creatorProfile.brand_cause || creatorProfile.brand_archetype) {
+        creatorContext += `\n\n## POSICIONAMENTO / MARCA PESSOAL
+- Causa: ${creatorProfile.brand_cause || 'N/A'}
+- Tribo: ${creatorProfile.brand_tribe || 'N/A'}
+- Inimigo em comum: ${creatorProfile.brand_enemy || 'N/A'}
+- Arquétipo: ${creatorProfile.brand_archetype || 'N/A'}
+- História de origem: ${creatorProfile.brand_origin_story || 'N/A'}
+- Reconhecimento desejado: ${creatorProfile.brand_recognition || 'N/A'}
+- Ponto fraco do concorrente transformado em força: ${creatorProfile.brand_competitor_weakness || 'N/A'}
+
+Avalie se o vídeo está ALINHADO com o posicionamento declarado.
+O conteúdo reforça a causa e fala com a tribo certa?
+O tom é coerente com o arquétipo escolhido?
+O vídeo diferencia o criador dos concorrentes no ponto declarado?`;
+      }
     }
 
     const finalGeminiPrompt = geminiSystemPrompt + creatorContext;
