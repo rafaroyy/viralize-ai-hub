@@ -10,6 +10,8 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/contexts/AuthContext";
 
+const BETA_EMAILS = ["rafa07roy@gmail.com"];
+
 const navLinks = [
   {
     label: "Criar Vídeo",
@@ -55,6 +57,15 @@ const navLinks = [
     label: "Modelos",
     href: "/modelos",
     icon: <LayoutGrid className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+  },
+];
+
+const betaLinks = [
+  {
+    label: "Cortes Virais",
+    href: "/cortes-virais",
+    icon: <Scissors className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+    beta: true,
   },
 ];
 
