@@ -655,6 +655,48 @@ export type Database = {
         }
         Relationships: []
       }
+      viral_clips: {
+        Row: {
+          clips: Json | null
+          created_at: string | null
+          error_message: string | null
+          id: string
+          source_type: string | null
+          source_url: string | null
+          status: string | null
+          transcription: string | null
+          updated_at: string | null
+          user_id: string
+          video_storage_path: string | null
+        }
+        Insert: {
+          clips?: Json | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          source_type?: string | null
+          source_url?: string | null
+          status?: string | null
+          transcription?: string | null
+          updated_at?: string | null
+          user_id: string
+          video_storage_path?: string | null
+        }
+        Update: {
+          clips?: Json | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          source_type?: string | null
+          source_url?: string | null
+          status?: string | null
+          transcription?: string | null
+          updated_at?: string | null
+          user_id?: string
+          video_storage_path?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

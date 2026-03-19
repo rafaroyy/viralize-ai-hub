@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/animated-sidebar";
-import { Video, LayoutGrid, MessageCircle, Film, Flame, Image as ImageIcon, Store, Radar, Lightbulb } from "lucide-react";
+import { Video, LayoutGrid, MessageCircle, Film, Flame, Image as ImageIcon, Store, Radar, Lightbulb, Scissors } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import logoViralize from "@/assets/logo-viralize.png";
@@ -9,6 +9,8 @@ import logoViralizeLight from "@/assets/logo-viralize-light.png";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/contexts/AuthContext";
+
+const BETA_EMAILS = ["rafa07roy@gmail.com"];
 
 const navLinks = [
   {
@@ -58,11 +60,22 @@ const navLinks = [
   },
 ];
 
+const betaLinks = [
+  {
+    label: "Cortes Virais",
+    href: "/cortes-virais",
+    icon: <Scissors className="w-5 h-5 shrink-0 text-sidebar-foreground" />,
+    beta: true,
+  },
+];
+
 export function AppSidebar() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
   const { user, quota } = useAuth();
+  const isBetaUser = BETA_EMAILS.includes(user?.email ?? "");
+  const allLinks = isBetaUser ? [...navLinks, ...betaLinks] : navLinks;
   const displayName = user?.username ?? "Usuário";
   const videosRemaining = quota?.total?.remaining;
   const currentLogo = isDark ? logoViralize : logoViralizeLight;
@@ -72,13 +85,14 @@ export function AppSidebar() {
         <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden pt-1">
           {open ? <Logo src={currentLogo} /> : <LogoIcon src={currentLogo} />}
           <nav className="mt-5 flex flex-col gap-1">
-            {navLinks.map((link) => {
+            {allLinks.map((link) => {
               const isActive = location.pathname === link.href;
               return (
                 <SidebarLink
                   key={link.href}
                   link={{
                     ...link,
+                    label: ('beta' in link && link.beta) ? `${link.label} ✦ Beta` : link.label,
                     icon: (
                       <div className={cn(
                         "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
