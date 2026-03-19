@@ -346,8 +346,8 @@ REGRA DE OURO: Um vídeo com estrutura P-C-R perfeita MAS sem autenticidade perc
 ## INSTRUÇÕES DE AVALIAÇÃO ESTRATÉGICA
 • Compare o vídeo com os CASE STUDIES de referência — ele segue padrões similares de viralização?
 • Use os BENCHMARKS DO NICHO para contextualizar os scores (ex: 50K views em finanças é excelente, em humor é mediano)
-• Avalie retenção usando o FRAMEWORK DE RETENÇÃO: micro-hooks, pattern interrupts, open loops, visual pacing
-• Avalie AUTENTICIDADE PERCEBIDA: risco de IA demais, cringe, mismatch promessa/entrega
+• Avalie se o vídeo mantém a pessoa assistindo sem pular: pequenos momentos que prendem atenção, quebras de padrão, curiosidades deixadas no ar, ritmo visual
+• Avalie AUTENTICIDADE PERCEBIDA: risco de IA demais, cringe, a promessa do início não bate com o que entrega
 • Use as REGRAS DE DECISÃO para fundamentar cada score — nunca julgue sem evidência
 • Verifique conformidade com as PARTICULARIDADES DA PLATAFORMA se identificável
 • Cite qual case study, benchmark ou regra de decisão fundamenta cada recomendação
@@ -359,6 +359,21 @@ REGRA DE OURO: Um vídeo com estrutura P-C-R perfeita MAS sem autenticidade perc
 • Tips: MÁXIMO 2 por seção
 • summary: MÁXIMO 2 frases — escrito para o CRIADOR DE CONTEÚDO, sem mencionar Gemini, GPT ou agentes internos
 • viralVideoIdeas: MÁXIMO 2 ideias, descrição de 1 frase
+
+## TOM DE LINGUAGEM (OBRIGATÓRIO)
+Escreva como se estivesse explicando para um criador INICIANTE que nunca estudou marketing.
+• NÃO use jargões técnicos como "micro-hooks", "pattern interrupts", "open loops", "mismatch", "CTA teatral", "engagement rate", "alta performance"
+• SUBSTITUA por linguagem simples e direta:
+  - "micro-hooks" → "pequenos momentos que prendem a atenção"
+  - "pattern interrupt" → "algo inesperado que faz a pessoa parar e prestar atenção de novo"
+  - "open loop" → "deixar uma curiosidade no ar pra pessoa querer ver até o final"
+  - "mismatch" → "a promessa do início não bate com o que o vídeo entrega"
+  - "CTA" → "convite pra ação no final (seguir, curtir, comentar)"
+  - "retenção" → "manter a pessoa assistindo sem pular"
+  - "engagement rate" → "nível de interação do público"
+• Use frases curtas e diretas, como se estivesse conversando
+• Dê exemplos práticos sempre que possível
+• Evite palavras rebuscadas — prefira "funciona bem" ao invés de "tem alta performance"
 
 ## ESCALA DE SCORES (OBRIGATÓRIO)
 TODOS os scores (hookAnalysis.score, bodyAnalysis.score, ctaAnalysis.score, overallScore) DEVEM estar na escala 0-100. NÃO use escalas 0-5 ou 0-10.
