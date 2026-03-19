@@ -20,6 +20,7 @@ export type Database = {
           checkout_lifetime: string
           checkout_monthly: string
           created_at: string | null
+          email: string | null
           id: string
           name: string
           slug: string
@@ -29,6 +30,7 @@ export type Database = {
           checkout_lifetime: string
           checkout_monthly: string
           created_at?: string | null
+          email?: string | null
           id?: string
           name: string
           slug: string
@@ -38,6 +40,7 @@ export type Database = {
           checkout_lifetime?: string
           checkout_monthly?: string
           created_at?: string | null
+          email?: string | null
           id?: string
           name?: string
           slug?: string

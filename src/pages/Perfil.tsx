@@ -1,4 +1,4 @@
-import { User, Settings, CreditCard, Bell, LogOut, Plug, Sparkles } from "lucide-react";
+import { User, Settings, CreditCard, Bell, LogOut, Plug, Sparkles, Crown } from "lucide-react";
 import { MemberCard } from "@/components/ui/member-card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -7,11 +7,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { TikTokIntegrationCard } from "@/components/integrations/TikTokIntegrationCard";
 import { CreatorProfileForm } from "@/components/profile/CreatorProfileForm";
+import PartnerTab from "@/components/profile/PartnerTab";
+
+const PARTNER_EMAILS = ["juliocrepaldi200@gmail.com", "rafa07roy@gmail.com"];
 
 const Perfil = () => {
   const { user, quota, logout } = useAuth();
   const navigate = useNavigate();
   const displayName = user?.username ?? user?.email?.split("@")[0] ?? "Usuário";
+  const isPartner = PARTNER_EMAILS.includes(user?.email ?? "");
   const videosRemaining = quota?.total?.remaining ?? 0;
 
   const handleLogout = () => {
@@ -45,6 +49,12 @@ const Perfil = () => {
               <Sparkles className="w-4 h-4" />
               Criador
             </TabsTrigger>
+            {isPartner && (
+              <TabsTrigger value="parceiro" className="gap-2">
+                <Crown className="w-4 h-4" />
+                Parceiro
+              </TabsTrigger>
+            )}
             <TabsTrigger value="integracoes" className="gap-2">
               <Plug className="w-4 h-4" />
               Integrações
@@ -134,6 +144,13 @@ const Perfil = () => {
             </div>
             <TikTokIntegrationCard />
           </TabsContent>
+
+          {/* ─── Tab: Parceiro ─── */}
+          {isPartner && (
+            <TabsContent value="parceiro" className="space-y-6">
+              <PartnerTab />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>
