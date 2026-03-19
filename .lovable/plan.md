@@ -1,51 +1,44 @@
 
 
-# Nova Pagina de Vendas em /pagina
+# Plano: Expandir a Base de Conhecimento do Agente de Análise Viral
 
 ## Resumo
-Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
 
-## Estrutura das Secoes
+Expandir o arquivo `knowledge_base.ts` com novas seções de frameworks/metodologias e exemplos de vídeos virais, e atualizar os prompts do `analyze-viral` para consumir esse contexto adicional.
 
-1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
-2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
-3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
-4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
-5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
-6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
-7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
+## Arquitetura Atual
 
-## Detalhes Tecnicos
+O agente usa um pipeline de 2 etapas:
+1. **Gemini** (extração visual + análise bruta) — recebe `SYSTEM_PROMPT_BASE` que já inclui `FRAMEWORK_ROTEIROS` + `DIRETRIZES_CRIATIVAS`
+2. **OpenAI** (refinamento estratégico) — recebe `FRAMEWORK_ROTEIROS` + `DIRETRIZES_CRIATIVAS` diretamente
 
-### Arquivos criados
-- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
+A base de conhecimento está em `supabase/functions/_shared/knowledge_base.ts` com ~130 linhas.
 
-### Arquivos modificados
-- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
+## Mudanças Planejadas
 
-### Componentes reutilizados
-- `ScrollReveal` (mesmo pattern da LandingPage)
-- `framer-motion` para animacoes
-- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
-- Logo existente no header
-- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
+### 1. Expandir `knowledge_base.ts` com novas seções
 
-### Regras de UI seguidas conforme o prompt
-- Maximo 1 ideia por bloco
-- Frases de impacto em linha isolada (texto maior, peso bold)
-- Sem emojis no site
-- CTAs apenas no Hero + Oferta
-- Visual clean, contraste alto, bastante espaco
-- Navbar simplificada (logo + "Entrar" + CTA)
-- Footer minimalista
+Adicionar 4 novos exports com estrutura pronta para preenchimento:
 
-### Pricing
-- Preco: De R$645 por R$247
-- Pagamento unico
-- Link de checkout vitalicio reutilizado (CenterPag)
-- Suporte a affiliate slug mantido
+- **`FRAMEWORK_RETENCAO`** — Técnicas avançadas de retenção (pattern interrupt, open loops, visual pacing, micro-hooks a cada 3-5s, regra dos 3 segundos)
+- **`FRAMEWORK_PLATAFORMAS`** — Particularidades por plataforma (TikTok, Reels, Shorts) como duração ideal, aspect ratio, algoritmo
+- **`EXEMPLOS_VIRAIS`** — 3-5 case studies estruturados no formato: contexto, hook usado, estrutura P-C-R aplicada, por que viralizou, métricas estimadas
+- **`BENCHMARKS_NICHO`** — Referências de performance por nicho (marketing digital, finanças, lifestyle etc.)
 
-### Rota
-- `/pagina` como rota publica (nao protegida)
-- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
+Cada seção terá conteúdo inicial útil (não vazio) que você poderá editar/expandir depois.
+
+### 2. Atualizar `SYSTEM_PROMPT_BASE`
+
+Incorporar as novas seções no system prompt base para que ambos os agentes (Gemini e OpenAI) tenham acesso ao contexto expandido.
+
+### 3. Atualizar prompts do `analyze-viral/index.ts`
+
+- Instruir o Gemini a comparar o vídeo analisado com os exemplos virais de referência
+- Instruir o OpenAI a usar os benchmarks e frameworks de retenção na avaliação estratégica
+
+### Detalhes Técnicos
+
+- Limite de tokens: os system prompts ficarão maiores, mas o Gemini 2.5 Flash suporta 1M tokens e o GPT-5.4 suporta contextos grandes — sem risco
+- Todas as mudanças são em 2 arquivos: `knowledge_base.ts` e `analyze-viral/index.ts`
+- O cache existente continuará funcionando normalmente (análises antigas não serão afetadas)
 
