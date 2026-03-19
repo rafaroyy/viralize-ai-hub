@@ -171,7 +171,13 @@ Avalie explicitamente:
 • As legendas fluem naturalmente ou estão quebradas/mecânicas?
 • O roteiro soa como fala humana real ou texto de IA?
 • Há emoção genuína ou tudo parece artificial?
-Inclua sua avaliação de autenticidade no campo "summary".
+Use sua avaliação de autenticidade para ajustar os scores — NÃO inclua isso no campo "summary".
+
+### CAMPO SUMMARY (OBRIGATÓRIO)
+O summary é para o CRIADOR DE CONTEÚDO (usuário final). Escreva um resumo prático explicando o que funciona bem e o que precisa melhorar no vídeo. NUNCA mencione nomes de ferramentas, agentes de IA, Gemini, GPT ou qualquer tecnologia interna.
+
+### ESCALA DE SCORES (OBRIGATÓRIO)
+TODOS os scores (hookAnalysis.score, bodyAnalysis.score, ctaAnalysis.score, overallScore) DEVEM estar na escala 0-100. NÃO use escalas 0-5 ou 0-10.
 
 ### Regras de Análise
 • Use o FRAMEWORK DE RETENÇÃO para avaliar micro-hooks, pattern interrupts e open loops
