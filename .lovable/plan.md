@@ -1,50 +1,47 @@
 
 
-# Aplicar Perfil de Criador na Criação de Vídeo
+# Simplificar Linguagem das Análises — Tom Didático
 
-## Situação atual
+## Problema
 
-O `CriarVideo.tsx` envia payloads para a API externa (`api.viralizeia.com/videos/render`) sem nenhum dado do perfil do criador. O toggle de "Análise Personalizada" existe apenas no Analisador Viral.
+Os prompts instruem o agente a usar termos técnicos como "micro-hooks", "pattern interrupts", "open loops", "mismatch promessa/entrega" etc. O público da Viralize é iniciante e não entende esse jargão.
 
-## O que muda
+## Solução
 
-Adicionar o mesmo padrão do Analisador Viral na página de criação de vídeo: um toggle "Personalizar para meu perfil" que, quando ativo, injeta os dados do criador no payload enviado à API externa.
+Adicionar uma **seção de tom de linguagem obrigatória** nos prompts do Gemini e do OpenAI dentro do `analyze-viral/index.ts`, instruindo os agentes a:
+
+1. Escrever como se estivessem explicando para alguém que nunca fez um vídeo viral
+2. Substituir jargões por explicações práticas e diretas
+3. Usar exemplos concretos ao invés de termos abstratos
 
 ## Mudanças
 
-### 1. `src/pages/CriarVideo.tsx`
+### 1. `supabase/functions/analyze-viral/index.ts`
 
-- Importar `useCreatorProfile` e adicionar o hook
-- Adicionar estado `usePersonalized` (boolean, default `true` se `hasProfile`)
-- Renderizar um Switch "Personalizar para meu perfil" na UI (similar ao do Analisador Viral)
-- Se ativado mas sem perfil → toast direcionando para Perfil → Criador
-- Nos handlers `handleSubmitAssisted` e `handleSubmitManual`, se `usePersonalized && hasProfile`, adicionar `creator_profile` ao payload:
+Adicionar nos **dois prompts** (Gemini e OpenAI) uma seção de linguagem obrigatória:
 
-```typescript
-if (usePersonalized && hasProfile) {
-  payload.creator_profile = {
-    niche: profile.niche,
-    sub_niches: profile.sub_niches,
-    target_audience: profile.target_audience,
-    content_style: profile.content_style,
-    tone_of_voice: profile.tone_of_voice,
-    goals: profile.goals,
-    average_views: profile.average_views,
-    // branding
-    brand_cause: profile.brand_cause,
-    brand_tribe: profile.brand_tribe,
-    brand_enemy: profile.brand_enemy,
-    brand_archetype: profile.brand_archetype,
-    brand_recognition: profile.brand_recognition,
-  };
-}
+```
+## TOM DE LINGUAGEM (OBRIGATÓRIO)
+Escreva como se estivesse explicando para um criador INICIANTE que nunca estudou marketing.
+• NÃO use jargões técnicos como "micro-hooks", "pattern interrupts", "open loops", "mismatch", "CTA teatral"
+• SUBSTITUA por linguagem simples e direta:
+  - "micro-hooks" → "pequenos momentos que prendem a atenção"
+  - "pattern interrupt" → "algo inesperado que faz a pessoa parar e prestar atenção de novo"
+  - "open loop" → "deixar uma curiosidade no ar pra pessoa querer ver até o final"
+  - "mismatch" → "a promessa do início não bate com o que o vídeo entrega"
+  - "CTA" → "convite pra ação no final (seguir, curtir, comentar)"
+  - "retenção" → "manter a pessoa assistindo sem pular"
+  - "engagement rate" → "nível de interação do público"
+• Use frases curtas e diretas, como se estivesse conversando
+• Dê exemplos práticos sempre que possível
+• Evite palavras rebuscadas — prefira "funciona bem" ao invés de "tem alta performance"
 ```
 
-A API externa receberá esses dados no JSON do payload e poderá usá-los para personalizar roteiros, tom e estilo dos vídeos gerados.
+Isso será inserido **antes** do bloco de JSON output nos dois prompts, garantindo que tanto o Gemini quanto o OpenAI sigam o tom simplificado.
 
 ## Arquivos alterados
 
 | Arquivo | Ação |
 |---|---|
-| `src/pages/CriarVideo.tsx` | Hook + toggle + injeção no payload |
+| `supabase/functions/analyze-viral/index.ts` | Adicionar bloco de tom de linguagem nos prompts Gemini e OpenAI |
 
