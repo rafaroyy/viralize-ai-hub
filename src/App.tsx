@@ -44,6 +44,7 @@ const App = () => (
             <Route path="/auth/tiktok/callback" element={<TikTokCallback />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/criar" element={<CriarVideo />} />
+              <Route path="/conteudo" element={<Conteudo />} />
               <Route path="/radar" element={<RadarTrendsPage />} />
               <Route path="/modelos" element={<Modelos />} />
               <Route path="/chat" element={<ChatIA />} />

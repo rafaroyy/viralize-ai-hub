@@ -158,12 +158,12 @@ export default function Conteudo() {
   async function saveToHistory() {
     if (!script || !user || !selectedIdea) return;
     try {
-      await supabase.from("user_history").insert({
+      await supabase.from("user_history").insert([{
         user_id: String(user.user_id),
         tipo: "roteiro-conteudo",
         titulo: customTitle || selectedIdea.title,
-        payload: { idea: selectedIdea, script },
-      });
+        payload: { idea: selectedIdea, script } as any,
+      }]);
       toast({ title: "Salvo no histórico!" });
     } catch {
       toast({ title: "Erro ao salvar", variant: "destructive" });
