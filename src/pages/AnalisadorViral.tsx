@@ -133,11 +133,26 @@ function ScoreRing({ score }: { score: number }) {
   );
 }
 
+function deriveClassification(score: number): string {
+  if (score >= 81) return 'Mega Viral';
+  if (score >= 66) return 'Viral';
+  if (score >= 46) return 'Alto';
+  if (score >= 26) return 'Moderado';
+  return 'Baixo';
+}
+
+function normalizeSectionScore(score: number): number {
+  if (typeof score !== 'number' || isNaN(score)) return 0;
+  if (score <= 10) return score * 10;
+  return Math.min(100, Math.max(0, Math.round(score)));
+}
+
 function normalizeAnalysis(raw: any): ViralAnalysis {
+  const overallScore = raw.overallScore ?? raw.viralScore ?? 0;
   const normalized = {
     ...raw,
-    overallScore: raw.overallScore ?? raw.viralScore ?? 0,
-    classification: raw.classification ?? 'Moderado',
+    overallScore,
+    classification: deriveClassification(overallScore),
     summary: raw.summary ?? '',
     strengths: raw.strengths ?? raw.pontosFortes ?? [],
     weaknesses: raw.weaknesses ?? raw.pontosFracos ?? [],
@@ -154,6 +169,9 @@ function normalizeAnalysis(raw: any): ViralAnalysis {
     },
     viralVideoIdeas: raw.viralVideoIdeas ?? [],
   };
+  normalized.hookAnalysis.score = normalizeSectionScore(normalized.hookAnalysis.score);
+  normalized.bodyAnalysis.score = normalizeSectionScore(normalized.bodyAnalysis.score);
+  normalized.ctaAnalysis.score = normalizeSectionScore(normalized.ctaAnalysis.score);
   normalized.hookAnalysis.tips = normalized.hookAnalysis.tips ?? [];
   normalized.bodyAnalysis.tips = normalized.bodyAnalysis.tips ?? [];
   normalized.ctaAnalysis.tips = normalized.ctaAnalysis.tips ?? [];

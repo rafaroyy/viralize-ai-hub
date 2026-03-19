@@ -337,8 +337,11 @@ REGRA DE OURO: Um vídeo com estrutura P-C-R perfeita MAS sem autenticidade perc
 • retentionKillers e retentionImprovements: MÁXIMO 3 itens cada
 • Feedbacks de hookAnalysis/bodyAnalysis/ctaAnalysis: MÁXIMO 2 bullet points cada
 • Tips: MÁXIMO 2 por seção
-• summary: MÁXIMO 2 frases
+• summary: MÁXIMO 2 frases — escrito para o CRIADOR DE CONTEÚDO, sem mencionar Gemini, GPT ou agentes internos
 • viralVideoIdeas: MÁXIMO 2 ideias, descrição de 1 frase
+
+## ESCALA DE SCORES (OBRIGATÓRIO)
+TODOS os scores (hookAnalysis.score, bodyAnalysis.score, ctaAnalysis.score, overallScore) DEVEM estar na escala 0-100. NÃO use escalas 0-5 ou 0-10.
 
 ## OUTPUT — JSON ESTRITO (sem markdown, sem code fences)
 
