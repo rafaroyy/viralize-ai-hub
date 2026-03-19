@@ -25,94 +25,65 @@ function extractVideoId(url: string): string | null {
 }
 
 async function fetchYoutubeTranscript(videoId: string): Promise<{ text: string; words: Array<{ text: string; start: number; end: number }> }> {
-  // Step 1: Fetch video page to extract player response
-  const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+  // Use YouTube's innertube player API to get caption tracks reliably
+  // This avoids HTML scraping issues (consent pages, obfuscation, etc.)
+  console.log("Fetching captions via innertube player API for video:", videoId);
+
+  const playerRes = await fetch("https://www.youtube.com/youtubei/v1/player?prettyPrint=false", {
+    method: "POST",
     headers: {
+      "Content-Type": "application/json",
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-      "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
     },
+    body: JSON.stringify({
+      context: {
+        client: {
+          clientName: "WEB",
+          clientVersion: "2.20241120.01.00",
+          hl: "pt",
+          gl: "BR",
+        },
+      },
+      videoId,
+    }),
   });
 
-  if (!pageRes.ok) throw new Error("Não foi possível acessar o vídeo do YouTube");
-  const html = await pageRes.text();
-
-  // Try multiple patterns to extract caption tracks
-  let captionTracks: Array<{ baseUrl: string; languageCode: string }> | null = null;
-
-  // Pattern 1: ytInitialPlayerResponse in script tag
-  const playerMatch = html.match(/ytInitialPlayerResponse\s*=\s*(\{.+?\});\s*(?:var|<\/script)/s);
-  if (playerMatch) {
-    try {
-      const playerData = JSON.parse(playerMatch[1]);
-      captionTracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
-      console.log("Pattern 1 found captionTracks:", captionTracks?.length ?? 0);
-    } catch { /* parse failed, try next */ }
+  if (!playerRes.ok) {
+    console.log("Innertube player API failed:", playerRes.status);
+    throw new Error("Não foi possível acessar informações do vídeo");
   }
 
-  // Pattern 2: look for captionTracks with greedy array match
-  if (!captionTracks) {
-    const captionMatch = html.match(/"captionTracks":\s*(\[[\s\S]*?\])\s*,\s*"/);
-    if (captionMatch) {
-      try {
-        captionTracks = JSON.parse(captionMatch[1]);
-        console.log("Pattern 2 found captionTracks:", captionTracks?.length ?? 0);
-      } catch { /* parse failed */ }
-    }
+  const playerData = await playerRes.json();
+  
+  // Check if video is available
+  if (playerData?.playabilityStatus?.status !== "OK") {
+    const reason = playerData?.playabilityStatus?.reason || "Vídeo indisponível";
+    throw new Error(reason);
   }
+
+  const captionTracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+  console.log("Innertube captionTracks found:", captionTracks?.length ?? 0);
 
   if (!captionTracks || captionTracks.length === 0) {
-    // Fallback: try timedtext API directly
-    console.log("No captionTracks in page HTML, trying timedtext API...");
-    return await fetchTimedTextTranscript(videoId);
+    throw new Error("Este vídeo não possui legendas disponíveis. Por favor, faça upload do vídeo manualmente.");
   }
 
   // Prefer Portuguese, then English, then first available
-  let track = captionTracks.find(t => t.languageCode === "pt");
-  if (!track) track = captionTracks.find(t => t.languageCode?.startsWith("pt"));
-  if (!track) track = captionTracks.find(t => t.languageCode === "en");
+  let track = captionTracks.find((t: any) => t.languageCode === "pt");
+  if (!track) track = captionTracks.find((t: any) => t.languageCode?.startsWith("pt"));
+  if (!track) track = captionTracks.find((t: any) => t.languageCode === "en");
   if (!track) track = captionTracks[0];
 
-  console.log("Using caption track, language:", track.languageCode);
+  console.log("Using caption track, language:", track.languageCode, "kind:", track.kind || "manual");
 
-  const captionUrl = track.baseUrl.startsWith("http") ? track.baseUrl : `https://www.youtube.com${track.baseUrl}`;
+  // Fetch the XML caption data
+  const captionUrl = track.baseUrl;
   const captionRes = await fetch(captionUrl);
   if (!captionRes.ok) throw new Error("Erro ao baixar legendas do YouTube");
 
   const xml = await captionRes.text();
+  console.log("Caption XML length:", xml.length);
   return parseTranscriptXml(xml);
-}
-
-async function fetchTimedTextTranscript(videoId: string): Promise<{ text: string; words: Array<{ text: string; start: number; end: number }> }> {
-  // Try YouTube's timedtext API for auto-generated and manual captions
-  const attempts = [
-    { lang: "pt", kind: "" },
-    { lang: "pt-BR", kind: "" },
-    { lang: "en", kind: "" },
-    { lang: "pt", kind: "asr" },
-    { lang: "en", kind: "asr" },
-  ];
-
-  for (const { lang, kind } of attempts) {
-    const kindParam = kind ? `&kind=${kind}` : "";
-    const url = `https://www.youtube.com/api/timedtext?v=${videoId}&lang=${lang}${kindParam}&fmt=srv3`;
-    console.log("Trying timedtext:", lang, kind || "manual");
-    
-    try {
-      const res = await fetch(url, {
-        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
-      });
-      
-      if (res.ok) {
-        const xml = await res.text();
-        if (xml.trim().length > 100 && xml.includes("<")) {
-          console.log("Got transcript from timedtext API, lang:", lang, kind || "manual");
-          return parseTranscriptXml(xml);
-        }
-      }
-    } catch { /* continue */ }
-  }
-
-  throw new Error("Este vídeo não possui legendas disponíveis. Por favor, faça upload do vídeo manualmente.");
 }
 
 function parseTranscriptXml(xml: string): { text: string; words: Array<{ text: string; start: number; end: number }> } {
