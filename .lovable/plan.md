@@ -1,30 +1,13 @@
 
 
-# Migrar Edge Functions de Conteúdo para OpenAI GPT-5.4
+# Trocar modelo GPT-5.4 → GPT-4o nas Edge Functions de Conteúdo
 
-## Problema
-As duas edge functions (`generate-content-ideas` e `generate-script-from-idea`) usam o Lovable AI Gateway, que está sem créditos (erro 402). O projeto já tem `OPENAI_API_KEY` e `OPENAI_PROJECT_KEY` configurados e funcionando em outras funções (`analyze-viral`, `chat-viralize`, `analyze-script`).
+Trocar o modelo de `gpt-5.4` para `gpt-4o` e ajustar o parâmetro de tokens (`max_completion_tokens` → `max_tokens`) nas duas funções:
 
-## Mudanças
-
-### 1. `supabase/functions/generate-content-ideas/index.ts`
-- Trocar de `https://ai.gateway.lovable.dev` para `https://api.openai.com/v1/chat/completions`
-- Usar `OPENAI_API_KEY` + `OPENAI_PROJECT_KEY` (mesmo padrão do `analyze-viral`)
-- Modelo: `gpt-5.4` com `max_completion_tokens` (não `max_tokens`)
-- Manter tool calling para structured output
-- Manter fallback para 402/429
-
-### 2. `supabase/functions/generate-script-from-idea/index.ts`
-- Mesma migração: OpenAI direta com `gpt-5.4`
-- Usar `max_completion_tokens`
-- Manter tool calling para structured output
-
-### Arquivos alterados
-
-| Arquivo | Ação |
+| Arquivo | Mudança |
 |---|---|
-| `supabase/functions/generate-content-ideas/index.ts` | Trocar gateway → OpenAI direta |
-| `supabase/functions/generate-script-from-idea/index.ts` | Trocar gateway → OpenAI direta |
+| `supabase/functions/generate-content-ideas/index.ts` | `model: "gpt-4o"`, `max_tokens: 3000` |
+| `supabase/functions/generate-script-from-idea/index.ts` | `model: "gpt-4o"`, `max_tokens: 3000` |
 
-Nenhuma secret nova necessária — `OPENAI_API_KEY` e `OPENAI_PROJECT_KEY` já existem.
+Remover o header `OpenAI-Project` se não for necessário para 4o (manter não causa erro, então pode ficar).
 
