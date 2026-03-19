@@ -1,4 +1,4 @@
-import { User, Settings, CreditCard, Bell, LogOut, Plug, Sparkles } from "lucide-react";
+import { User, Settings, CreditCard, Bell, LogOut, Plug, Sparkles, Crown } from "lucide-react";
 import { MemberCard } from "@/components/ui/member-card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
