@@ -246,6 +246,9 @@ export default function Conteudo() {
       if (data?.error) throw new Error(data.error);
 
       setScript(data);
+      if (selectedIdea) {
+        setScriptsMap(prev => ({ ...prev, [selectedIdea.title]: data }));
+      }
     } catch (e: any) {
       toast({ title: "Erro ao gerar roteiro", description: e.message, variant: "destructive" });
     } finally {
