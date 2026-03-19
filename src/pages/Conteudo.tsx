@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { AiLoader } from "@/components/ui/ai-loader";
-import { Lightbulb, Sparkles, Copy, Save, ArrowRight, Filter, Plus, X } from "lucide-react";
+import { Lightbulb, Sparkles, Copy, Save, ArrowRight, Filter, Plus, X, FileText } from "lucide-react";
 
 interface ContentIdea {
   title: string;
@@ -122,8 +122,21 @@ export default function Conteudo() {
   const [customAudience, setCustomAudience] = useState("");
 
   // Script
+  const storageKeyScripts = user ? `viralize_scripts_${user.user_id}` : null;
+  const [scriptsMap, setScriptsMap] = useState<Record<string, Script>>(() => {
+    if (!storageKeyScripts) return {};
+    try {
+      const stored = localStorage.getItem(storageKeyScripts);
+      return stored ? JSON.parse(stored) : {};
+    } catch { return {}; }
+  });
   const [script, setScript] = useState<Script | null>(null);
   const [loadingScript, setLoadingScript] = useState(false);
+
+  // Persist scripts to localStorage
+  useEffect(() => {
+    if (storageKeyScripts) localStorage.setItem(storageKeyScripts, JSON.stringify(scriptsMap));
+  }, [scriptsMap, storageKeyScripts]);
 
   const filteredIdeas = useMemo(() => {
     if (!activeFilter) return ideas;
@@ -203,13 +216,13 @@ export default function Conteudo() {
     generateIdeas(true, extraBody);
   }
 
-  function openIdea(idea: ContentIdea) {
+  function openIdea(idea: ContentIdea, jumpToScript = false) {
     setSelectedIdea(idea);
     setCustomTitle(idea.title);
     setCustomAngle(idea.angle);
     setCustomTone("");
     setCustomAudience("");
-    setScript(null);
+    setScript(scriptsMap[idea.title] || null);
     setSheetOpen(true);
   }
 
@@ -233,6 +246,9 @@ export default function Conteudo() {
       if (data?.error) throw new Error(data.error);
 
       setScript(data);
+      if (selectedIdea) {
+        setScriptsMap(prev => ({ ...prev, [selectedIdea.title]: data }));
+      }
     } catch (e: any) {
       toast({ title: "Erro ao gerar roteiro", description: e.message, variant: "destructive" });
     } finally {
@@ -398,8 +414,24 @@ export default function Conteudo() {
                   </div>
                   <p className="text-xs text-muted-foreground">⏰ {idea.why_now}</p>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-primary pt-1">
-                  Personalizar e criar roteiro <ArrowRight className="w-3 h-3" />
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center gap-1 text-xs text-primary">
+                    Personalizar e criar roteiro <ArrowRight className="w-3 h-3" />
+                  </div>
+                  {scriptsMap[idea.title] && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openIdea(idea, true);
+                      }}
+                    >
+                      <FileText className="w-3 h-3" />
+                      Ver Roteiro
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
