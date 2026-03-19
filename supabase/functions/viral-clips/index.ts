@@ -278,8 +278,8 @@ serve(async (req) => {
       .map((w) => `[${(w.start * 1000).toFixed(0)}ms] ${w.text}`)
       .join(" ");
 
-    // Analyze with Lovable AI
-    console.log("Starting AI analysis...");
+    // Analyze with Gemini API directly
+    console.log("Starting Gemini AI analysis...");
     const systemPrompt = `Você é um especialista em identificar momentos virais em vídeos longos.
 
 ${FRAMEWORK_ROTEIROS}
@@ -300,78 +300,53 @@ Para cada corte, considere:
 - Potencial de viralização como conteúdo independente
 - Alinhamento com o perfil do criador (se disponível)
 
-IMPORTANTE: Os timestamps DEVEM estar alinhados com as palavras da transcrição. Não invente timestamps.`;
+IMPORTANTE: Os timestamps DEVEM estar alinhados com as palavras da transcrição. Não invente timestamps.
+
+Responda APENAS com um JSON válido no formato:
+{"clips": [{"start_ms": number, "end_ms": number, "title": "string", "hook": "string", "viral_score": number, "reason": "string", "suggested_caption": "string"}]}`;
 
     const userPrompt = `Aqui está a transcrição com timestamps do vídeo:
 
 ${wordTimestamps || fullText}
 
-Identifique os melhores momentos para cortes virais.`;
+Identifique os melhores momentos para cortes virais. Responda APENAS com JSON.`;
 
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "identify_viral_clips",
-              description: "Identifica os melhores trechos virais de um vídeo longo.",
-              parameters: {
-                type: "object",
-                properties: {
-                  clips: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        start_ms: { type: "number", description: "Timestamp de início em milissegundos" },
-                        end_ms: { type: "number", description: "Timestamp de fim em milissegundos" },
-                        title: { type: "string", description: "Título sugerido para o corte" },
-                        hook: { type: "string", description: "Hook viral sugerido para o início do corte" },
-                        viral_score: { type: "number", description: "Score viral de 0 a 100" },
-                        reason: { type: "string", description: "Motivo da seleção deste trecho" },
-                        suggested_caption: { type: "string", description: "Legenda sugerida para o corte" },
-                      },
-                      required: ["start_ms", "end_ms", "title", "hook", "viral_score", "reason", "suggested_caption"],
-                      additionalProperties: false,
-                    },
-                  },
-                },
-                required: ["clips"],
-                additionalProperties: false,
-              },
-            },
+    const aiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            { role: "user", parts: [{ text: systemPrompt + "\n\n" + userPrompt }] },
+          ],
+          generationConfig: {
+            responseMimeType: "application/json",
           },
-        ],
-        tool_choice: { type: "function", function: { name: "identify_viral_clips" } },
-      }),
-    });
+        }),
+      }
+    );
 
     if (!aiRes.ok) {
+      const errText = await aiRes.text();
+      console.error("Gemini API error:", aiRes.status, errText);
       if (aiRes.status === 429) throw new Error("Rate limit atingido. Tente novamente em alguns minutos.");
-      if (aiRes.status === 402) throw new Error("Créditos insuficientes. Adicione créditos ao workspace.");
       throw new Error("Erro na análise IA: " + aiRes.status);
     }
 
     const aiData = await aiRes.json();
     let clips: any[] = [];
 
-    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    if (toolCall?.function?.arguments) {
-      const parsed = JSON.parse(toolCall.function.arguments);
-      clips = parsed.clips || [];
+    try {
+      const textContent = aiData.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (textContent) {
+        const parsed = JSON.parse(textContent);
+        clips = parsed.clips || [];
+      }
+    } catch (parseErr) {
+      console.error("Error parsing Gemini response:", parseErr);
     }
-    console.log("AI analysis done, clips found:", clips.length);
+    console.log("Gemini analysis done, clips found:", clips.length);
 
     // Save results
     await sb.from("viral_clips").update({
