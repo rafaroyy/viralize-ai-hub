@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { AiLoader } from "@/components/ui/ai-loader";
-import { Lightbulb, Sparkles, Copy, Save, ArrowRight, Filter, Plus, X } from "lucide-react";
+import { Lightbulb, Sparkles, Copy, Save, ArrowRight, Filter, Plus, X, FileText } from "lucide-react";
 
 interface ContentIdea {
   title: string;
