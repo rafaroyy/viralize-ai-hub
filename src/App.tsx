@@ -20,6 +20,7 @@ import AnalisadorViral from "./pages/AnalisadorViral";
 import ModelarPost from "./pages/ModelarPost";
 import AffiliateHub from "./pages/AffiliateHub";
 import TikTokCallback from "./pages/TikTokCallback";
+import CortesVirais from "./pages/CortesVirais";
 
 const queryClient = new QueryClient();
 
