@@ -261,6 +261,21 @@ ${FRAMEWORK_ROTEIROS}
 ---
 ${DIRETRIZES_CRIATIVAS}
 ---
+${FRAMEWORK_RETENCAO}
+---
+${FRAMEWORK_PLATAFORMAS}
+---
+${EXEMPLOS_VIRAIS}
+---
+${BENCHMARKS_NICHO}
+---
+
+## INSTRUÇÕES DE AVALIAÇÃO ESTRATÉGICA
+• Compare o vídeo com os CASE STUDIES de referência — ele segue padrões similares de viralização?
+• Use os BENCHMARKS DO NICHO para contextualizar os scores (ex: 50K views em finanças é excelente, em humor é mediano)
+• Avalie retenção usando o FRAMEWORK DE RETENÇÃO: micro-hooks, pattern interrupts, open loops, visual pacing
+• Verifique conformidade com as PARTICULARIDADES DA PLATAFORMA se identificável
+• Cite qual case study ou benchmark fundamenta cada recomendação
 
 ## REGRAS DE CONCISÃO (OBRIGATÓRIO)
 • strengths e weaknesses: MÁXIMO 2 itens cada, 1 frase curta por item
@@ -292,7 +307,7 @@ ${DIRETRIZES_CRIATIVAS}
   "viralVideoIdeas": [{ "title": "string", "description": "string (1 frase)", "hookSuggestion": "string" }]
 }
 
-Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R.`;
+Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R, cases e benchmarks.`;
 
     const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
