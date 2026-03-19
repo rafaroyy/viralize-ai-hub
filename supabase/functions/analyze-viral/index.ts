@@ -95,7 +95,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { url, description, isVideoUpload } = await req.json();
+    const { url, description, isVideoUpload, creatorProfile } = await req.json();
     if (!url && !description) {
       return new Response(JSON.stringify({ success: false, error: "URL, descrição ou vídeo é obrigatório" }), {
         status: 400,
