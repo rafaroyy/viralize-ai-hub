@@ -236,7 +236,7 @@ Sem markdown, sem code fences. APENAS JSON válido.`;
         contents: [{ role: "user", parts }],
         generationConfig: {
           responseMimeType: "application/json",
-          temperature: 0.7,
+          temperature: 0.4,
         },
       }),
     });
