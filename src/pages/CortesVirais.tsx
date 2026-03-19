@@ -237,7 +237,16 @@ export default function CortesVirais() {
   };
 
   const pollStatus = useCallback(async (id: string) => {
+    const startTime = Date.now();
+    const MAX_POLL_MS = 5 * 60 * 1000; // 5 minutes timeout
+
     const poll = async () => {
+      if (Date.now() - startTime > MAX_POLL_MS) {
+        setStatus("error");
+        setErrorMsg("Tempo limite excedido. Tente novamente com um vídeo menor.");
+        return;
+      }
+
       const { data, error } = await supabase
         .from("viral_clips")
         .select("status, clips, error_message, video_storage_path")
@@ -260,7 +269,7 @@ export default function CortesVirais() {
             .getPublicUrl(data.video_storage_path);
           setUploadedVideoUrl(urlData.publicUrl);
         }
-        return; // stop polling
+        return;
       } else if (data.status === "error") {
         setStatus("error");
         setErrorMsg(data.error_message || "Erro no processamento");
