@@ -223,7 +223,7 @@ export default function CortesVirais() {
         setStatus("analyzing");
       } else if (data.status === "done") {
         setStatus("done");
-        const parsedClips = (data.clips as ClipData[]) || [];
+        const parsedClips = (data.clips as unknown as ClipData[]) || [];
         setClips(parsedClips);
         if (data.video_storage_path) {
           const { data: urlData } = supabase.storage
