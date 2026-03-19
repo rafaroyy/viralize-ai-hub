@@ -660,6 +660,90 @@ export const SCHEMA_ANALISE_JSON = `
 `;
 
 // =============================================
+// CREATOR RAG CONTEXT — Personalização condicional
+// =============================================
+
+export interface CreatorProfileRAG {
+  niche?: string;
+  sub_niches?: string[];
+  target_audience?: string;
+  content_style?: string;
+  main_platforms?: string[];
+  profile_handle?: string;
+  average_views?: string;
+  goals?: string;
+  tone_of_voice?: string;
+  brand_cause?: string;
+  brand_tribe?: string;
+  brand_enemy?: string;
+  brand_archetype?: string;
+  brand_origin_story?: string;
+  brand_recognition?: string;
+  brand_competitor_weakness?: string;
+}
+
+/**
+ * Gera o bloco RAG condicional do criador.
+ * Se o perfil está preenchido → retorna instruções de PRIORIDADE MÁXIMA.
+ * Se não → retorna string vazia (análise genérica padrão).
+ */
+export function buildCreatorRAGContext(profile?: CreatorProfileRAG): string {
+  if (!profile || !profile.niche) return '';
+
+  let block = `
+
+## MODO PERSONALIZADO — ATIVO
+
+PRIORIDADE MÁXIMA: Todas as análises, sugestões de melhoria e ideias de vídeo
+devem ser filtradas pelo contexto deste criador. Quando houver conflito entre
+recomendações genéricas e o perfil do criador, PRIORIZE o perfil.
+
+### Perfil do Criador
+- Nicho: ${profile.niche}
+- Sub-nichos: ${(profile.sub_niches || []).join(', ') || 'N/A'}
+- Público-alvo: ${profile.target_audience || 'N/A'}
+- Estilo de conteúdo: ${profile.content_style || 'N/A'}
+- Plataformas: ${(profile.main_platforms || []).join(', ') || 'N/A'}
+- Tom de voz: ${profile.tone_of_voice || 'N/A'}
+- Média de views: ${profile.average_views || 'N/A'}
+- Objetivo: ${profile.goals || 'N/A'}
+
+### Instruções de Personalização
+1. BENCHMARKS: Use APENAS os benchmarks do nicho "${profile.niche}" como referência principal. Se o nicho não existir nos benchmarks padrão, extrapole com base nos mais próximos.
+2. IDEIAS DE VÍDEO: Todas as viralVideoIdeas devem ser relevantes para o nicho "${profile.niche}" e público "${profile.target_audience || 'geral'}".
+3. MELHORIAS: Tips e feedback devem considerar o estilo "${profile.content_style || 'geral'}" e tom "${profile.tone_of_voice || 'natural'}" do criador.
+4. SUMMARY: Mencione como o vídeo se encaixa (ou não) no posicionamento do criador.
+5. HOOKS: Sugira hooks que funcionem para o público-alvo "${profile.target_audience || 'geral'}".
+6. SCRIPT BLUEPRINT: Captions e CTAs devem refletir o tom de voz do criador.`;
+
+  // Branding — só injeta se pelo menos um campo de marca estiver preenchido
+  const hasBranding = profile.brand_cause || profile.brand_archetype || profile.brand_tribe || profile.brand_enemy;
+
+  if (hasBranding) {
+    block += `
+
+### Posicionamento de Marca Pessoal (Personal Branding)
+- Causa que defende: ${profile.brand_cause || 'N/A'}
+- Tribo (público que se identifica): ${profile.brand_tribe || 'N/A'}
+- Inimigo em comum: ${profile.brand_enemy || 'N/A'}
+- Arquétipo dominante: ${profile.brand_archetype || 'N/A'}
+- História de origem: ${profile.brand_origin_story || 'N/A'}
+- Reconhecimento desejado: ${profile.brand_recognition || 'N/A'}
+- Ponto fraco do concorrente transformado em força: ${profile.brand_competitor_weakness || 'N/A'}
+
+### Instruções de Alinhamento de Marca (OBRIGATÓRIO quando branding preenchido)
+7. Avalie se o vídeo REFORÇA ou ENFRAQUECE o posicionamento declarado.
+8. O tom é coerente com o arquétipo "${profile.brand_archetype || 'N/A'}"?
+9. O conteúdo fala com a tribo "${profile.brand_tribe || 'N/A'}" ou está genérico demais?
+10. O vídeo diferencia o criador dos concorrentes no ponto declarado?
+11. Inclua no summary uma nota sobre alinhamento com a marca pessoal.
+12. viralVideoIdeas devem reforçar o posicionamento — nunca contradizê-lo.`;
+  }
+
+  return block;
+}
+
+// =============================================
 // SYSTEM PROMPT CONSOLIDADO
 // =============================================
 
