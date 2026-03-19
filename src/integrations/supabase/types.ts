@@ -107,6 +107,54 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_profiles: {
+        Row: {
+          average_views: string | null
+          content_style: string
+          created_at: string
+          goals: string | null
+          id: string
+          main_platforms: string[] | null
+          niche: string
+          profile_handle: string | null
+          sub_niches: string[] | null
+          target_audience: string
+          tone_of_voice: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          average_views?: string | null
+          content_style?: string
+          created_at?: string
+          goals?: string | null
+          id?: string
+          main_platforms?: string[] | null
+          niche?: string
+          profile_handle?: string | null
+          sub_niches?: string[] | null
+          target_audience?: string
+          tone_of_voice?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          average_views?: string | null
+          content_style?: string
+          created_at?: string
+          goals?: string | null
+          id?: string
+          main_platforms?: string[] | null
+          niche?: string
+          profile_handle?: string | null
+          sub_niches?: string[] | null
+          target_audience?: string
+          tone_of_voice?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       oauth_integrations: {
         Row: {
           access_token: string | null
