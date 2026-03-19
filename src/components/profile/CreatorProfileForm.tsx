@@ -61,6 +61,7 @@ export function CreatorProfileForm() {
   const { profile, loading, saving, saveProfile } = useCreatorProfile();
   const [form, setForm] = useState<CreatorProfile>(profile);
   const [subNicheInput, setSubNicheInput] = useState('');
+  const [brandingOpen, setBrandingOpen] = useState(false);
 
   useEffect(() => { setForm(profile); }, [profile]);
 
