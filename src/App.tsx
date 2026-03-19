@@ -9,6 +9,7 @@ import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import RadarTrendsPage from "./pages/RadarTrends";
 import CriarVideo from "./pages/CriarVideo";
+import Conteudo from "./pages/Conteudo";
 import Modelos from "./pages/Modelos";
 import ChatIA from "./pages/ChatIA";
 import MeusVideos from "./pages/MeusVideos";
