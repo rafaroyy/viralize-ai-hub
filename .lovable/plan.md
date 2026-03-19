@@ -1,25 +1,42 @@
 
 
-## Diagnóstico: Edge Function morre antes de concluir
+## Diagnóstico: Cobalt API bloqueada pelo YouTube
 
-O problema é arquitetural. A Edge Function `viral-clips` usa um padrão de "background processing" com `(async () => { ... })()` que **não funciona** em Deno Edge Functions. O runtime encerra o processo ~2 minutos após enviar a resposta HTTP, matando a task de transcrição/análise antes de completar. Por isso o status fica preso em "transcribing" para sempre.
+A API pública do Cobalt (`api.cobalt.tools`) está permanentemente bloqueada pelo YouTube desde agosto 2025 (issue #1356 no GitHub). Por isso toda tentativa de baixar áudio via YouTube URL falha.
 
-### Solução: Processamento síncrono (aguardar na mesma request)
+### Solução: Duas frentes
 
-Remover o padrão de background processing. A Edge Function deve processar tudo sincronamente e retornar o resultado final na resposta. O frontend já faz polling, então a mudança é:
+**Frente 1 — YouTube: Buscar transcrição diretamente (sem baixar vídeo)**
 
-1. **Edge Function (`viral-clips/index.ts`)**: Executar todo o pipeline (upload, transcrição, análise) de forma síncrona dentro do handler, atualizando o status na tabela a cada etapa. Retornar o resultado final (clips) na resposta HTTP.
+Em vez de baixar o áudio do YouTube para transcrever via ElevenLabs, buscar as legendas/captions do YouTube diretamente usando a técnica do `youtube-transcript-api-js` (scraping da página de captions do YouTube, sem API key). Isso elimina completamente a necessidade de baixar o vídeo.
 
-2. **Frontend (`CortesVirais.tsx`)**: Ao invés de esperar resposta imediata e fazer polling, fazer a chamada com timeout longo e tratar o resultado direto da resposta. Manter o polling como fallback mas atualizar com a resposta direta.
+Pipeline YouTube atualizado:
+```text
+URL YouTube → Extrair video ID → Buscar captions/transcript do YouTube
+→ Enviar texto + timestamps para Gemini (análise viral)
+→ Retornar clips
+```
 
-3. **Timeout**: O ElevenLabs Scribe pode levar 30-60s para vídeos longos, e a análise com Gemini mais 10-20s. A Edge Function tem limite de ~150s. Isso é suficiente para a maioria dos casos.
+Vantagens: Sem download de vídeo, muito mais rápido, sem limites de tamanho, sem dependência do Cobalt.
 
-4. **Adicionar timeout no polling**: Se o polling ficar rodando por mais de 5 minutos sem mudança de status, parar e mostrar erro ao usuário.
+**Frente 2 — Upload de arquivo: Manter pipeline atual**
 
-### Arquivos a editar
+Para uploads diretos, o fluxo ElevenLabs Scribe continua funcionando normalmente.
+
+### Implementação
+
+**`supabase/functions/viral-clips/index.ts`**:
+1. Remover toda a lógica do Cobalt
+2. Adicionar função `fetchYoutubeTranscript(videoId)` que faz scraping das captions do YouTube (buscar página do vídeo → extrair `captionTracks` do `ytInitialPlayerResponse` → fazer fetch do XML de legendas → parsear timestamps)
+3. Para YouTube: pular ElevenLabs, usar transcript do YouTube direto
+4. Para upload: manter ElevenLabs Scribe como está
+
+**`src/pages/CortesVirais.tsx`**:
+- Sem mudanças necessárias (o frontend já trata o fluxo corretamente)
+
+### Arquivo
 
 | Arquivo | Mudança |
 |---|---|
-| `supabase/functions/viral-clips/index.ts` | Remover IIFE async, processar sincronamente, retornar resultado na resposta |
-| `src/pages/CortesVirais.tsx` | Adaptar para receber resultado direto da resposta + timeout no polling |
+| `supabase/functions/viral-clips/index.ts` | Substituir Cobalt por YouTube transcript scraping |
 
