@@ -525,6 +525,32 @@ const AnalisadorViral = () => {
               />
             </div>
 
+            {/* Toggle análise personalizada */}
+            <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
+              <div className="flex items-center gap-3">
+                <UserCircle className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm font-medium">Análise personalizada</p>
+                  <p className="text-xs text-muted-foreground">
+                    {hasProfile ? 'Baseada no seu perfil de criador' : 'Configure seu perfil de criador primeiro'}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={personalizedMode}
+                onCheckedChange={(checked) => {
+                  if (checked && !hasProfile) {
+                    toast({
+                      title: 'Perfil não configurado',
+                      description: 'Vá em Perfil → Criador para preencher seu perfil e ativar análises personalizadas.',
+                    });
+                    return;
+                  }
+                  setPersonalizedMode(checked);
+                }}
+              />
+            </div>
+
             <div className="flex gap-3">
               <Button
                 onClick={handleAnalyze}
