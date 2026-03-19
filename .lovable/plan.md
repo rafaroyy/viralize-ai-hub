@@ -1,51 +1,94 @@
 
 
-# Nova Pagina de Vendas em /pagina
+# Integração do Perfil de Criador no Static RAG
 
-## Resumo
-Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
+## Situação atual
 
-## Estrutura das Secoes
+O contexto do criador é **apenas apendado no final** dos prompts do Gemini e OpenAI como texto extra. Não há integração real com o RAG — os frameworks (P-C-R, benchmarks, cases, etc.) são genéricos e não mudam com base no perfil. O agente recebe os dados do criador mas não tem instrução clara de **priorizar** esses dados nas recomendações, ideias de vídeo e melhorias.
 
-1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
-2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
-3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
-4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
-5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
-6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
-7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
+## O que muda
 
-## Detalhes Tecnicos
+Criar uma função `buildCreatorRAGContext()` no `knowledge_base.ts` que gera um bloco RAG condicional. Quando o perfil está ativo, esse bloco **substitui as instruções genéricas** por instruções personalizadas que priorizam o nicho, público, posicionamento e tom do criador.
 
-### Arquivos criados
-- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
+## Plano
 
-### Arquivos modificados
-- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
+### 1. `knowledge_base.ts` — Nova função exportada
 
-### Componentes reutilizados
-- `ScrollReveal` (mesmo pattern da LandingPage)
-- `framer-motion` para animacoes
-- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
-- Logo existente no header
-- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
+```typescript
+export function buildCreatorRAGContext(profile?: CreatorProfile): string
+```
 
-### Regras de UI seguidas conforme o prompt
-- Maximo 1 ideia por bloco
-- Frases de impacto em linha isolada (texto maior, peso bold)
-- Sem emojis no site
-- CTAs apenas no Hero + Oferta
-- Visual clean, contraste alto, bastante espaco
-- Navbar simplificada (logo + "Entrar" + CTA)
-- Footer minimalista
+Se `profile` é null/vazio → retorna string vazia (comportamento padrão, sem personalização).
 
-### Pricing
-- Preco: De R$645 por R$247
-- Pagamento unico
-- Link de checkout vitalicio reutilizado (CenterPag)
-- Suporte a affiliate slug mantido
+Se `profile` tem dados → retorna um bloco RAG completo:
 
-### Rota
-- `/pagina` como rota publica (nao protegida)
-- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
+```
+## MODO PERSONALIZADO — ATIVO
+
+PRIORIDADE MÁXIMA: Todas as análises, sugestões de melhoria e ideias de vídeo
+devem ser filtradas pelo contexto deste criador.
+
+### Perfil do Criador
+- Nicho: {niche} | Sub-nichos: {sub_niches}
+- Público-alvo: {target_audience}
+- Estilo: {content_style}
+- Plataformas: {platforms}
+- Tom de voz: {tone_of_voice}
+- Média de views: {average_views}
+- Objetivo: {goals}
+
+### Instruções de Personalização
+1. BENCHMARKS: Use APENAS os benchmarks do nicho "{niche}" como referência
+2. IDEIAS DE VÍDEO: Todas as viralVideoIdeas devem ser relevantes para o nicho e público declarados
+3. MELHORIAS: Tips e feedback devem considerar o estilo e tom do criador
+4. SUMMARY: Mencione como o vídeo se encaixa (ou não) no posicionamento do criador
+5. HOOKS: Sugira hooks que funcionem para o público-alvo específico
+
+[Se branding preenchido:]
+### Posicionamento de Marca
+- Causa: {brand_cause}
+- Tribo: {brand_tribe}
+- Inimigo: {brand_enemy}
+- Arquétipo: {brand_archetype}
+- Reconhecimento: {brand_recognition}
+- Fraqueza do concorrente: {brand_competitor_weakness}
+
+### Instruções de Alinhamento de Marca
+6. Avalie se o vídeo REFORÇA ou ENFRAQUECE o posicionamento declarado
+7. O tom é coerente com o arquétipo {archetype}?
+8. O conteúdo fala com a tribo certa ou está genérico?
+9. O vídeo diferencia o criador no ponto declarado vs concorrentes?
+10. Inclua no summary uma nota sobre alinhamento com a marca pessoal
+```
+
+### 2. `analyze-viral/index.ts` — Substituir injeção manual
+
+Remover os blocos manuais de `creatorContext` (linhas 216-247) e substituir por:
+
+```typescript
+import { buildCreatorRAGContext } from "../_shared/knowledge_base.ts";
+
+const creatorContext = buildCreatorRAGContext(creatorProfile);
+```
+
+Esse bloco é injetado nos dois prompts (Gemini e OpenAI) da mesma forma que já é hoje, mas agora vem da função centralizada com instruções muito mais específicas de priorização.
+
+### 3. Lógica condicional clara
+
+```text
+creatorProfile preenchido e ativo?
+  ├─ SIM → buildCreatorRAGContext() retorna bloco completo
+  │        → Agentes priorizam nicho, público, tom, marca
+  │        → Ideas, tips e summary são personalizados
+  │
+  └─ NÃO → buildCreatorRAGContext() retorna ""
+           → Análise padrão genérica (como já funciona hoje)
+```
+
+## Arquivos alterados
+
+| Arquivo | Ação |
+|---|---|
+| `supabase/functions/_shared/knowledge_base.ts` | Nova função `buildCreatorRAGContext()` |
+| `supabase/functions/analyze-viral/index.ts` | Substituir blocos manuais pela função centralizada |
 
