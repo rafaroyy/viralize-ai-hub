@@ -63,8 +63,23 @@ export default function Conteudo() {
   const { hasProfile } = useCreatorProfile();
   const { toast } = useToast();
 
-  const [ideas, setIdeas] = useState<ContentIdea[]>([]);
-  const [dismissedIdeas, setDismissedIdeas] = useState<ContentIdea[]>([]);
+  const storageKeyIdeas = user ? `viralize_ideas_${user.user_id}` : null;
+  const storageKeyDismissed = user ? `viralize_dismissed_${user.user_id}` : null;
+
+  const [ideas, setIdeas] = useState<ContentIdea[]>(() => {
+    if (!storageKeyIdeas) return [];
+    try {
+      const stored = localStorage.getItem(storageKeyIdeas);
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
+  const [dismissedIdeas, setDismissedIdeas] = useState<ContentIdea[]>(() => {
+    if (!storageKeyDismissed) return [];
+    try {
+      const stored = localStorage.getItem(storageKeyDismissed);
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
   const [loadingIdeas, setLoadingIdeas] = useState(false);
   const [selectedIdea, setSelectedIdea] = useState<ContentIdea | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
