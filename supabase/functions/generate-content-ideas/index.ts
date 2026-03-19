@@ -158,8 +158,8 @@ Gere ideias VARIADAS em categorias diferentes. Cada ideia deve ser pr√°tica e f√
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-5.4",
-        max_completion_tokens: 3000,
+        model: "gpt-4o",
+        max_tokens: 3000,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
