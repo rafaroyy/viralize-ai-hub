@@ -148,7 +148,11 @@ Retorne sua análise como JSON válido. Seja CONCISO — cada campo de texto dev
 **2. CORPO** — "C" (Conflito): Mantém atenção? Score 0-100
 **3. CTA / FINAL** — "R" (Resposta): Incentiva ação? Score 0-100
 
-### Regras
+### Regras de Análise
+• Use o FRAMEWORK DE RETENÇÃO para avaliar micro-hooks, pattern interrupts e open loops
+• Compare com os EXEMPLOS VIRAIS de referência — o vídeo segue padrões similares?
+• Identifique o nicho e use os BENCHMARKS correspondentes para contextualizar os scores
+• Avalie conformidade com as PARTICULARIDADES DA PLATAFORMA (se identificável)
 • Bullet points com "• " no início, **negrito** em palavras-chave
 • Tags temporais [MM:SS - MM:SS]
 • Feedbacks: máximo 2 bullet points por seção
