@@ -12,6 +12,13 @@ export interface CreatorProfile {
   average_views: string;
   goals: string;
   tone_of_voice: string;
+  brand_cause: string;
+  brand_tribe: string;
+  brand_enemy: string;
+  brand_archetype: string;
+  brand_origin_story: string;
+  brand_recognition: string;
+  brand_competitor_weakness: string;
 }
 
 const EMPTY_PROFILE: CreatorProfile = {
@@ -24,6 +31,13 @@ const EMPTY_PROFILE: CreatorProfile = {
   average_views: '',
   goals: '',
   tone_of_voice: '',
+  brand_cause: '',
+  brand_tribe: '',
+  brand_enemy: '',
+  brand_archetype: '',
+  brand_origin_story: '',
+  brand_recognition: '',
+  brand_competitor_weakness: '',
 };
 
 export function useCreatorProfile() {
