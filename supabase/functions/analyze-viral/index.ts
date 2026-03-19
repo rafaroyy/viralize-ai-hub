@@ -384,7 +384,7 @@ TODOS os scores (hookAnalysis.score, bodyAnalysis.score, ctaAnalysis.score, over
   "viralVideoIdeas": [{ "title": "string", "description": "string (1 frase)", "hookSuggestion": "string" }]
 }
 
-Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R, cases e benchmarks.`;
+Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R, cases e benchmarks.` + creatorContext;
 
     const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
