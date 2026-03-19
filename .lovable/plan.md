@@ -1,51 +1,65 @@
 
 
-# Nova Pagina de Vendas em /pagina
+# Personal Branding — Seção Avançada no Perfil de Criador
 
-## Resumo
-Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
+## Visão geral
 
-## Estrutura das Secoes
+Adicionar uma seção colapsável "Personal Branding (Avançado)" no formulário de criador, com campos baseados no framework de Posicionamento Magnético. Esses dados serão persistidos no banco e injetados nos prompts de análise viral para avaliar se o conteúdo está alinhado com a marca pessoal do criador.
 
-1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
-2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
-3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
-4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
-5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
-6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
-7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
+## Campos do Personal Branding
 
-## Detalhes Tecnicos
+Baseados nos 5 pilares do posicionamento:
 
-### Arquivos criados
-- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
+| Campo | Tipo | Placeholder / Descrição |
+|---|---|---|
+| **Causa** | textarea | "Qual visão de mundo você defende? Ex: Jovens não precisam esperar 10 anos pra ganhar dinheiro" |
+| **Tribo** | textarea | "Quem é o público que se identifica com você? Ex: Empreendedores iniciantes cansados de guru" |
+| **Inimigo em comum** | textarea | "O que sua audiência rejeita? Ex: Promessas milagrosas, gurus sem prova" |
+| **Arquétipo** | select (Mentor, Rebelde, Executor, Visionário, Provocador) | Como você se comporta |
+| **História de origem** | textarea | "Resuma sua trajetória: de onde veio, o conflito e a transformação" |
+| **Reconhecimento desejado** | input | "Por que quer ser lembrado? Ex: O mais prático, o que realmente executa" |
+| **Ponto fraco do concorrente** | textarea | "Qual o ponto fraco dos seus concorrentes que você transforma em força?" |
 
-### Arquivos modificados
-- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
+## Mudanças
 
-### Componentes reutilizados
-- `ScrollReveal` (mesmo pattern da LandingPage)
-- `framer-motion` para animacoes
-- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
-- Logo existente no header
-- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
+### 1. Migration SQL
+Adicionar 7 colunas na tabela `creator_profiles`:
+- `brand_cause text DEFAULT ''`
+- `brand_tribe text DEFAULT ''`
+- `brand_enemy text DEFAULT ''`
+- `brand_archetype text DEFAULT ''`
+- `brand_origin_story text DEFAULT ''`
+- `brand_recognition text DEFAULT ''`
+- `brand_competitor_weakness text DEFAULT ''`
 
-### Regras de UI seguidas conforme o prompt
-- Maximo 1 ideia por bloco
-- Frases de impacto em linha isolada (texto maior, peso bold)
-- Sem emojis no site
-- CTAs apenas no Hero + Oferta
-- Visual clean, contraste alto, bastante espaco
-- Navbar simplificada (logo + "Entrar" + CTA)
-- Footer minimalista
+### 2. `useCreatorProfile.ts`
+Expandir a interface `CreatorProfile` com os 7 campos novos e atualizar EMPTY_PROFILE, fetch e save.
 
-### Pricing
-- Preco: De R$645 por R$247
-- Pagamento unico
-- Link de checkout vitalicio reutilizado (CenterPag)
-- Suporte a affiliate slug mantido
+### 3. `CreatorProfileForm.tsx`
+Adicionar uma seção colapsável (Collapsible) "Personal Branding (Avançado)" abaixo dos campos existentes e acima do botão Salvar, com os 7 campos novos.
 
-### Rota
-- `/pagina` como rota publica (nao protegida)
-- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
+### 4. `analyze-viral/index.ts`
+No bloco de contexto do criador, se os campos de branding estiverem preenchidos, adicionar:
+```
+## POSICIONAMENTO / MARCA PESSOAL
+- Causa: {brand_cause}
+- Tribo: {brand_tribe}
+- Inimigo em comum: {brand_enemy}
+- Arquétipo: {brand_archetype}
+- História: {brand_origin_story}
+- Reconhecimento desejado: {brand_recognition}
+
+Avalie se o vídeo está ALINHADO com o posicionamento declarado.
+O conteúdo reforça a causa e fala com a tribo certa?
+O tom é coerente com o arquétipo escolhido?
+```
+
+## Arquivos alterados
+
+| Arquivo | Ação |
+|---|---|
+| Migration SQL | ADD COLUMN x7 em `creator_profiles` |
+| `src/hooks/useCreatorProfile.ts` | Expandir interface + fetch/save |
+| `src/components/profile/CreatorProfileForm.tsx` | Seção colapsável com 7 campos |
+| `supabase/functions/analyze-viral/index.ts` | Injetar contexto de branding nos prompts |
 
