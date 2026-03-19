@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle, Eye, Smartphone, Search, ExternalLink } from "lucide-react";
+import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle, Eye, Smartphone, Search, ExternalLink, User } from "lucide-react";
 import { AiLoader } from "@/components/ui/ai-loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
