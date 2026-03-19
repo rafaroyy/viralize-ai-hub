@@ -110,6 +110,13 @@ export type Database = {
       creator_profiles: {
         Row: {
           average_views: string | null
+          brand_archetype: string | null
+          brand_cause: string | null
+          brand_competitor_weakness: string | null
+          brand_enemy: string | null
+          brand_origin_story: string | null
+          brand_recognition: string | null
+          brand_tribe: string | null
           content_style: string
           created_at: string
           goals: string | null
@@ -125,6 +132,13 @@ export type Database = {
         }
         Insert: {
           average_views?: string | null
+          brand_archetype?: string | null
+          brand_cause?: string | null
+          brand_competitor_weakness?: string | null
+          brand_enemy?: string | null
+          brand_origin_story?: string | null
+          brand_recognition?: string | null
+          brand_tribe?: string | null
           content_style?: string
           created_at?: string
           goals?: string | null
@@ -140,6 +154,13 @@ export type Database = {
         }
         Update: {
           average_views?: string | null
+          brand_archetype?: string | null
+          brand_cause?: string | null
+          brand_competitor_weakness?: string | null
+          brand_enemy?: string | null
+          brand_origin_story?: string | null
+          brand_recognition?: string | null
+          brand_tribe?: string | null
           content_style?: string
           created_at?: string
           goals?: string | null

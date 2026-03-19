@@ -12,6 +12,13 @@ export interface CreatorProfile {
   average_views: string;
   goals: string;
   tone_of_voice: string;
+  brand_cause: string;
+  brand_tribe: string;
+  brand_enemy: string;
+  brand_archetype: string;
+  brand_origin_story: string;
+  brand_recognition: string;
+  brand_competitor_weakness: string;
 }
 
 const EMPTY_PROFILE: CreatorProfile = {
@@ -24,6 +31,13 @@ const EMPTY_PROFILE: CreatorProfile = {
   average_views: '',
   goals: '',
   tone_of_voice: '',
+  brand_cause: '',
+  brand_tribe: '',
+  brand_enemy: '',
+  brand_archetype: '',
+  brand_origin_story: '',
+  brand_recognition: '',
+  brand_competitor_weakness: '',
 };
 
 export function useCreatorProfile() {
@@ -60,6 +74,13 @@ export function useCreatorProfile() {
           average_views: d.average_views ?? '',
           goals: d.goals ?? '',
           tone_of_voice: d.tone_of_voice ?? '',
+          brand_cause: d.brand_cause ?? '',
+          brand_tribe: d.brand_tribe ?? '',
+          brand_enemy: d.brand_enemy ?? '',
+          brand_archetype: d.brand_archetype ?? '',
+          brand_origin_story: d.brand_origin_story ?? '',
+          brand_recognition: d.brand_recognition ?? '',
+          brand_competitor_weakness: d.brand_competitor_weakness ?? '',
         });
       }
       if (!cancelled) setLoading(false);
