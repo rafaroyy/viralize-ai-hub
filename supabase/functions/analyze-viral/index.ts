@@ -351,7 +351,7 @@ Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R, cases e
       body: JSON.stringify({
         model: "gpt-5.4",
         temperature: 0.5,
-        max_tokens: 3000,
+        max_completion_tokens: 3000,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: openaiSystemPrompt },
