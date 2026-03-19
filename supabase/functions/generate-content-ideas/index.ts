@@ -282,7 +282,12 @@ Gere ideias no nível do exemplo BOM, todas profundamente conectadas ao nicho do
 
     const ideas = JSON.parse(toolCall.function.arguments);
 
-    return new Response(JSON.stringify(ideas), {
+    // Sanitize corrupted unicode characters
+    const sanitized = JSON.parse(
+      JSON.stringify(ideas).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
+    );
+
+    return new Response(JSON.stringify(sanitized), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
