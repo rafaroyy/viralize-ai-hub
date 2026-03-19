@@ -95,8 +95,10 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { user_id } = await req.json();
+    const { user_id, prompt_context, preferred_format, preferred_tone, avoid_topics, existing_titles, dismissed_titles } = await req.json();
     if (!user_id) throw new Error("user_id obrigatório");
+
+    const isAppendMode = Array.isArray(existing_titles) && existing_titles.length > 0;
 
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY não configurada");
@@ -143,7 +145,23 @@ ${BENCHMARKS_NICHO}
 
 ${creatorContext}`;
 
-    const userPrompt = `Com base no histórico, perfil e nos frameworks acima, gere entre 6 e 10 ideias de conteúdo para vídeos curtos.
+    const ideaCount = isAppendMode ? "exatamente 3" : "entre 6 e 10";
+
+    let appendContext = "";
+    if (isAppendMode) {
+      appendContext += `\n## IDEIAS JÁ EXISTENTES (NÃO REPITA NENHUMA):\n${(existing_titles as string[]).map((t: string) => `- ${t}`).join("\n")}`;
+    }
+    if (Array.isArray(dismissed_titles) && dismissed_titles.length > 0) {
+      appendContext += `\n\n## IDEIAS DESCARTADAS PELO CRIADOR (entenda o padrão do que ele NÃO gosta e evite ideias similares):\n${(dismissed_titles as string[]).map((t: string) => `- ${t}`).join("\n")}`;
+    }
+
+    let specificRequest = "";
+    if (prompt_context) specificRequest += `\n\n## PEDIDO ESPECÍFICO DO CRIADOR:\n"${prompt_context}"\nAs ideias DEVEM estar alinhadas com esse pedido.`;
+    if (preferred_format) specificRequest += `\n\nFORMATO PREFERIDO: Foque no formato "${preferred_format}".`;
+    if (preferred_tone) specificRequest += `\n\nTOM PEDIDO: Use o tom "${preferred_tone}".`;
+    if (avoid_topics) specificRequest += `\n\nEVITAR: O criador pediu para NÃO gerar ideias sobre: "${avoid_topics}".`;
+
+    const userPrompt = `Com base no histórico, perfil e nos frameworks acima, gere ${ideaCount} ideias de conteúdo para vídeos curtos.
 
 ## Histórico recente do criador:
 ${historyContext || "Nenhum histórico encontrado — gere ideias baseadas apenas no perfil."}
@@ -153,6 +171,7 @@ ${historyContext || "Nenhum histórico encontrado — gere ideias baseadas apena
 - Público-alvo: ${profile?.target_audience || "geral"}
 - Estilo: ${profile?.content_style || "natural"}
 - Tom de voz: ${profile?.tone_of_voice || "conversacional"}
+${appendContext}${specificRequest}
 
 ## REGRAS DE QUALIDADE (OBRIGATÓRIO)
 1. **Ângulos contraintuitivos**: Cada ideia DEVE ter um ângulo que vá contra o senso comum ou surpreenda. Nada de ângulos óbvios como "a importância de X" ou "como fazer Y". Pense: "O que faria alguém parar de scrollar porque discorda ou fica curioso?"

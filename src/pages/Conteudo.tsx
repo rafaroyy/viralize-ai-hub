@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { AiLoader } from "@/components/ui/ai-loader";
-import { Lightbulb, Sparkles, Copy, Save, ArrowRight, Filter, RefreshCw } from "lucide-react";
-import ReactMarkdown from "react-markdown";
+import { Lightbulb, Sparkles, Copy, Save, ArrowRight, Filter, Plus, X } from "lucide-react";
 
 interface ContentIdea {
   title: string;
@@ -63,10 +64,18 @@ export default function Conteudo() {
   const { toast } = useToast();
 
   const [ideas, setIdeas] = useState<ContentIdea[]>([]);
+  const [dismissedIdeas, setDismissedIdeas] = useState<ContentIdea[]>([]);
   const [loadingIdeas, setLoadingIdeas] = useState(false);
   const [selectedIdea, setSelectedIdea] = useState<ContentIdea | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+
+  // Generate More dialog
+  const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
+  const [promptContext, setPromptContext] = useState("");
+  const [preferredFormat, setPreferredFormat] = useState("");
+  const [preferredTone, setPreferredTone] = useState("");
+  const [avoidTopics, setAvoidTopics] = useState("");
 
   // Customization fields
   const [customTitle, setCustomTitle] = useState("");
@@ -88,25 +97,38 @@ export default function Conteudo() {
     return Array.from(cats);
   }, [ideas]);
 
-  async function generateIdeas() {
+  async function generateIdeas(appendMode = false, extraBody: Record<string, unknown> = {}) {
     if (!user) return;
     setLoadingIdeas(true);
-    setIdeas([]);
-    setActiveFilter(null);
+    if (!appendMode) {
+      setIdeas([]);
+      setDismissedIdeas([]);
+      setActiveFilter(null);
+    }
 
     try {
-      const { data, error } = await supabase.functions.invoke("generate-content-ideas", {
-        body: { user_id: user.user_id },
-      });
+      const body: Record<string, unknown> = { user_id: user.user_id, ...extraBody };
+      if (appendMode) {
+        body.existing_titles = ideas.map((i) => i.title);
+        body.dismissed_titles = dismissedIdeas.map((i) => i.title);
+      }
+
+      const { data, error } = await supabase.functions.invoke("generate-content-ideas", { body });
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      setIdeas(data.ideas || []);
+      const newIdeas = data.ideas || [];
+      if (appendMode) {
+        setIdeas((prev) => [...prev, ...newIdeas]);
+      } else {
+        setIdeas(newIdeas);
+      }
+
       if (data?.fallback) {
         toast({ title: "Ideias geradas em modo fallback", description: data?.warning || "Sem créditos de IA no momento." });
       } else {
-        toast({ title: `${(data.ideas || []).length} ideias geradas!` });
+        toast({ title: `${newIdeas.length} ${appendMode ? "novas ideias adicionadas" : "ideias geradas"}!` });
       }
     } catch (e: any) {
       const message = e?.message?.includes("402")
@@ -116,6 +138,31 @@ export default function Conteudo() {
     } finally {
       setLoadingIdeas(false);
     }
+  }
+
+  function dismissIdea(e: React.MouseEvent, idea: ContentIdea, index: number) {
+    e.stopPropagation();
+    setDismissedIdeas((prev) => [...prev, idea]);
+    setIdeas((prev) => prev.filter((_, i) => i !== index));
+    toast({ title: "Ideia descartada", description: "O agente vai aprender suas preferências." });
+  }
+
+  function handleGenerateMore() {
+    setPromptContext("");
+    setPreferredFormat("");
+    setPreferredTone("");
+    setAvoidTopics("");
+    setGenerateDialogOpen(true);
+  }
+
+  function confirmGenerateMore() {
+    setGenerateDialogOpen(false);
+    const extraBody: Record<string, unknown> = {};
+    if (promptContext.trim()) extraBody.prompt_context = promptContext.trim();
+    if (preferredFormat) extraBody.preferred_format = preferredFormat;
+    if (preferredTone.trim()) extraBody.preferred_tone = preferredTone.trim();
+    if (avoidTopics.trim()) extraBody.avoid_topics = avoidTopics.trim();
+    generateIdeas(true, extraBody);
   }
 
   function openIdea(idea: ContentIdea) {
@@ -195,7 +242,7 @@ export default function Conteudo() {
             )}
           </p>
         </div>
-        <Button onClick={generateIdeas} size="lg" className="gradient-primary text-primary-foreground gap-2">
+        <Button onClick={() => generateIdeas(false)} size="lg" className="gradient-primary text-primary-foreground gap-2">
           <Sparkles className="w-5 h-5" />
           Gerar Ideias de Conteúdo
         </Button>
@@ -204,7 +251,7 @@ export default function Conteudo() {
   }
 
   // Loading
-  if (loadingIdeas) {
+  if (loadingIdeas && ideas.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] gap-4">
         <AiLoader />
@@ -222,11 +269,20 @@ export default function Conteudo() {
             <Lightbulb className="w-6 h-6 text-primary" />
             Marketplace de Ideias
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">{ideas.length} ideias geradas para você</p>
+          <p className="text-muted-foreground text-sm mt-1">
+            {ideas.length} {ideas.length === 1 ? "ideia" : "ideias"} no seu board
+            {dismissedIdeas.length > 0 && ` · ${dismissedIdeas.length} descartada${dismissedIdeas.length > 1 ? "s" : ""}`}
+          </p>
         </div>
-        <Button onClick={generateIdeas} variant="outline" className="gap-2">
-          <RefreshCw className="w-4 h-4" />
-          Gerar Novas
+        <Button onClick={handleGenerateMore} disabled={loadingIdeas} className="gap-2 gradient-primary text-primary-foreground">
+          {loadingIdeas ? (
+            <>Gerando...</>
+          ) : (
+            <>
+              <Plus className="w-4 h-4" />
+              Gerar +3 Ideias
+            </>
+          )}
         </Button>
       </div>
 
@@ -255,44 +311,127 @@ export default function Conteudo() {
         </div>
       )}
 
+      {/* Loading indicator for append mode */}
+      {loadingIdeas && ideas.length > 0 && (
+        <div className="flex items-center justify-center gap-3 py-4 border border-dashed border-primary/30 rounded-lg">
+          <AiLoader />
+          <p className="text-sm text-muted-foreground">Gerando mais ideias...</p>
+        </div>
+      )}
+
       {/* Ideas Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredIdeas.map((idea, i) => (
-          <Card
-            key={i}
-            className="cursor-pointer hover:border-primary/50 transition-all hover:shadow-md group"
-            onClick={() => openIdea(idea)}
-          >
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between gap-2">
-                <CardTitle className="text-base leading-tight group-hover:text-primary transition-colors">
-                  {idea.title}
-                </CardTitle>
-                <Badge variant="outline" className={`text-xs shrink-0 ${CATEGORY_COLORS[idea.category] || ""}`}>
-                  {CATEGORY_LABELS[idea.category] || idea.category}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">{idea.angle}</p>
-              <div className="space-y-2">
-                <div className="text-xs">
-                  <span className="text-muted-foreground">🎣 Hook: </span>
-                  <span className="italic">"{idea.hook}"</span>
+        {filteredIdeas.map((idea, i) => {
+          const realIndex = ideas.indexOf(idea);
+          return (
+            <Card
+              key={`${idea.title}-${i}`}
+              className="cursor-pointer hover:border-primary/50 transition-all hover:shadow-md group relative"
+              onClick={() => openIdea(idea)}
+            >
+              {/* Dismiss button */}
+              <button
+                onClick={(e) => dismissIdea(e, idea, realIndex)}
+                className="absolute top-2 right-2 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-destructive/10 hover:bg-destructive/20 text-destructive z-10"
+                title="Descartar ideia"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+              <CardHeader className="pb-3 pr-10">
+                <div className="flex items-start justify-between gap-2">
+                  <CardTitle className="text-base leading-tight group-hover:text-primary transition-colors">
+                    {idea.title}
+                  </CardTitle>
+                  <Badge variant="outline" className={`text-xs shrink-0 ${CATEGORY_COLORS[idea.category] || ""}`}>
+                    {CATEGORY_LABELS[idea.category] || idea.category}
+                  </Badge>
                 </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>🎭 {idea.target_emotion}</span>
-                  <span>📐 {idea.format}</span>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">{idea.angle}</p>
+                <div className="space-y-2">
+                  <div className="text-xs">
+                    <span className="text-muted-foreground">🎣 Hook: </span>
+                    <span className="italic">"{idea.hook}"</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>🎭 {idea.target_emotion}</span>
+                    <span>📐 {idea.format}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">⏰ {idea.why_now}</p>
                 </div>
-                <p className="text-xs text-muted-foreground">⏰ {idea.why_now}</p>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-primary pt-1">
-                Personalizar e criar roteiro <ArrowRight className="w-3 h-3" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                <div className="flex items-center gap-1 text-xs text-primary pt-1">
+                  Personalizar e criar roteiro <ArrowRight className="w-3 h-3" />
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
+
+      {/* Generate More Dialog */}
+      <Dialog open={generateDialogOpen} onOpenChange={setGenerateDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
+              Gerar Mais Ideias
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label>Sobre o que você quer criar? *</Label>
+              <Textarea
+                value={promptContext}
+                onChange={(e) => setPromptContext(e.target.value)}
+                placeholder="Ex: quero falar sobre como precificar serviços freelancer, algo provocativo..."
+                rows={3}
+              />
+            </div>
+            <div>
+              <Label>Formato preferido (opcional)</Label>
+              <Select value={preferredFormat} onValueChange={setPreferredFormat}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Qualquer formato" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="qualquer">Qualquer formato</SelectItem>
+                  {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Tom de voz (opcional)</Label>
+              <Input
+                value={preferredTone}
+                onChange={(e) => setPreferredTone(e.target.value)}
+                placeholder="Ex: engraçado, sarcástico, motivacional..."
+              />
+            </div>
+            <div>
+              <Label>Evitar algo? (opcional)</Label>
+              <Input
+                value={avoidTopics}
+                onChange={(e) => setAvoidTopics(e.target.value)}
+                placeholder="Ex: não quero falar de dropshipping, evitar polêmicas..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setGenerateDialogOpen(false)}>Cancelar</Button>
+            <Button
+              onClick={confirmGenerateMore}
+              disabled={!promptContext.trim()}
+              className="gradient-primary text-primary-foreground gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              Gerar +3
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Sheet for customization & script */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
