@@ -13,6 +13,95 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function extractVideoId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+async function fetchYoutubeTranscript(videoId: string): Promise<{ text: string; words: Array<{ text: string; start: number; end: number }> }> {
+  // Fetch the YouTube video page to extract caption tracks
+  const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+    },
+  });
+
+  if (!pageRes.ok) throw new Error("Não foi possível acessar o vídeo do YouTube");
+
+  const html = await pageRes.text();
+
+  // Extract captionTracks from ytInitialPlayerResponse
+  const captionMatch = html.match(/"captionTracks":\s*(\[.*?\])/);
+  if (!captionMatch) {
+    throw new Error("Este vídeo não possui legendas disponíveis. Por favor, faça upload do vídeo manualmente.");
+  }
+
+  let captionTracks: Array<{ baseUrl: string; languageCode: string; name?: { simpleText?: string } }>;
+  try {
+    captionTracks = JSON.parse(captionMatch[1]);
+  } catch {
+    throw new Error("Erro ao parsear legendas do YouTube");
+  }
+
+  if (!captionTracks || captionTracks.length === 0) {
+    throw new Error("Nenhuma legenda encontrada para este vídeo. Faça upload manualmente.");
+  }
+
+  // Prefer Portuguese, then auto-generated Portuguese, then first available
+  let track = captionTracks.find(t => t.languageCode === "pt");
+  if (!track) track = captionTracks.find(t => t.languageCode.startsWith("pt"));
+  if (!track) track = captionTracks.find(t => t.languageCode === "en");
+  if (!track) track = captionTracks[0];
+
+  // Fetch the XML caption data
+  const captionRes = await fetch(track.baseUrl + "&fmt=srv3");
+  if (!captionRes.ok) {
+    // Fallback to raw XML
+    const captionRes2 = await fetch(track.baseUrl);
+    if (!captionRes2.ok) throw new Error("Erro ao baixar legendas");
+    const xml = await captionRes2.text();
+    return parseTranscriptXml(xml);
+  }
+
+  const xml = await captionRes.text();
+  return parseTranscriptXml(xml);
+}
+
+function parseTranscriptXml(xml: string): { text: string; words: Array<{ text: string; start: number; end: number }> } {
+  const words: Array<{ text: string; start: number; end: number }> = [];
+  // Match <text start="X" dur="Y">content</text> or <p t="X" d="Y">content</p>
+  const textPattern = /<(?:text|p)\s+[^>]*?(?:start|t)="([^"]+)"[^>]*?(?:dur|d)="([^"]+)"[^>]*>([\s\S]*?)<\/(?:text|p)>/g;
+  let match;
+
+  while ((match = textPattern.exec(xml)) !== null) {
+    const start = parseFloat(match[1]) / (match[0].startsWith("<p") ? 1000 : 1); // <p> uses ms, <text> uses seconds
+    const dur = parseFloat(match[2]) / (match[0].startsWith("<p") ? 1000 : 1);
+    const content = match[3]
+      .replace(/<[^>]+>/g, "") // strip inner tags
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\n/g, " ")
+      .trim();
+
+    if (content) {
+      words.push({ text: content, start, end: start + dur });
+    }
+  }
+
+  const fullText = words.map(w => w.text).join(" ");
+  return { text: fullText, words };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -25,7 +114,7 @@ serve(async (req) => {
   const ELEVENLABS_KEY = Deno.env.get("ELEVENLABS_KEY");
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
-  if (!ELEVENLABS_KEY || !LOVABLE_API_KEY) {
+  if (!LOVABLE_API_KEY) {
     return new Response(JSON.stringify({ error: "Missing API keys" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -67,11 +156,45 @@ serve(async (req) => {
     const recordId = record.id;
 
     // === SYNCHRONOUS PROCESSING ===
-    let audioBlob: Blob;
+    let fullText = "";
+    let words: Array<{ text: string; start: number; end: number }> = [];
     let storagePath: string | null = null;
 
-    if (videoFile) {
-      // Upload to storage
+    if (youtubeUrl) {
+      // === YOUTUBE: Scrape captions directly ===
+      const videoId = extractVideoId(youtubeUrl);
+      if (!videoId) throw new Error("URL do YouTube inválida");
+
+      await sb.from("viral_clips").update({
+        status: "transcribing",
+        updated_at: new Date().toISOString(),
+      }).eq("id", recordId);
+
+      try {
+        const transcript = await fetchYoutubeTranscript(videoId);
+        fullText = transcript.text;
+        words = transcript.words;
+        console.log("YouTube transcript fetched, segments:", words.length);
+      } catch (e: any) {
+        await sb.from("viral_clips").update({
+          status: "error",
+          error_message: e.message,
+          updated_at: new Date().toISOString(),
+        }).eq("id", recordId);
+        return new Response(JSON.stringify({
+          id: recordId,
+          status: "error",
+          error: e.message,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } else if (videoFile) {
+      // === UPLOAD: Use ElevenLabs Scribe ===
+      if (!ELEVENLABS_KEY) {
+        throw new Error("ELEVENLABS_KEY não configurada para transcrição de uploads");
+      }
+
       const fileName = `viral-clips/${recordId}/${videoFile.name}`;
       const { error: uploadErr } = await sb.storage
         .from("videos")
@@ -86,89 +209,45 @@ serve(async (req) => {
         updated_at: new Date().toISOString(),
       }).eq("id", recordId);
 
-      audioBlob = videoFile;
-    } else if (youtubeUrl) {
-      await sb.from("viral_clips").update({
-        status: "transcribing",
-        updated_at: new Date().toISOString(),
-      }).eq("id", recordId);
+      console.log("Starting ElevenLabs transcription...");
+      const transcribeForm = new FormData();
+      transcribeForm.append("file", videoFile, "audio.mp4");
+      transcribeForm.append("model_id", "scribe_v2");
+      transcribeForm.append("tag_audio_events", "false");
+      transcribeForm.append("diarize", "false");
+      transcribeForm.append("language_code", "por");
 
-      // Try to fetch audio via cobalt
-      try {
-        const cobaltRes = await fetch("https://api.cobalt.tools/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            url: youtubeUrl,
-            audioFormat: "mp3",
-            isAudioOnly: true,
-          }),
-        });
+      const transcribeRes = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
+        method: "POST",
+        headers: { "xi-api-key": ELEVENLABS_KEY },
+        body: transcribeForm,
+      });
 
-        if (cobaltRes.ok) {
-          const cobaltData = await cobaltRes.json();
-          if (cobaltData.url) {
-            const audioRes = await fetch(cobaltData.url);
-            audioBlob = await audioRes.blob();
-          } else {
-            throw new Error("No audio URL from cobalt");
-          }
-        } else {
-          throw new Error("Cobalt API error");
-        }
-      } catch {
-        await sb.from("viral_clips").update({
-          status: "error",
-          error_message: "Não foi possível baixar o áudio do YouTube. Por favor, faça upload do vídeo manualmente.",
-          updated_at: new Date().toISOString(),
-        }).eq("id", recordId);
-        return new Response(JSON.stringify({
-          id: recordId,
-          status: "error",
-          error: "Não foi possível baixar o áudio do YouTube. Por favor, faça upload do vídeo manualmente.",
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+      if (!transcribeRes.ok) {
+        const errText = await transcribeRes.text();
+        throw new Error("Erro na transcrição: " + errText);
       }
+
+      const transcription = await transcribeRes.json();
+      fullText = transcription.text || "";
+      words = (transcription.words || []).map((w: any) => ({
+        text: w.text,
+        start: w.start,
+        end: w.end,
+      }));
+      console.log("ElevenLabs transcription done, words:", words.length);
     } else {
       throw new Error("Nenhum vídeo fornecido");
     }
 
-    // Step 2: Transcribe with ElevenLabs Scribe v2
-    console.log("Starting transcription...");
-    const transcribeForm = new FormData();
-    transcribeForm.append("file", audioBlob, "audio.mp4");
-    transcribeForm.append("model_id", "scribe_v2");
-    transcribeForm.append("tag_audio_events", "false");
-    transcribeForm.append("diarize", "false");
-    transcribeForm.append("language_code", "por");
-
-    const transcribeRes = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
-      method: "POST",
-      headers: { "xi-api-key": ELEVENLABS_KEY },
-      body: transcribeForm,
-    });
-
-    if (!transcribeRes.ok) {
-      const errText = await transcribeRes.text();
-      throw new Error("Erro na transcrição: " + errText);
-    }
-
-    const transcription = await transcribeRes.json();
-    const fullText = transcription.text || "";
-    const words = transcription.words || [];
-    console.log("Transcription done, words:", words.length);
-
+    // Save transcription
     await sb.from("viral_clips").update({
       transcription: fullText,
       status: "analyzing",
       updated_at: new Date().toISOString(),
     }).eq("id", recordId);
 
-    // Step 3: Get creator profile for context
+    // Get creator profile for context
     let creatorContext = "";
     try {
       const { data: profile } = await sb
@@ -179,15 +258,15 @@ serve(async (req) => {
       if (profile) {
         creatorContext = buildCreatorRAGContext(profile);
       }
-    } catch { /* no profile, continue generic */ }
+    } catch { /* no profile */ }
 
     // Build word timestamps for the AI
     const wordTimestamps = words
       .slice(0, 2000)
-      .map((w: any) => `[${(w.start * 1000).toFixed(0)}ms] ${w.text}`)
+      .map((w) => `[${(w.start * 1000).toFixed(0)}ms] ${w.text}`)
       .join(" ");
 
-    // Step 4: Analyze with Lovable AI
+    // Analyze with Lovable AI
     console.log("Starting AI analysis...");
     const systemPrompt = `Você é um especialista em identificar momentos virais em vídeos longos.
 
@@ -289,7 +368,6 @@ Identifique os melhores momentos para cortes virais.`;
       updated_at: new Date().toISOString(),
     }).eq("id", recordId);
 
-    // Return full result
     return new Response(JSON.stringify({
       id: recordId,
       status: "done",
