@@ -969,6 +969,7 @@ const CriarVideo = () => {
             {/* CTA */}
             <Button
               disabled={isSubmitting}
+              onClick={handleSubmitAssisted}
               className="w-full gradient-primary text-primary-foreground font-semibold text-base py-6 shadow-glow hover:opacity-90 transition-opacity"
             >
               {isSubmitting ? (
