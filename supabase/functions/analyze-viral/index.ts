@@ -212,6 +212,25 @@ Retorne APENAS JSON válido:
 
 Sem markdown, sem code fences. APENAS JSON válido.`;
 
+    // Inject creator profile context if provided
+    let creatorContext = '';
+    if (creatorProfile && creatorProfile.niche) {
+      creatorContext = `\n\n## CONTEXTO DO CRIADOR (análise personalizada)
+- Nicho: ${creatorProfile.niche}
+- Sub-nichos: ${(creatorProfile.sub_niches || []).join(', ') || 'N/A'}
+- Público-alvo: ${creatorProfile.target_audience || 'N/A'}
+- Estilo de conteúdo: ${creatorProfile.content_style || 'N/A'}
+- Plataformas: ${(creatorProfile.main_platforms || []).join(', ') || 'N/A'}
+- Média de views: ${creatorProfile.average_views || 'N/A'}
+- Objetivo: ${creatorProfile.goals || 'N/A'}
+- Tom de voz: ${creatorProfile.tone_of_voice || 'N/A'}
+
+Avalie o vídeo considerando SE ele é adequado para ESTE perfil específico.
+Compare com benchmarks DO NICHO do criador. Recomendações devem ser direcionadas ao público-alvo e estilo declarados.`;
+    }
+
+    const finalGeminiPrompt = geminiSystemPrompt + creatorContext;
+
     // Build Gemini API request parts
     const parts: any[] = [];
 
