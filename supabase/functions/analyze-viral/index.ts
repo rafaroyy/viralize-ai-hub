@@ -95,7 +95,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { url, description, isVideoUpload } = await req.json();
+    const { url, description, isVideoUpload, creatorProfile } = await req.json();
     if (!url && !description) {
       return new Response(JSON.stringify({ success: false, error: "URL, descrição ou vídeo é obrigatório" }), {
         status: 400,
@@ -212,6 +212,25 @@ Retorne APENAS JSON válido:
 
 Sem markdown, sem code fences. APENAS JSON válido.`;
 
+    // Inject creator profile context if provided
+    let creatorContext = '';
+    if (creatorProfile && creatorProfile.niche) {
+      creatorContext = `\n\n## CONTEXTO DO CRIADOR (análise personalizada)
+- Nicho: ${creatorProfile.niche}
+- Sub-nichos: ${(creatorProfile.sub_niches || []).join(', ') || 'N/A'}
+- Público-alvo: ${creatorProfile.target_audience || 'N/A'}
+- Estilo de conteúdo: ${creatorProfile.content_style || 'N/A'}
+- Plataformas: ${(creatorProfile.main_platforms || []).join(', ') || 'N/A'}
+- Média de views: ${creatorProfile.average_views || 'N/A'}
+- Objetivo: ${creatorProfile.goals || 'N/A'}
+- Tom de voz: ${creatorProfile.tone_of_voice || 'N/A'}
+
+Avalie o vídeo considerando SE ele é adequado para ESTE perfil específico.
+Compare com benchmarks DO NICHO do criador. Recomendações devem ser direcionadas ao público-alvo e estilo declarados.`;
+    }
+
+    const finalGeminiPrompt = geminiSystemPrompt + creatorContext;
+
     // Build Gemini API request parts
     const parts: any[] = [];
 
@@ -238,7 +257,7 @@ Sem markdown, sem code fences. APENAS JSON válido.`;
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: geminiSystemPrompt }] },
+        systemInstruction: { parts: [{ text: finalGeminiPrompt }] },
         contents: [{ role: "user", parts }],
         generationConfig: {
           responseMimeType: "application/json",
@@ -365,7 +384,7 @@ TODOS os scores (hookAnalysis.score, bodyAnalysis.score, ctaAnalysis.score, over
   "viralVideoIdeas": [{ "title": "string", "description": "string (1 frase)", "hookSuggestion": "string" }]
 }
 
-Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R, cases e benchmarks.`;
+Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R, cases e benchmarks.` + creatorContext;
 
     const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",

@@ -1,11 +1,14 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Flame, Loader2, TrendingUp, TrendingDown, Lightbulb, Target, Eye, Upload, X, AlertTriangle, CheckCircle2, PlayCircle, Sparkles, FileText, Clock, Hash, Scissors, Download, MessageCircle, History, ChevronDown, ChevronUp } from 'lucide-react';
+import { Flame, Loader2, TrendingUp, TrendingDown, Lightbulb, Target, Eye, Upload, X, AlertTriangle, CheckCircle2, PlayCircle, Sparkles, FileText, Clock, Hash, Scissors, Download, MessageCircle, History, ChevronDown, ChevronUp, UserCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCreatorProfile } from '@/hooks/useCreatorProfile';
 import { generateViralPDF } from '@/lib/generateViralPDF';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -209,6 +212,8 @@ function ExpandableTips({ tips }: { tips: string[] }) {
 const AnalisadorViral = () => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { profile: creatorProfile, hasProfile } = useCreatorProfile();
+  const [personalizedMode, setPersonalizedMode] = useState(false);
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -379,8 +384,15 @@ const AnalisadorViral = () => {
         videoUrl = await uploadVideo(videoFile);
         setIsUploading(false);
       }
+      const bodyPayload: any = { url: videoUrl, description: description.trim(), isVideoUpload: !!videoFile };
+
+      // Inject creator profile if personalized mode
+      if (personalizedMode && hasProfile) {
+        bodyPayload.creatorProfile = creatorProfile;
+      }
+
       const { data, error } = await supabase.functions.invoke('analyze-viral', {
-        body: { url: videoUrl, description: description.trim(), isVideoUpload: !!videoFile },
+        body: bodyPayload,
       });
       if (error) throw error;
 
@@ -511,6 +523,32 @@ const AnalisadorViral = () => {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Ex: Vídeo mostrando antes e depois de uma reforma de cozinha com música trending..."
                 className="min-h-[80px] border-0 bg-secondary/50 rounded-xl resize-none"
+              />
+            </div>
+
+            {/* Toggle análise personalizada */}
+            <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
+              <div className="flex items-center gap-3">
+                <UserCircle className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm font-medium">Análise personalizada</p>
+                  <p className="text-xs text-muted-foreground">
+                    {hasProfile ? 'Baseada no seu perfil de criador' : 'Configure seu perfil de criador primeiro'}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={personalizedMode}
+                onCheckedChange={(checked) => {
+                  if (checked && !hasProfile) {
+                    toast({
+                      title: 'Perfil não configurado',
+                      description: 'Vá em Perfil → Criador para preencher seu perfil e ativar análises personalizadas.',
+                    });
+                    return;
+                  }
+                  setPersonalizedMode(checked);
+                }}
               />
             </div>
 

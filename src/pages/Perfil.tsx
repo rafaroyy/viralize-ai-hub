@@ -1,4 +1,4 @@
-import { User, Settings, CreditCard, Bell, LogOut, Plug } from "lucide-react";
+import { User, Settings, CreditCard, Bell, LogOut, Plug, Sparkles } from "lucide-react";
 import { MemberCard } from "@/components/ui/member-card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { TikTokIntegrationCard } from "@/components/integrations/TikTokIntegrationCard";
+import { CreatorProfileForm } from "@/components/profile/CreatorProfileForm";
 
 const Perfil = () => {
   const { user, quota, logout } = useAuth();
@@ -39,6 +40,10 @@ const Perfil = () => {
             <TabsTrigger value="perfil" className="gap-2">
               <User className="w-4 h-4" />
               Perfil
+            </TabsTrigger>
+            <TabsTrigger value="criador" className="gap-2">
+              <Sparkles className="w-4 h-4" />
+              Criador
             </TabsTrigger>
             <TabsTrigger value="integracoes" className="gap-2">
               <Plug className="w-4 h-4" />
@@ -106,6 +111,17 @@ const Perfil = () => {
                 </Button>
               </div>
             </section>
+          </TabsContent>
+
+          {/* ─── Tab: Criador ─── */}
+          <TabsContent value="criador" className="space-y-6">
+            <div>
+              <h2 className="font-display text-lg font-semibold mb-1">Perfil de Criador</h2>
+              <p className="text-sm text-muted-foreground">
+                Defina seu nicho, público e estilo para receber análises virais personalizadas.
+              </p>
+            </div>
+            <CreatorProfileForm />
           </TabsContent>
 
           {/* ─── Tab: Integrações ─── */}
