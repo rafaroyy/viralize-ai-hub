@@ -20,6 +20,8 @@ import { Slider } from "@/components/ui/slider";
 import { VideoUploadCard } from "@/components/ui/video-upload-card";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useCreatorProfile } from "@/hooks/useCreatorProfile";
+import { Switch } from "@/components/ui/switch";
 
 const MAX_WORDS = 25;
 
