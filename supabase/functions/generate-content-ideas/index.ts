@@ -8,6 +8,89 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+type CreatorProfile = {
+  niche?: string;
+  target_audience?: string;
+  content_style?: string;
+  tone_of_voice?: string;
+};
+
+type HistoryItem = {
+  tipo: string;
+  titulo: string;
+  payload?: Record<string, unknown> | null;
+};
+
+function buildFallbackIdeas(profile?: CreatorProfile | null, history: HistoryItem[] = []) {
+  const niche = profile?.niche || "negócios";
+  const audience = profile?.target_audience || "pessoas iniciantes";
+  const style = profile?.content_style || "direto";
+
+  const recentTopics = history
+    .map((h) => h?.titulo?.trim())
+    .filter(Boolean)
+    .slice(0, 3);
+
+  const topicHint = recentTopics.length > 0 ? ` usando temas como ${recentTopics.join(", ")}` : "";
+
+  return [
+    {
+      title: `3 erros que travam seu crescimento em ${niche}`,
+      angle: `Mostrar erros simples e práticos que quem está começando comete, e como corrigir rápido.${topicHint}`,
+      hook: `Se você está tentando crescer em ${niche}, talvez esteja cometendo esse erro sem perceber.`,
+      format: "lista",
+      category: "lista",
+      why_now: "Conteúdo de erro + correção costuma gerar boa retenção e compartilhamento.",
+      target_emotion: "identificação",
+    },
+    {
+      title: `O passo a passo que eu usaria para começar do zero em ${niche}`,
+      angle: `Explicar um plano simples de execução para ${audience}, sem complicar com teoria.`,
+      hook: `Se eu tivesse que recomeçar hoje do zero, eu faria exatamente isso.`,
+      format: "tutorial",
+      category: "tutorial",
+      why_now: "Conteúdos práticos tendem a performar bem para audiência iniciante.",
+      target_emotion: "esperança",
+    },
+    {
+      title: `O que ninguém te conta sobre crescer em ${niche}`,
+      angle: `Quebrar expectativas com um ponto contraintuitivo e mostrar a visão real de quem executa.`,
+      hook: `Tem uma verdade sobre crescer em ${niche} que quase ninguém fala.`,
+      format: "storytelling",
+      category: "storytelling",
+      why_now: "Conteúdo com bastidor e verdade prática aumenta confiança no criador.",
+      target_emotion: "curiosidade",
+    },
+    {
+      title: `Reagindo a conselhos ruins de ${niche}`,
+      angle: `Pegar conselhos comuns, mostrar por que falham e substituir por versão simples que funciona.`,
+      hook: `Esse conselho parece bom, mas pode atrasar muito seu resultado.`,
+      format: "reação",
+      category: "reação",
+      why_now: "Formatos de reação ajudam a prender atenção e gerar comentários.",
+      target_emotion: "revolta",
+    },
+    {
+      title: `Bastidores: como eu estruturaria 7 dias de conteúdo em ${style}`,
+      angle: `Mostrar organização real de produção com foco em consistência e execução diária.`,
+      hook: `Quer postar mais sem travar? Esse é meu método simples de 7 dias.`,
+      format: "bastidores",
+      category: "bastidores",
+      why_now: "Bastidores aproximam o público e elevam percepção de autoridade.",
+      target_emotion: "confiança",
+    },
+    {
+      title: `Comparação real: estratégia A vs estratégia B em ${niche}`,
+      angle: `Comparar duas abordagens populares com critérios simples: tempo, custo e resultado provável.`,
+      hook: `Se você só pudesse escolher uma estratégia hoje, qual realmente vale mais a pena?`,
+      format: "comparação",
+      category: "comparação",
+      why_now: "Comparações geram debate e aumentam interação orgânica.",
+      target_emotion: "clareza",
+    },
+  ];
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -23,14 +106,12 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Buscar perfil do criador
     const { data: profile } = await supabase
       .from("creator_profiles")
       .select("*")
       .eq("user_id", String(user_id))
       .maybeSingle();
 
-    // Buscar últimos 20 itens do histórico
     const { data: history } = await supabase
       .from("user_history")
       .select("tipo, titulo, payload, created_at")
@@ -126,11 +207,19 @@ Gere ideias VARIADAS em categorias diferentes. Cada ideia deve ser prática e f�
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Créditos insuficientes." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        const fallbackIdeas = buildFallbackIdeas(profile, history as HistoryItem[]);
+        return new Response(JSON.stringify({
+          ideas: fallbackIdeas,
+          fallback: true,
+          warning: "Sem créditos de IA no momento. Geramos ideias inteligentes de fallback com base no seu perfil e histórico.",
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+
       throw new Error(`AI Gateway error: ${response.status}`);
     }
 

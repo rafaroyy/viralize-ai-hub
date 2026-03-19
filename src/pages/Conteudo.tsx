@@ -103,9 +103,16 @@ export default function Conteudo() {
       if (data?.error) throw new Error(data.error);
 
       setIdeas(data.ideas || []);
-      toast({ title: `${(data.ideas || []).length} ideias geradas!` });
+      if (data?.fallback) {
+        toast({ title: "Ideias geradas em modo fallback", description: data?.warning || "Sem créditos de IA no momento." });
+      } else {
+        toast({ title: `${(data.ideas || []).length} ideias geradas!` });
+      }
     } catch (e: any) {
-      toast({ title: "Erro ao gerar ideias", description: e.message, variant: "destructive" });
+      const message = e?.message?.includes("402")
+        ? "Sem créditos de IA no momento. Adicione créditos em Settings → Workspace → Usage."
+        : e.message;
+      toast({ title: "Erro ao gerar ideias", description: message, variant: "destructive" });
     } finally {
       setLoadingIdeas(false);
     }
