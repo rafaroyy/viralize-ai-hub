@@ -1,0 +1,1 @@
+ALTER TABLE public.affiliates ADD COLUMN email text;
