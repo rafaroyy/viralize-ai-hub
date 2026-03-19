@@ -1,51 +1,57 @@
 
 
-# Nova Pagina de Vendas em /pagina
+# Diagnóstico: Por que o score está inflado (75/100 para vídeo fraco)
 
-## Resumo
-Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
+## Problemas encontrados
 
-## Estrutura das Secoes
+### 1. O Agente 2 (OpenAI) está FALHANDO — toda análise é só Gemini
+Os logs mostram claramente:
+```
+OpenAI API error: 400 "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+Fallback: retornando análise do Gemini sem refinamento.
+Pipeline finalizado. Fallback: true
+```
+O modelo `gpt-5.4` não aceita `max_tokens`, precisa de `max_completion_tokens`. Resultado: o refinamento estratégico com todos os frameworks de autenticidade, cringe e regras de decisão **nunca está sendo executado**. Toda análise retornada é só a extração bruta do Gemini.
 
-1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
-2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
-3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
-4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
-5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
-6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
-7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
+### 2. Sem calibração de score — o Gemini é "bonzinho"
+O prompt do Gemini pede "Score 0-100" mas não define o que cada faixa significa. Sem âncoras claras, LLMs tendem a dar scores altos (60-85) para qualquer conteúdo minimamente estruturado. Um vídeo com legendas quebradas, roteiro robotizado e sem naturalidade recebe 75 porque "tem hook, corpo e CTA".
 
-## Detalhes Tecnicos
+### 3. Temperature 0.7 no Gemini — muito alta para análise crítica
+Temperatura alta incentiva respostas mais "criativas" e generosas. Para análise crítica, deveria ser mais baixa.
 
-### Arquivos criados
-- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
+## Plano de correção
 
-### Arquivos modificados
-- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
+### 1. Corrigir parâmetro OpenAI (`max_tokens` → `max_completion_tokens`)
+Isso reativa o Agente 2, que é onde estão os frameworks de autenticidade, cringe e regras de decisão.
 
-### Componentes reutilizados
-- `ScrollReveal` (mesmo pattern da LandingPage)
-- `framer-motion` para animacoes
-- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
-- Logo existente no header
-- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
+### 2. Adicionar calibração de score explícita nos prompts
+Adicionar âncoras claras nos dois agentes:
 
-### Regras de UI seguidas conforme o prompt
-- Maximo 1 ideia por bloco
-- Frases de impacto em linha isolada (texto maior, peso bold)
-- Sem emojis no site
-- CTAs apenas no Hero + Oferta
-- Visual clean, contraste alto, bastante espaco
-- Navbar simplificada (logo + "Entrar" + CTA)
-- Footer minimalista
+```
+CALIBRAÇÃO DE SCORE (OBRIGATÓRIO):
+• 0-25 (Baixo): Sem estrutura viral, sem hook, sem retenção
+• 26-45 (Moderado): Tem estrutura básica mas falhas graves (robotizado, cringe, sem naturalidade)
+• 46-65 (Alto): Estrutura boa, algumas falhas de execução ou autenticidade
+• 66-80 (Viral): Estrutura forte + execução boa + autenticidade percebida
+• 81-100 (Mega Viral): Excepcional em estrutura, execução E autenticidade
 
-### Pricing
-- Preco: De R$645 por R$247
-- Pagamento unico
-- Link de checkout vitalicio reutilizado (CenterPag)
-- Suporte a affiliate slug mantido
+PENALIDADES OBRIGATÓRIAS:
+• Vídeo claramente gerado por IA (voz sintética, avatar, legendas mecânicas): -15 a -25 pontos
+• Roteiro robotizado ou frases improváveis na fala real: -10 a -20 pontos
+• Legendas quebradas ou mal sincronizadas: -5 a -15 pontos
+• Falta de emoção real ou energia artificial: -10 a -20 pontos
+• Mismatch entre promessa e entrega: -10 a -15 pontos
 
-### Rota
-- `/pagina` como rota publica (nao protegida)
-- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
+REGRA DE OURO: Um vídeo com estrutura P-C-R perfeita MAS sem autenticidade
+percebida NUNCA deve passar de 55. Estrutura sem verdade = conteúdo genérico.
+```
+
+### 3. Reduzir temperature do Gemini de 0.7 → 0.4
+Análise mais precisa e menos "generosa".
+
+### 4. Instruir Gemini a também avaliar autenticidade
+O Gemini (que vê o vídeo) é o único que pode detectar sinais visuais de IA. Adicionar instrução explícita no prompt do Gemini para avaliar artificialidade.
+
+## Arquivo alterado
+- `supabase/functions/analyze-viral/index.ts` — 4 correções pontuais
 
