@@ -216,13 +216,13 @@ export default function Conteudo() {
     generateIdeas(true, extraBody);
   }
 
-  function openIdea(idea: ContentIdea) {
+  function openIdea(idea: ContentIdea, jumpToScript = false) {
     setSelectedIdea(idea);
     setCustomTitle(idea.title);
     setCustomAngle(idea.angle);
     setCustomTone("");
     setCustomAudience("");
-    setScript(null);
+    setScript(scriptsMap[idea.title] || null);
     setSheetOpen(true);
   }
 
