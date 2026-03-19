@@ -113,6 +113,17 @@ const Perfil = () => {
             </section>
           </TabsContent>
 
+          {/* ─── Tab: Criador ─── */}
+          <TabsContent value="criador" className="space-y-6">
+            <div>
+              <h2 className="font-display text-lg font-semibold mb-1">Perfil de Criador</h2>
+              <p className="text-sm text-muted-foreground">
+                Defina seu nicho, público e estilo para receber análises virais personalizadas.
+              </p>
+            </div>
+            <CreatorProfileForm />
+          </TabsContent>
+
           {/* ─── Tab: Integrações ─── */}
           <TabsContent value="integracoes" className="space-y-6">
             <div>
