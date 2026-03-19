@@ -179,6 +179,18 @@ export default function CortesVirais() {
         formData.append("video", videoFile);
       }
 
+      // Use a simulated progress updater while waiting for the synchronous response
+      const progressInterval = setInterval(async () => {
+        if (!recordId) return;
+        const { data } = await supabase
+          .from("viral_clips")
+          .select("status")
+          .eq("id", recordId)
+          .single();
+        if (data?.status === "transcribing") setStatus("transcribing");
+        else if (data?.status === "analyzing") setStatus("analyzing");
+      }, 3000);
+
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/viral-clips`,
         {
@@ -190,6 +202,8 @@ export default function CortesVirais() {
         }
       );
 
+      clearInterval(progressInterval);
+
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: "Erro desconhecido" }));
         throw new Error(err.error || `Erro ${res.status}`);
@@ -198,8 +212,23 @@ export default function CortesVirais() {
       const data = await res.json();
       setRecordId(data.id);
 
-      // Start polling
-      pollStatus(data.id);
+      if (data.status === "done" && data.clips) {
+        // Direct result from synchronous processing
+        setStatus("done");
+        setClips(data.clips as ClipData[]);
+        if (data.video_storage_path) {
+          const { data: urlData } = supabase.storage
+            .from("videos")
+            .getPublicUrl(data.video_storage_path);
+          setUploadedVideoUrl(urlData.publicUrl);
+        }
+      } else if (data.status === "error") {
+        setStatus("error");
+        setErrorMsg(data.error || "Erro no processamento");
+      } else {
+        // Fallback: poll if somehow we got an intermediate status
+        pollStatus(data.id);
+      }
     } catch (e: any) {
       setStatus("error");
       setErrorMsg(e.message || "Erro ao processar vídeo");
