@@ -181,7 +181,7 @@ ${appendContext}${specificRequest}
 1. **100% no nicho do criador**: Cada ideia DEVE ser específica para o nicho "${profile?.niche || "geral"}" e falar diretamente com "${profile?.target_audience || "o público-alvo"}". NÃO gere ideias genéricas sobre empreendedorismo, produtividade ou finanças se o nicho do criador for outro.
 2. **Ângulos contraintuitivos**: Cada ideia DEVE ter um ângulo que vá contra o senso comum ou surpreenda. Nada de ângulos óbvios como "a importância de X" ou "como fazer Y".
 3. **Hooks prontos para gravar**: O hook deve ser uma FRASE EXATA que o criador vai falar olhando pra câmera. Deve soar natural e falado.
-4. **Categorias válidas**: O campo "category" DEVE ser um destes valores exatos: tutorial, storytelling, polêmica, bastidores, lista, reação, comparação, desafio, tendência. NÃO use outros valores.
+4. **Categorias válidas**: O campo "category" DEVE ser um destes valores exatos: tutorial, storytelling, polemica, bastidores, lista, reacao, comparacao, desafio, tendencia. NÃO use outros valores. Use SEM acento.
 5. **Especificidade**: Ideias devem parecer VIVIDAS e ESPECÍFICAS ao nicho do criador. Use números concretos, situações reais, exemplos do cotidiano do público-alvo.
 6. **Distribuição de propósito**: Misture ideias de alcance (atrair novos seguidores), autoridade (posicionamento) e conversão (vendas), mas use as categorias de FORMATO listadas acima.
 
@@ -196,7 +196,7 @@ ${appendContext}${specificRequest}
 - title: "Dicas para crescer nas redes sociais"
 - angle: "Compartilhar dicas úteis para o público"
 - hook: "Você quer crescer nas redes? Então assista esse vídeo."
-- category: "Atração" ← ERRADO, use valores do enum
+- category: "Atracao" ← ERRADO, use valores do enum
 
 Gere ideias no nível do exemplo BOM, todas profundamente conectadas ao nicho do criador.`;
 
@@ -209,7 +209,7 @@ Gere ideias no nível do exemplo BOM, todas profundamente conectadas ao nicho do
       },
       body: JSON.stringify({
         model: "gpt-4o",
-        max_tokens: 3000,
+        max_tokens: 4500,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -231,8 +231,8 @@ Gere ideias no nível do exemplo BOM, todas profundamente conectadas ao nicho do
                         title: { type: "string", description: "Título curto e chamativo da ideia" },
                         angle: { type: "string", description: "Ângulo/abordagem do vídeo em 1-2 frases" },
                         hook: { type: "string", description: "Frase de abertura sugerida para prender atenção" },
-                        format: { type: "string", description: "Formato sugerido: tutorial, storytelling, polêmica, bastidores, lista, reação, comparação, desafio" },
-                        category: { type: "string", enum: ["tutorial", "storytelling", "polêmica", "bastidores", "lista", "reação", "comparação", "desafio", "tendência"] },
+                        format: { type: "string", description: "Formato sugerido: tutorial, storytelling, polemica, bastidores, lista, reacao, comparacao, desafio" },
+                        category: { type: "string", enum: ["tutorial", "storytelling", "polemica", "bastidores", "lista", "reacao", "comparacao", "desafio", "tendencia"] },
                         why_now: { type: "string", description: "Por que essa ideia é relevante agora (1 frase)" },
                         target_emotion: { type: "string", description: "Emoção principal que o vídeo deve causar" },
                       },
@@ -282,7 +282,12 @@ Gere ideias no nível do exemplo BOM, todas profundamente conectadas ao nicho do
 
     const ideas = JSON.parse(toolCall.function.arguments);
 
-    return new Response(JSON.stringify(ideas), {
+    // Sanitize corrupted unicode characters
+    const sanitized = JSON.parse(
+      JSON.stringify(ideas).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
+    );
+
+    return new Response(JSON.stringify(sanitized), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
