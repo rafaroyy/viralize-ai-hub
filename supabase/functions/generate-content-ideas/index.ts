@@ -98,8 +98,9 @@ serve(async (req) => {
     const { user_id } = await req.json();
     if (!user_id) throw new Error("user_id obrigatório");
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY não configurada");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY não configurada");
+    const OPENAI_PROJECT_KEY = Deno.env.get("OPENAI_PROJECT_KEY") || "";
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
