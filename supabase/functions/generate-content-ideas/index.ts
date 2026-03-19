@@ -209,7 +209,7 @@ Gere ideias no nível do exemplo BOM, todas profundamente conectadas ao nicho do
       },
       body: JSON.stringify({
         model: "gpt-4o",
-        max_tokens: 3000,
+        max_tokens: 4500,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
