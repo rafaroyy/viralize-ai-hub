@@ -15,6 +15,7 @@ const Perfil = () => {
   const { user, quota, logout } = useAuth();
   const navigate = useNavigate();
   const displayName = user?.username ?? user?.email?.split("@")[0] ?? "Usuário";
+  const isPartner = PARTNER_EMAILS.includes(user?.email ?? "");
   const videosRemaining = quota?.total?.remaining ?? 0;
 
   const handleLogout = () => {
