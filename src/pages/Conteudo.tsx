@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCreatorProfile } from "@/hooks/useCreatorProfile";
@@ -63,8 +63,23 @@ export default function Conteudo() {
   const { hasProfile } = useCreatorProfile();
   const { toast } = useToast();
 
-  const [ideas, setIdeas] = useState<ContentIdea[]>([]);
-  const [dismissedIdeas, setDismissedIdeas] = useState<ContentIdea[]>([]);
+  const storageKeyIdeas = user ? `viralize_ideas_${user.user_id}` : null;
+  const storageKeyDismissed = user ? `viralize_dismissed_${user.user_id}` : null;
+
+  const [ideas, setIdeas] = useState<ContentIdea[]>(() => {
+    if (!storageKeyIdeas) return [];
+    try {
+      const stored = localStorage.getItem(storageKeyIdeas);
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
+  const [dismissedIdeas, setDismissedIdeas] = useState<ContentIdea[]>(() => {
+    if (!storageKeyDismissed) return [];
+    try {
+      const stored = localStorage.getItem(storageKeyDismissed);
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
   const [loadingIdeas, setLoadingIdeas] = useState(false);
   const [selectedIdea, setSelectedIdea] = useState<ContentIdea | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -76,6 +91,16 @@ export default function Conteudo() {
   const [preferredFormat, setPreferredFormat] = useState("");
   const [preferredTone, setPreferredTone] = useState("");
   const [avoidTopics, setAvoidTopics] = useState("");
+
+
+  // Persist ideas to localStorage
+  useEffect(() => {
+    if (storageKeyIdeas) localStorage.setItem(storageKeyIdeas, JSON.stringify(ideas));
+  }, [ideas, storageKeyIdeas]);
+
+  useEffect(() => {
+    if (storageKeyDismissed) localStorage.setItem(storageKeyDismissed, JSON.stringify(dismissedIdeas));
+  }, [dismissedIdeas, storageKeyDismissed]);
 
   // Customization fields
   const [customTitle, setCustomTitle] = useState("");
