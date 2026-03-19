@@ -242,6 +242,22 @@ const CriarVideo = () => {
         caption_style: captionStyle,
         video_source: videoSource,
       };
+      if (usePersonalized && hasProfile) {
+        payload.creator_profile = {
+          niche: profile.niche,
+          sub_niches: profile.sub_niches,
+          target_audience: profile.target_audience,
+          content_style: profile.content_style,
+          tone_of_voice: profile.tone_of_voice,
+          goals: profile.goals,
+          average_views: profile.average_views,
+          brand_cause: profile.brand_cause,
+          brand_tribe: profile.brand_tribe,
+          brand_enemy: profile.brand_enemy,
+          brand_archetype: profile.brand_archetype,
+          brand_recognition: profile.brand_recognition,
+        };
+      }
       const files = videoSource === "custom" ? uploadedFiles : undefined;
       const res = await api.renderVideo(payload, files);
       setJobId(res.job_id);
