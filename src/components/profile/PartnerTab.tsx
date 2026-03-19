@@ -58,11 +58,14 @@ const PartnerTab = () => {
     });
   };
 
+  const INVITE_LINK = "https://pay.zouti.com.br/checkout?poi=prod_offer_xx1w0hy1pi5lhvnvcukmdo";
+
   const maskLink = (url: string) => {
-    if (!url) return "https://••••••••••••••••••";
-    const visible = url.substring(0, 30);
+    const visible = url.substring(0, 35);
     return `${visible}•••••••`;
   };
+
+  const maskedInviteLink = maskLink(INVITE_LINK);
 
   if (loading) {
     return (
