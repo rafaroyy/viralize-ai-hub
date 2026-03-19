@@ -144,6 +144,13 @@ const Perfil = () => {
             </div>
             <TikTokIntegrationCard />
           </TabsContent>
+
+          {/* ─── Tab: Parceiro ─── */}
+          {isPartner && (
+            <TabsContent value="parceiro" className="space-y-6">
+              <PartnerTab />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>
