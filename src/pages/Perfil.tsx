@@ -41,6 +41,10 @@ const Perfil = () => {
               <User className="w-4 h-4" />
               Perfil
             </TabsTrigger>
+            <TabsTrigger value="criador" className="gap-2">
+              <Sparkles className="w-4 h-4" />
+              Criador
+            </TabsTrigger>
             <TabsTrigger value="integracoes" className="gap-2">
               <Plug className="w-4 h-4" />
               Integrações
