@@ -49,6 +49,12 @@ const Perfil = () => {
               <Sparkles className="w-4 h-4" />
               Criador
             </TabsTrigger>
+            {isPartner && (
+              <TabsTrigger value="parceiro" className="gap-2">
+                <Crown className="w-4 h-4" />
+                Parceiro
+              </TabsTrigger>
+            )}
             <TabsTrigger value="integracoes" className="gap-2">
               <Plug className="w-4 h-4" />
               Integrações
