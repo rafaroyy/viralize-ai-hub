@@ -124,10 +124,10 @@ serve(async (req) => {
   const sb = createClient(supabaseUrl, supabaseKey);
 
   const ELEVENLABS_KEY = Deno.env.get("ELEVENLABS_KEY");
-  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 
-  if (!LOVABLE_API_KEY) {
-    return new Response(JSON.stringify({ error: "Missing API keys" }), {
+  if (!GEMINI_API_KEY) {
+    return new Response(JSON.stringify({ error: "GEMINI_API_KEY não configurada" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
