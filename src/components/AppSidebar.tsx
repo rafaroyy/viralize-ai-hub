@@ -74,6 +74,8 @@ export function AppSidebar() {
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
   const { user, quota } = useAuth();
+  const isBetaUser = BETA_EMAILS.includes(user?.email ?? "");
+  const allLinks = isBetaUser ? [...navLinks, ...betaLinks] : navLinks;
   const displayName = user?.username ?? "Usuário";
   const videosRemaining = quota?.total?.remaining;
   const currentLogo = isDark ? logoViralize : logoViralizeLight;
