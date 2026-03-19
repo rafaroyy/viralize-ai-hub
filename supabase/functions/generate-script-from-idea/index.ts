@@ -66,7 +66,9 @@ ${creatorContext}`;
 **Tom de voz desejado**: ${customizations?.tone || profile?.tone_of_voice || "conversacional"}
 **Público-alvo**: ${customizations?.audience || profile?.target_audience || "geral"}
 
-Gere o roteiro usando a ferramenta disponível. O roteiro deve ser prático, direto e pronto para gravar.`;
+Gere o roteiro usando a ferramenta disponível. O roteiro deve ser prático, direto e pronto para gravar.
+
+IMPORTANTE: Escreva EXATAMENTE como a pessoa vai FALAR. Nada de linguagem escrita formal. Imagine o criador na frente da câmera — o texto precisa soar natural na boca dele. Use os case studies de vídeos virais como referência de estrutura e nível de qualidade.`;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
