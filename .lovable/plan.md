@@ -1,42 +1,51 @@
 
 
-# Correções: Classification, Summary e Scores das Seções
+# Nova Pagina de Vendas em /pagina
 
-## Problemas Identificados
+## Resumo
+Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
 
-### 1. Classification desalinhada do score
-O campo `classification` vem direto da IA e não é validado pelo frontend. Score 47 mostra "Alto" porque a IA decide a classification independentemente. **Solução**: derivar a classification do score no frontend, ignorando o que a IA retorna.
+## Estrutura das Secoes
 
-### 2. Summary técnico em vez de user-facing
-O prompt instrui a IA a incluir avaliação de autenticidade no campo `summary`, o que gera textos como "A análise do Gemini acerta no valor do hook...". O usuário final não quer saber sobre o Gemini. **Solução**: alterar o prompt para que o summary seja um resumo prático para o criador de conteúdo.
+1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
+2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
+3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
+4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
+5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
+6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
+7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
 
-### 3. Scores das seções fora da escala
-O prompt pede "Score 0-100" mas a IA às vezes retorna valores na escala 0-5 (ex: 4, 2, 3). O frontend renderiza esses valores diretamente na Progress bar de 0-100. **Solução**: adicionar normalização no frontend (se score ≤ 10, multiplicar por 10) e reforçar a escala 0-100 no prompt.
+## Detalhes Tecnicos
 
-## Plano
+### Arquivos criados
+- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
 
-### 1. Frontend (`AnalisadorViral.tsx`)
+### Arquivos modificados
+- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
 
-**Derivar classification do score** na função `normalizeAnalysis`:
-```
-0-25  → "Baixo"
-26-45 → "Moderado"  
-46-65 → "Alto"
-66-80 → "Viral"
-81+   → "Mega Viral"
-```
+### Componentes reutilizados
+- `ScrollReveal` (mesmo pattern da LandingPage)
+- `framer-motion` para animacoes
+- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
+- Logo existente no header
+- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
 
-**Normalizar scores das seções**: se `hookAnalysis.score`, `bodyAnalysis.score` ou `ctaAnalysis.score` forem ≤ 10, multiplicar por 10 para alinhar com a escala 0-100.
+### Regras de UI seguidas conforme o prompt
+- Maximo 1 ideia por bloco
+- Frases de impacto em linha isolada (texto maior, peso bold)
+- Sem emojis no site
+- CTAs apenas no Hero + Oferta
+- Visual clean, contraste alto, bastante espaco
+- Navbar simplificada (logo + "Entrar" + CTA)
+- Footer minimalista
 
-### 2. Backend (`analyze-viral/index.ts`)
+### Pricing
+- Preco: De R$645 por R$247
+- Pagamento unico
+- Link de checkout vitalicio reutilizado (CenterPag)
+- Suporte a affiliate slug mantido
 
-**Prompt do Gemini**: mudar a instrução do `summary` de "inclua avaliação de autenticidade" para "escreva um resumo prático para o criador, explicando o que funciona e o que precisa melhorar — sem mencionar nomes de ferramentas ou agentes de IA".
-
-**Prompt do OpenAI**: mesma instrução — summary deve ser user-facing.
-
-**Reforçar escala**: adicionar nota explícita nos dois prompts: "IMPORTANTE: todos os scores (hookAnalysis.score, bodyAnalysis.score, ctaAnalysis.score) devem estar na escala 0-100, NÃO 0-5 ou 0-10."
-
-### Arquivos alterados
-- `src/pages/AnalisadorViral.tsx` — normalizeAnalysis
-- `supabase/functions/analyze-viral/index.ts` — prompts do Gemini e OpenAI
+### Rota
+- `/pagina` como rota publica (nao protegida)
+- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
 

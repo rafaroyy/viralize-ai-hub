@@ -171,7 +171,13 @@ Avalie explicitamente:
 • As legendas fluem naturalmente ou estão quebradas/mecânicas?
 • O roteiro soa como fala humana real ou texto de IA?
 • Há emoção genuína ou tudo parece artificial?
-Inclua sua avaliação de autenticidade no campo "summary".
+Use sua avaliação de autenticidade para ajustar os scores — NÃO inclua isso no campo "summary".
+
+### CAMPO SUMMARY (OBRIGATÓRIO)
+O summary é para o CRIADOR DE CONTEÚDO (usuário final). Escreva um resumo prático explicando o que funciona bem e o que precisa melhorar no vídeo. NUNCA mencione nomes de ferramentas, agentes de IA, Gemini, GPT ou qualquer tecnologia interna.
+
+### ESCALA DE SCORES (OBRIGATÓRIO)
+TODOS os scores (hookAnalysis.score, bodyAnalysis.score, ctaAnalysis.score, overallScore) DEVEM estar na escala 0-100. NÃO use escalas 0-5 ou 0-10.
 
 ### Regras de Análise
 • Use o FRAMEWORK DE RETENÇÃO para avaliar micro-hooks, pattern interrupts e open loops
@@ -331,8 +337,11 @@ REGRA DE OURO: Um vídeo com estrutura P-C-R perfeita MAS sem autenticidade perc
 • retentionKillers e retentionImprovements: MÁXIMO 3 itens cada
 • Feedbacks de hookAnalysis/bodyAnalysis/ctaAnalysis: MÁXIMO 2 bullet points cada
 • Tips: MÁXIMO 2 por seção
-• summary: MÁXIMO 2 frases
+• summary: MÁXIMO 2 frases — escrito para o CRIADOR DE CONTEÚDO, sem mencionar Gemini, GPT ou agentes internos
 • viralVideoIdeas: MÁXIMO 2 ideias, descrição de 1 frase
+
+## ESCALA DE SCORES (OBRIGATÓRIO)
+TODOS os scores (hookAnalysis.score, bodyAnalysis.score, ctaAnalysis.score, overallScore) DEVEM estar na escala 0-100. NÃO use escalas 0-5 ou 0-10.
 
 ## OUTPUT — JSON ESTRITO (sem markdown, sem code fences)
 
