@@ -26,3 +26,9 @@ verify_jwt = false
 
 [functions.radar-youtube-fetch]
 verify_jwt = false
+
+[functions.generate-content-ideas]
+verify_jwt = false
+
+[functions.generate-script-from-idea]
+verify_jwt = false
