@@ -58,11 +58,14 @@ const PartnerTab = () => {
     });
   };
 
+  const INVITE_LINK = "https://pay.zouti.com.br/checkout?poi=prod_offer_xx1w0hy1pi5lhvnvcukmdo";
+
   const maskLink = (url: string) => {
-    if (!url) return "https://••••••••••••••••••";
-    const visible = url.substring(0, 30);
+    const visible = url.substring(0, 35);
     return `${visible}•••••••`;
   };
+
+  const maskedInviteLink = maskLink(INVITE_LINK);
 
   if (loading) {
     return (
@@ -189,7 +192,7 @@ const PartnerTab = () => {
                       <p className="text-xs text-muted-foreground mb-0.5">Link Mensal</p>
                       <div className="flex items-center gap-2">
                         <code className="text-xs text-foreground/80 flex-1 truncate">
-                          {isUnlocked ? affiliate.checkout_monthly : maskLink(affiliate.checkout_monthly)}
+                          {isUnlocked ? affiliate.checkout_monthly : maskedInviteLink}
                         </code>
                         {isUnlocked && (
                           <Button
@@ -207,7 +210,7 @@ const PartnerTab = () => {
                       <p className="text-xs text-muted-foreground mb-0.5">Link Vitalício</p>
                       <div className="flex items-center gap-2">
                         <code className="text-xs text-foreground/80 flex-1 truncate">
-                          {isUnlocked ? affiliate.checkout_lifetime : maskLink(affiliate.checkout_lifetime)}
+                          {isUnlocked ? affiliate.checkout_lifetime : maskedInviteLink}
                         </code>
                         {isUnlocked && (
                           <Button
