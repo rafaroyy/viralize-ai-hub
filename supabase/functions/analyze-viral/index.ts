@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { SYSTEM_PROMPT_BASE, FRAMEWORK_ROTEIROS, DIRETRIZES_CRIATIVAS, FRAMEWORK_RETENCAO, FRAMEWORK_PLATAFORMAS, EXEMPLOS_VIRAIS, BENCHMARKS_NICHO } from "../_shared/knowledge_base.ts";
+import { SYSTEM_PROMPT_BASE, FRAMEWORK_ROTEIROS, DIRETRIZES_CRIATIVAS, FRAMEWORK_RETENCAO, FRAMEWORK_PLATAFORMAS, EXEMPLOS_VIRAIS, BENCHMARKS_NICHO, FRAMEWORK_ANALISE_AUTENTICIDADE, REGRAS_DE_DECISAO_ANALISE, SCORECARD_ANALISE_VIRAL } from "../_shared/knowledge_base.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -269,13 +269,21 @@ ${EXEMPLOS_VIRAIS}
 ---
 ${BENCHMARKS_NICHO}
 ---
+${FRAMEWORK_ANALISE_AUTENTICIDADE}
+---
+${REGRAS_DE_DECISAO_ANALISE}
+---
+${SCORECARD_ANALISE_VIRAL}
+---
 
 ## INSTRUÇÕES DE AVALIAÇÃO ESTRATÉGICA
 • Compare o vídeo com os CASE STUDIES de referência — ele segue padrões similares de viralização?
 • Use os BENCHMARKS DO NICHO para contextualizar os scores (ex: 50K views em finanças é excelente, em humor é mediano)
 • Avalie retenção usando o FRAMEWORK DE RETENÇÃO: micro-hooks, pattern interrupts, open loops, visual pacing
+• Avalie AUTENTICIDADE PERCEBIDA: risco de IA demais, cringe, mismatch promessa/entrega
+• Use as REGRAS DE DECISÃO para fundamentar cada score — nunca julgue sem evidência
 • Verifique conformidade com as PARTICULARIDADES DA PLATAFORMA se identificável
-• Cite qual case study ou benchmark fundamenta cada recomendação
+• Cite qual case study, benchmark ou regra de decisão fundamenta cada recomendação
 
 ## REGRAS DE CONCISÃO (OBRIGATÓRIO)
 • strengths e weaknesses: MÁXIMO 2 itens cada, 1 frase curta por item
@@ -318,7 +326,7 @@ Use • e **negrito**. Tags [MM:SS] quando aplicável. Referencie P-C-R, cases e
       body: JSON.stringify({
         model: "gpt-5.4",
         temperature: 0.5,
-        max_tokens: 2000,
+        max_tokens: 3000,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: openaiSystemPrompt },
