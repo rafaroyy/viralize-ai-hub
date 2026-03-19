@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { buildCreatorRAGContext, FRAMEWORK_ROTEIROS, FRAMEWORK_RETENCAO, DIRETRIZES_CRIATIVAS } from "../_shared/knowledge_base.ts";
+import { buildCreatorRAGContext, FRAMEWORK_ROTEIROS, FRAMEWORK_RETENCAO, DIRETRIZES_CRIATIVAS, EXEMPLOS_VIRAIS } from "../_shared/knowledge_base.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -43,12 +43,16 @@ Escreva como se estivesse explicando para um criador INICIANTE que nunca estudou
 • SUBSTITUA por linguagem simples e direta
 • Use frases curtas e diretas, como se estivesse conversando
 • Dê exemplos práticos sempre que possível
+• O roteiro DEVE soar FALADO e NATURAL — como alguém realmente falaria olhando pra câmera
+• NUNCA use linguagem formal, acadêmica ou "de texto". Escreva como se fala.
 
 ${FRAMEWORK_ROTEIROS}
 
 ${FRAMEWORK_RETENCAO}
 
 ${DIRETRIZES_CRIATIVAS}
+
+${EXEMPLOS_VIRAIS}
 
 ${creatorContext}`;
 
@@ -62,7 +66,9 @@ ${creatorContext}`;
 **Tom de voz desejado**: ${customizations?.tone || profile?.tone_of_voice || "conversacional"}
 **Público-alvo**: ${customizations?.audience || profile?.target_audience || "geral"}
 
-Gere o roteiro usando a ferramenta disponível. O roteiro deve ser prático, direto e pronto para gravar.`;
+Gere o roteiro usando a ferramenta disponível. O roteiro deve ser prático, direto e pronto para gravar.
+
+IMPORTANTE: Escreva EXATAMENTE como a pessoa vai FALAR. Nada de linguagem escrita formal. Imagine o criador na frente da câmera — o texto precisa soar natural na boca dele. Use os case studies de vídeos virais como referência de estrutura e nível de qualidade.`;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",

@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { buildCreatorRAGContext } from "../_shared/knowledge_base.ts";
+import { buildCreatorRAGContext, DIRETRIZES_CRIATIVAS, EXEMPLOS_VIRAIS, BENCHMARKS_NICHO } from "../_shared/knowledge_base.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -127,17 +127,23 @@ serve(async (req) => {
       return `- [${h.tipo}] "${h.titulo}" — ${payload.summary || payload.titulo || ""}`;
     }).join("\n");
 
-    const systemPrompt = `Você é um estrategista de conteúdo para criadores de vídeos curtos (TikTok, Reels, Shorts).
+    const systemPrompt = `Você é um estrategista de conteúdo de ELITE para criadores de vídeos curtos (TikTok, Reels, Shorts).
 
 ## TOM DE LINGUAGEM (OBRIGATÓRIO)
 Escreva como se estivesse explicando para um criador INICIANTE que nunca estudou marketing.
-• NÃO use jargões técnicos
+• NÃO use jargões técnicos como "pattern interrupts", "open loops", "micro-hooks"
 • Use frases curtas e diretas, como se estivesse conversando
 • Dê exemplos práticos sempre que possível
 
+${DIRETRIZES_CRIATIVAS}
+
+${EXEMPLOS_VIRAIS}
+
+${BENCHMARKS_NICHO}
+
 ${creatorContext}`;
 
-    const userPrompt = `Com base no histórico e perfil deste criador, gere entre 6 e 10 ideias de conteúdo para vídeos curtos.
+    const userPrompt = `Com base no histórico, perfil e nos frameworks acima, gere entre 6 e 10 ideias de conteúdo para vídeos curtos.
 
 ## Histórico recente do criador:
 ${historyContext || "Nenhum histórico encontrado — gere ideias baseadas apenas no perfil."}
@@ -148,7 +154,25 @@ ${historyContext || "Nenhum histórico encontrado — gere ideias baseadas apena
 - Estilo: ${profile?.content_style || "natural"}
 - Tom de voz: ${profile?.tone_of_voice || "conversacional"}
 
-Gere ideias VARIADAS em categorias diferentes. Cada ideia deve ser prática e fácil de executar.`;
+## REGRAS DE QUALIDADE (OBRIGATÓRIO)
+1. **Ângulos contraintuitivos**: Cada ideia DEVE ter um ângulo que vá contra o senso comum ou surpreenda. Nada de ângulos óbvios como "a importância de X" ou "como fazer Y". Pense: "O que faria alguém parar de scrollar porque discorda ou fica curioso?"
+2. **Hooks prontos para gravar**: O hook deve ser uma FRASE EXATA que o criador vai falar olhando pra câmera. Não descrições vagas. Deve soar natural e falado, não escrito.
+3. **Variedade de linhas**: Distribua as ideias entre Atração (alcance), Autoridade (posicionamento) e Conversão (vendas). Pelo menos 2 de cada.
+4. **Especificidade**: Ideias devem parecer VIVIDAS e ESPECÍFICAS, não templates genéricos. Use números concretos, situações reais, exemplos do cotidiano do público-alvo.
+5. **Inspiração nos cases**: Use os case studies de vídeos virais acima como referência de nível de qualidade e especificidade.
+
+## EXEMPLO DO NÍVEL ESPERADO (few-shot)
+✅ BOM:
+- title: "Parei de postar todo dia e minhas views triplicaram"
+- angle: "Mostrar que volume sem estratégia queima o perfil e que 3 vídeos/semana com formato eficiente batem 7 vídeos genéricos"
+- hook: "Eu postava todo dia e meu perfil só caía. Até que eu fiz o oposto."
+
+❌ RUIM (genérico demais):
+- title: "Dicas para crescer nas redes sociais"
+- angle: "Compartilhar dicas úteis para o público"
+- hook: "Você quer crescer nas redes? Então assista esse vídeo."
+
+Gere ideias no nível do exemplo BOM. Cada ideia deve fazer o criador pensar "isso eu quero gravar agora".`;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
