@@ -918,10 +918,31 @@ const CriarVideo = () => {
               </section>
             )}
 
+            {/* Personalização */}
+            <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card/50">
+              <div className="flex items-center gap-3">
+                <User className="w-4 h-4 text-primary" />
+                <div>
+                  <p className="text-sm font-medium">Personalizar para meu perfil</p>
+                  <p className="text-xs text-muted-foreground">
+                    {hasProfile ? "Adapta tom, nicho e branding ao seu perfil de criador" : "Configure seu perfil em Perfil → Criador"}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={usePersonalized && hasProfile}
+                onCheckedChange={(checked) => {
+                  if (checked && !hasProfile) {
+                    toast({ title: "Perfil não configurado", description: "Vá em Perfil → Criador para preencher seus dados." });
+                    return;
+                  }
+                  setUsePersonalized(checked);
+                }}
+              />
+            </div>
+
             {/* CTA */}
             <Button
-              size="lg"
-              onClick={handleSubmitAssisted}
               disabled={isSubmitting}
               className="w-full gradient-primary text-primary-foreground font-semibold text-base py-6 shadow-glow hover:opacity-90 transition-opacity"
             >
