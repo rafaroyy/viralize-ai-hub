@@ -414,8 +414,24 @@ export default function Conteudo() {
                   </div>
                   <p className="text-xs text-muted-foreground">⏰ {idea.why_now}</p>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-primary pt-1">
-                  Personalizar e criar roteiro <ArrowRight className="w-3 h-3" />
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center gap-1 text-xs text-primary">
+                    Personalizar e criar roteiro <ArrowRight className="w-3 h-3" />
+                  </div>
+                  {scriptsMap[idea.title] && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openIdea(idea, true);
+                      }}
+                    >
+                      <FileText className="w-3 h-3" />
+                      Ver Roteiro
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
