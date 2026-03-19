@@ -69,6 +69,13 @@ export default function Conteudo() {
   const [ideas, setIdeas] = useState<ContentIdea[]>(() => {
     if (!storageKeyIdeas) return [];
     try {
+      // One-time cleanup of corrupted data
+      const CLEANUP_KEY = `viralize_cleanup_v1_${storageKeyIdeas}`;
+      if (!localStorage.getItem(CLEANUP_KEY)) {
+        localStorage.removeItem(storageKeyIdeas);
+        localStorage.setItem(CLEANUP_KEY, "1");
+        return [];
+      }
       const stored = localStorage.getItem(storageKeyIdeas);
       return stored ? JSON.parse(stored) : [];
     } catch { return []; }
@@ -76,6 +83,12 @@ export default function Conteudo() {
   const [dismissedIdeas, setDismissedIdeas] = useState<ContentIdea[]>(() => {
     if (!storageKeyDismissed) return [];
     try {
+      const CLEANUP_KEY = `viralize_cleanup_v1_${storageKeyDismissed}`;
+      if (!localStorage.getItem(CLEANUP_KEY)) {
+        localStorage.removeItem(storageKeyDismissed);
+        localStorage.setItem(CLEANUP_KEY, "1");
+        return [];
+      }
       const stored = localStorage.getItem(storageKeyDismissed);
       return stored ? JSON.parse(stored) : [];
     } catch { return []; }
