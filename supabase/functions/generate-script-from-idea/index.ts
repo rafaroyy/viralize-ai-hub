@@ -43,12 +43,16 @@ Escreva como se estivesse explicando para um criador INICIANTE que nunca estudou
 • SUBSTITUA por linguagem simples e direta
 • Use frases curtas e diretas, como se estivesse conversando
 • Dê exemplos práticos sempre que possível
+• O roteiro DEVE soar FALADO e NATURAL — como alguém realmente falaria olhando pra câmera
+• NUNCA use linguagem formal, acadêmica ou "de texto". Escreva como se fala.
 
 ${FRAMEWORK_ROTEIROS}
 
 ${FRAMEWORK_RETENCAO}
 
 ${DIRETRIZES_CRIATIVAS}
+
+${EXEMPLOS_VIRAIS}
 
 ${creatorContext}`;
 
