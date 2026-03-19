@@ -97,6 +97,8 @@ const CriarVideo = () => {
   const { user, logout, quota } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { profile, hasProfile } = useCreatorProfile();
+  const [usePersonalized, setUsePersonalized] = useState(true);
   const displayName = user?.username ?? user?.email?.split("@")[0] ?? "Usuário";
 
   // Form fields for assisted mode
