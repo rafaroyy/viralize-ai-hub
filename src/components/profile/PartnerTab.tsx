@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Crown, Copy, Link, ExternalLink, Gift } from "lucide-react";
+import { Crown, Copy, Gift, Lock, Unlock, Mail, TrendingUp, Users, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -15,10 +15,17 @@ interface AffiliateData {
   active: boolean;
 }
 
+const MOCK_INVITES = [
+  { name: "Maria Santos", email: "maria@email.com", status: "Ativo", date: "15/03/2026" },
+  { name: "Pedro Costa", email: "pedro@email.com", status: "Ativo", date: "10/03/2026" },
+  { name: "Ana Lima", email: "ana@email.com", status: "Pendente", date: "18/03/2026" },
+];
+
 const PartnerTab = () => {
   const { user } = useAuth();
   const [affiliate, setAffiliate] = useState<AffiliateData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [unlockedSlots, setUnlockedSlots] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const fetchAffiliate = async () => {
@@ -35,11 +42,26 @@ const PartnerTab = () => {
     fetchAffiliate();
   }, [user?.email]);
 
-  const inviteLink = affiliate ? `https://viralizeia.com/${affiliate.slug}` : "";
+  const displayName = user?.username ?? user?.email?.split("@")[0] ?? "Parceiro";
 
   const copyLink = (link: string, label: string) => {
     navigator.clipboard.writeText(link);
     toast.success(`${label} copiado!`);
+  };
+
+  const toggleUnlock = (index: number) => {
+    setUnlockedSlots((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  };
+
+  const maskLink = (url: string) => {
+    if (!url) return "https://••••••••••••••••••";
+    const visible = url.substring(0, 30);
+    return `${visible}•••••••`;
   };
 
   if (loading) {
@@ -63,83 +85,203 @@ const PartnerTab = () => {
     );
   }
 
+  const totalSlots = 5;
+  const inviteSlots = Array.from({ length: totalSlots }, (_, i) => i);
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="glass-card p-6 flex items-center gap-4">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg">
-          <Crown className="w-6 h-6 text-white" />
+      {/* Profile Header */}
+      <div className="glass-card p-6 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-bold text-xl">
+            {displayName.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="font-display text-xl font-bold">{affiliate.name}</h2>
+              <Badge className="bg-primary/20 text-primary border-primary/30">
+                Parceiro Oficial
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">Membro desde 2026</p>
+          </div>
         </div>
-        <div className="flex-1">
+        <Button className="gap-2" onClick={() => toast.info("Seus convites estão abaixo!")}>
+          <Gift className="w-4 h-4" />
+          Resgatar Convites
+        </Button>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="glass-card p-5 space-y-1">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">Convites Disponíveis</p>
+            <Gift className="w-5 h-5 text-primary" />
+          </div>
+          <p className="text-3xl font-bold font-display">5</p>
+          <p className="text-xs text-muted-foreground">Prontos para compartilhar</p>
+        </div>
+        <div className="glass-card p-5 space-y-1">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">Total Enviados</p>
+            <Mail className="w-5 h-5 text-primary" />
+          </div>
+          <p className="text-3xl font-bold font-display">12</p>
+          <p className="text-xs text-muted-foreground">Convites compartilhados</p>
+        </div>
+        <div className="glass-card p-5 space-y-1">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">Convites Ativos</p>
+            <TrendingUp className="w-5 h-5 text-primary" />
+          </div>
+          <p className="text-3xl font-bold font-display">8</p>
+          <p className="text-xs text-muted-foreground">Pessoas convidadas ativas</p>
+        </div>
+      </div>
+
+      {/* Two-column layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Invite Links */}
+        <div className="glass-card p-6 space-y-4">
           <div className="flex items-center gap-2">
-            <h2 className="font-display text-xl font-bold">{affiliate.name}</h2>
-            <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">
-              Parceiro Oficial
-            </Badge>
+            <Gift className="w-5 h-5 text-primary" />
+            <h3 className="font-display text-lg font-semibold">Seus Links de Convite</h3>
           </div>
           <p className="text-sm text-muted-foreground">
-            Compartilhe seu link e convide novos membros com preço especial.
+            Compartilhe estes links exclusivos com pessoas que você deseja convidar para a Viralize AI
           </p>
+          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
+            {inviteSlots.map((index) => {
+              const isUnlocked = unlockedSlots.has(index);
+              return (
+                <div key={index} className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      {isUnlocked ? (
+                        <Unlock className="w-4 h-4 text-primary" />
+                      ) : (
+                        <Lock className="w-4 h-4 text-muted-foreground" />
+                      )}
+                      {isUnlocked ? "Link de Convite Desbloqueado" : "Link de Convite Bloqueado"}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={isUnlocked ? "ghost" : "outline"}
+                      className="gap-1.5 text-xs"
+                      onClick={() => toggleUnlock(index)}
+                    >
+                      {isUnlocked ? (
+                        <>
+                          <Lock className="w-3.5 h-3.5" />
+                          Bloquear
+                        </>
+                      ) : (
+                        <>
+                          <Unlock className="w-3.5 h-3.5" />
+                          Desbloquear
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="rounded-md bg-background/50 p-2.5 border border-border/50">
+                      <p className="text-xs text-muted-foreground mb-0.5">Link Mensal</p>
+                      <div className="flex items-center gap-2">
+                        <code className="text-xs text-foreground/80 flex-1 truncate">
+                          {isUnlocked ? affiliate.checkout_monthly : maskLink(affiliate.checkout_monthly)}
+                        </code>
+                        {isUnlocked && (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-6 w-6"
+                            onClick={() => copyLink(affiliate.checkout_monthly, "Link mensal")}
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="rounded-md bg-background/50 p-2.5 border border-border/50">
+                      <p className="text-xs text-muted-foreground mb-0.5">Link Vitalício</p>
+                      <div className="flex items-center gap-2">
+                        <code className="text-xs text-foreground/80 flex-1 truncate">
+                          {isUnlocked ? affiliate.checkout_lifetime : maskLink(affiliate.checkout_lifetime)}
+                        </code>
+                        {isUnlocked && (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-6 w-6"
+                            onClick={() => copyLink(affiliate.checkout_lifetime, "Link vitalício")}
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Link de Convite */}
-      <div className="glass-card p-6 space-y-4">
-        <div className="flex items-center gap-2">
-          <Link className="w-5 h-5 text-primary" />
-          <h3 className="font-display text-lg font-semibold">Seu Link de Convite</h3>
-        </div>
-        <Separator className="bg-border/50" />
-        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
-          <code className="flex-1 text-sm text-foreground truncate">{inviteLink}</code>
-          <Button size="sm" onClick={() => copyLink(inviteLink, "Link de convite")} className="gap-2 shrink-0">
-            <Copy className="w-4 h-4" />
-            Copiar
+        {/* Recent Invites */}
+        <div className="glass-card p-6 space-y-4">
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-primary" />
+            <h3 className="font-display text-lg font-semibold">Convites Recentes</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Pessoas que você convidou para a plataforma
+          </p>
+          <div className="space-y-3">
+            {MOCK_INVITES.map((invite, i) => (
+              <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm shrink-0">
+                  {invite.name.split(" ").map((n) => n[0]).join("")}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{invite.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{invite.email}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <Badge
+                    variant={invite.status === "Ativo" ? "default" : "secondary"}
+                    className={invite.status === "Ativo" ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : ""}
+                  >
+                    {invite.status}
+                  </Badge>
+                  <p className="text-xs text-muted-foreground mt-1">{invite.date}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <Button variant="outline" className="w-full">
+            Ver Todos os Convites
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground">
-          <Gift className="w-3.5 h-3.5 inline mr-1" />
-          Quem acessar por esse link terá acesso a preços exclusivos de parceiro.
-        </p>
       </div>
 
-      {/* Links de Checkout */}
+      {/* How it works */}
       <div className="glass-card p-6 space-y-4">
-        <h3 className="font-display text-lg font-semibold">Links de Checkout Direto</h3>
-        <Separator className="bg-border/50" />
-        <div className="grid gap-3">
-          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
-            <div>
-              <p className="text-sm font-medium">Plano Mensal</p>
-              <p className="text-xs text-muted-foreground truncate max-w-[250px]">{affiliate.checkout_monthly}</p>
+        <h3 className="font-display text-lg font-semibold">Como Funcionam os Convites?</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { step: 1, title: "Desbloqueie o Link", desc: "Clique em desbloquear para revelar os links de convite mensal e vitalício" },
+            { step: 2, title: "Compartilhe", desc: "Copie e envie o link para a pessoa que você deseja convidar" },
+            { step: 3, title: "Acompanhe", desc: "Veja quando seu convidado aceitar e se tornar um membro ativo" },
+          ].map((item) => (
+            <div key={item.step} className="text-center space-y-2 p-4">
+              <div className="w-10 h-10 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center mx-auto text-lg">
+                {item.step}
+              </div>
+              <h4 className="font-semibold text-sm">{item.title}</h4>
+              <p className="text-xs text-muted-foreground">{item.desc}</p>
             </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="ghost" onClick={() => copyLink(affiliate.checkout_monthly, "Link mensal")}>
-                <Copy className="w-4 h-4" />
-              </Button>
-              <Button size="sm" variant="ghost" asChild>
-                <a href={affiliate.checkout_monthly} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </Button>
-            </div>
-          </div>
-          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
-            <div>
-              <p className="text-sm font-medium">Plano Vitalício</p>
-              <p className="text-xs text-muted-foreground truncate max-w-[250px]">{affiliate.checkout_lifetime}</p>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="ghost" onClick={() => copyLink(affiliate.checkout_lifetime, "Link vitalício")}>
-                <Copy className="w-4 h-4" />
-              </Button>
-              <Button size="sm" variant="ghost" asChild>
-                <a href={affiliate.checkout_lifetime} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </Button>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
