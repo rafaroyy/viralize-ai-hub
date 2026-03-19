@@ -1,18 +1,22 @@
 
 
-# Persistir ideias no localStorage
+# Fix: Textos Garbled/Corrompidos nas Ideias
 
-## Abordagem
+## Diagnóstico
 
-Usar `localStorage` para salvar e restaurar as listas `ideas` e `dismissedIdeas`, keyed pelo `user_id`. Simples, sem necessidade de novas tabelas no banco.
+O GPT-4o está retornando unicode corrompido (`n03o` em vez de `não`, `neg6ocios` em vez de `negócios`). Duas causas:
 
-## Mudanças — `src/pages/Conteudo.tsx`
+1. **Enum com acentos no tool schema** — valores como `"polêmica"`, `"reação"`, `"tendência"` no schema de tool calling confundem o modelo e ele produz escape sequences malformadas (`\u00006o` etc.)
+2. **`max_tokens: 3000` insuficiente** — o prompt ficou muito maior após injetar os frameworks, e o modelo trunca a resposta gerando lixo nas últimas ideias
 
-1. **Ao montar o componente**: Carregar `ideas` e `dismissedIdeas` do localStorage usando chaves `viralize_ideas_{user_id}` e `viralize_dismissed_{user_id}`
-2. **Sempre que `ideas` ou `dismissedIdeas` mudam**: Salvar no localStorage via `useEffect`
-3. **No reset (primeira geração sem append)**: Limpar dismissed do localStorage também
+## Mudanças — `supabase/functions/generate-content-ideas/index.ts`
+
+1. **Remover acentos dos enum values no tool schema**: `"polemica"`, `"reacao"`, `"tendencia"`, `"comparacao"` — o modelo entende perfeitamente e não corrompe a saída
+2. **Aumentar `max_tokens` para 4500** para acomodar o prompt expandido
+3. **Adicionar sanitização pós-resposta**: função que detecta e limpa caracteres unicode corrompidos antes de retornar ao frontend
+4. **Atualizar as referências no user prompt** para usar os mesmos valores ASCII nos exemplos de categorias
 
 | Arquivo | Ação |
 |---|---|
-| `src/pages/Conteudo.tsx` | Adicionar load/save via localStorage com useEffect |
+| `supabase/functions/generate-content-ideas/index.ts` | Fix enum, aumentar tokens, sanitizar output |
 
