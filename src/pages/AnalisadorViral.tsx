@@ -383,8 +383,15 @@ const AnalisadorViral = () => {
         videoUrl = await uploadVideo(videoFile);
         setIsUploading(false);
       }
+      const bodyPayload: any = { url: videoUrl, description: description.trim(), isVideoUpload: !!videoFile };
+
+      // Inject creator profile if personalized mode
+      if (personalizedMode && hasProfile) {
+        bodyPayload.creatorProfile = creatorProfile;
+      }
+
       const { data, error } = await supabase.functions.invoke('analyze-viral', {
-        body: { url: videoUrl, description: description.trim(), isVideoUpload: !!videoFile },
+        body: bodyPayload,
       });
       if (error) throw error;
 
