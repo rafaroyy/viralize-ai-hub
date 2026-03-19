@@ -257,7 +257,7 @@ Compare com benchmarks DO NICHO do criador. Recomendações devem ser direcionad
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: geminiSystemPrompt }] },
+        systemInstruction: { parts: [{ text: finalGeminiPrompt }] },
         contents: [{ role: "user", parts }],
         generationConfig: {
           responseMimeType: "application/json",
