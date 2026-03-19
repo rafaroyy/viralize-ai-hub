@@ -148,6 +148,31 @@ Retorne sua análise como JSON válido. Seja CONCISO — cada campo de texto dev
 **2. CORPO** — "C" (Conflito): Mantém atenção? Score 0-100
 **3. CTA / FINAL** — "R" (Resposta): Incentiva ação? Score 0-100
 
+### CALIBRAÇÃO DE SCORE (OBRIGATÓRIO)
+• 0-25 (Baixo): Sem estrutura viral, sem hook, sem retenção
+• 26-45 (Moderado): Tem estrutura básica mas falhas graves (robotizado, cringe, sem naturalidade)
+• 46-65 (Alto): Estrutura boa, algumas falhas de execução ou autenticidade
+• 66-80 (Viral): Estrutura forte + execução boa + autenticidade percebida
+• 81-100 (Mega Viral): Excepcional em estrutura, execução E autenticidade
+
+### PENALIDADES OBRIGATÓRIAS
+• Vídeo claramente gerado por IA (voz sintética, avatar digital, legendas mecânicas): -15 a -25 pontos
+• Roteiro robotizado ou frases improváveis na fala real: -10 a -20 pontos
+• Legendas quebradas ou mal sincronizadas: -5 a -15 pontos
+• Falta de emoção real ou energia artificial: -10 a -20 pontos
+• Mismatch entre promessa do hook e entrega do conteúdo: -10 a -15 pontos
+
+REGRA DE OURO: Um vídeo com estrutura P-C-R perfeita MAS sem autenticidade percebida NUNCA deve passar de 55. Estrutura sem verdade = conteúdo genérico.
+
+### AVALIAÇÃO DE AUTENTICIDADE (OBRIGATÓRIO — você é o único agente que VÊ o vídeo)
+Avalie explicitamente:
+• A voz é natural ou sintética/TTS?
+• O rosto/avatar parece real ou gerado por IA?
+• As legendas fluem naturalmente ou estão quebradas/mecânicas?
+• O roteiro soa como fala humana real ou texto de IA?
+• Há emoção genuína ou tudo parece artificial?
+Inclua sua avaliação de autenticidade no campo "summary".
+
 ### Regras de Análise
 • Use o FRAMEWORK DE RETENÇÃO para avaliar micro-hooks, pattern interrupts e open loops
 • Compare com os EXEMPLOS VIRAIS de referência — o vídeo segue padrões similares?
