@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle, Eye, Smartphone, Search, ExternalLink } from "lucide-react";
+import { Video, Sparkles, Upload, Play, LogOut, PenLine, Wand2, FileText, ArrowLeft, Crown, ChevronDown, X, Download, Loader2, CheckCircle, AlertCircle, Eye, Smartphone, Search, ExternalLink, User } from "lucide-react";
 import { AiLoader } from "@/components/ui/ai-loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,8 @@ import { Slider } from "@/components/ui/slider";
 import { VideoUploadCard } from "@/components/ui/video-upload-card";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useCreatorProfile } from "@/hooks/useCreatorProfile";
+import { Switch } from "@/components/ui/switch";
 
 const MAX_WORDS = 25;
 
@@ -95,6 +97,8 @@ const CriarVideo = () => {
   const { user, logout, quota } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { profile, hasProfile } = useCreatorProfile();
+  const [usePersonalized, setUsePersonalized] = useState(true);
   const displayName = user?.username ?? user?.email?.split("@")[0] ?? "Usuário";
 
   // Form fields for assisted mode
@@ -238,6 +242,22 @@ const CriarVideo = () => {
         caption_style: captionStyle,
         video_source: videoSource,
       };
+      if (usePersonalized && hasProfile) {
+        payload.creator_profile = {
+          niche: profile.niche,
+          sub_niches: profile.sub_niches,
+          target_audience: profile.target_audience,
+          content_style: profile.content_style,
+          tone_of_voice: profile.tone_of_voice,
+          goals: profile.goals,
+          average_views: profile.average_views,
+          brand_cause: profile.brand_cause,
+          brand_tribe: profile.brand_tribe,
+          brand_enemy: profile.brand_enemy,
+          brand_archetype: profile.brand_archetype,
+          brand_recognition: profile.brand_recognition,
+        };
+      }
       const files = videoSource === "custom" ? uploadedFiles : undefined;
       const res = await api.renderVideo(payload, files);
       setJobId(res.job_id);
@@ -268,6 +288,22 @@ const CriarVideo = () => {
         caption_style: captionStyle,
         video_source: "custom",
       };
+      if (usePersonalized && hasProfile) {
+        payload.creator_profile = {
+          niche: profile.niche,
+          sub_niches: profile.sub_niches,
+          target_audience: profile.target_audience,
+          content_style: profile.content_style,
+          tone_of_voice: profile.tone_of_voice,
+          goals: profile.goals,
+          average_views: profile.average_views,
+          brand_cause: profile.brand_cause,
+          brand_tribe: profile.brand_tribe,
+          brand_enemy: profile.brand_enemy,
+          brand_archetype: profile.brand_archetype,
+          brand_recognition: profile.brand_recognition,
+        };
+      }
       const files = manualFiles.length > 0 ? manualFiles : undefined;
       const res = await api.renderVideo(payload, files);
       setJobId(res.job_id);
@@ -634,6 +670,31 @@ const CriarVideo = () => {
                 </div>
               </motion.section>
 
+              {/* Personalização */}
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
+                className="flex items-center justify-between p-4 rounded-xl border border-border bg-card/50"
+              >
+                <div className="flex items-center gap-3">
+                  <User className="w-4 h-4 text-primary" />
+                  <div>
+                    <p className="text-sm font-medium">Personalizar para meu perfil</p>
+                    <p className="text-xs text-muted-foreground">
+                      {hasProfile ? "Adapta tom, nicho e branding ao seu perfil" : "Configure em Perfil → Criador"}
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  checked={usePersonalized && hasProfile}
+                  onCheckedChange={(checked) => {
+                    if (checked && !hasProfile) {
+                      toast({ title: "Perfil não configurado", description: "Vá em Perfil → Criador para preencher seus dados." });
+                      return;
+                    }
+                    setUsePersonalized(checked);
+                  }}
+                />
+              </motion.div>
+
               {/* CTA */}
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
                 <Button
@@ -882,10 +943,31 @@ const CriarVideo = () => {
               </section>
             )}
 
+            {/* Personalização */}
+            <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card/50">
+              <div className="flex items-center gap-3">
+                <User className="w-4 h-4 text-primary" />
+                <div>
+                  <p className="text-sm font-medium">Personalizar para meu perfil</p>
+                  <p className="text-xs text-muted-foreground">
+                    {hasProfile ? "Adapta tom, nicho e branding ao seu perfil de criador" : "Configure seu perfil em Perfil → Criador"}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={usePersonalized && hasProfile}
+                onCheckedChange={(checked) => {
+                  if (checked && !hasProfile) {
+                    toast({ title: "Perfil não configurado", description: "Vá em Perfil → Criador para preencher seus dados." });
+                    return;
+                  }
+                  setUsePersonalized(checked);
+                }}
+              />
+            </div>
+
             {/* CTA */}
             <Button
-              size="lg"
-              onClick={handleSubmitAssisted}
               disabled={isSubmitting}
               className="w-full gradient-primary text-primary-foreground font-semibold text-base py-6 shadow-glow hover:opacity-90 transition-opacity"
             >
