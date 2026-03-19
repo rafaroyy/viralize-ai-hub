@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { buildCreatorRAGContext, FRAMEWORK_ROTEIROS, FRAMEWORK_RETENCAO, DIRETRIZES_CRIATIVAS } from "../_shared/knowledge_base.ts";
+import { buildCreatorRAGContext, FRAMEWORK_ROTEIROS, FRAMEWORK_RETENCAO, DIRETRIZES_CRIATIVAS, EXEMPLOS_VIRAIS } from "../_shared/knowledge_base.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
