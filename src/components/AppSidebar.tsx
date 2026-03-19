@@ -92,6 +92,7 @@ export function AppSidebar() {
                   key={link.href}
                   link={{
                     ...link,
+                    label: ('beta' in link && link.beta) ? `${link.label} ✦ Beta` : link.label,
                     icon: (
                       <div className={cn(
                         "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
