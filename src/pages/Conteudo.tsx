@@ -122,8 +122,21 @@ export default function Conteudo() {
   const [customAudience, setCustomAudience] = useState("");
 
   // Script
+  const storageKeyScripts = user ? `viralize_scripts_${user.user_id}` : null;
+  const [scriptsMap, setScriptsMap] = useState<Record<string, Script>>(() => {
+    if (!storageKeyScripts) return {};
+    try {
+      const stored = localStorage.getItem(storageKeyScripts);
+      return stored ? JSON.parse(stored) : {};
+    } catch { return {}; }
+  });
   const [script, setScript] = useState<Script | null>(null);
   const [loadingScript, setLoadingScript] = useState(false);
+
+  // Persist scripts to localStorage
+  useEffect(() => {
+    if (storageKeyScripts) localStorage.setItem(storageKeyScripts, JSON.stringify(scriptsMap));
+  }, [scriptsMap, storageKeyScripts]);
 
   const filteredIdeas = useMemo(() => {
     if (!activeFilter) return ideas;
