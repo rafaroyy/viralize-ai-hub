@@ -211,7 +211,8 @@ function ExpandableTips({ tips }: { tips: string[] }) {
 
 const AnalisadorViral = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { profile: creatorProfile, hasProfile } = useCreatorProfile();
+  const [personalizedMode, setPersonalizedMode] = useState(false);
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
