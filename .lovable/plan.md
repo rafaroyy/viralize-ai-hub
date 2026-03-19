@@ -1,22 +1,40 @@
 
 
-# Fix: Textos Garbled/Corrompidos nas Ideias
+## Plano: Aba "Parceiro Oficial" no Perfil (exclusiva para contas específicas)
 
-## Diagnóstico
+### Resumo
 
-O GPT-4o está retornando unicode corrompido (`n03o` em vez de `não`, `neg6ocios` em vez de `negócios`). Duas causas:
+Adicionar uma nova aba **"Parceiro"** na página de Perfil, visível apenas para os emails `juliocrepaldi200@gmail.com` e `rafa07roy@gmail.com`. Essa aba permitirá gerar e compartilhar links de convite com preço especial para novos membros.
 
-1. **Enum com acentos no tool schema** — valores como `"polêmica"`, `"reação"`, `"tendência"` no schema de tool calling confundem o modelo e ele produz escape sequences malformadas (`\u00006o` etc.)
-2. **`max_tokens: 3000` insuficiente** — o prompt ficou muito maior após injetar os frameworks, e o modelo trunca a resposta gerando lixo nas últimas ideias
+### O que será feito
 
-## Mudanças — `supabase/functions/generate-content-ideas/index.ts`
+1. **Aba condicional no Perfil** (`src/pages/Perfil.tsx`)
+   - Verificar `user?.email` contra a lista de parceiros autorizados
+   - Se for parceiro, renderizar a aba extra "Parceiro" com ícone de coroa/estrela
+   - A aba aparece entre "Criador" e "Integrações"
 
-1. **Remover acentos dos enum values no tool schema**: `"polemica"`, `"reacao"`, `"tendencia"`, `"comparacao"` — o modelo entende perfeitamente e não corrompe a saída
-2. **Aumentar `max_tokens` para 4500** para acomodar o prompt expandido
-3. **Adicionar sanitização pós-resposta**: função que detecta e limpa caracteres unicode corrompidos antes de retornar ao frontend
-4. **Atualizar as referências no user prompt** para usar os mesmos valores ASCII nos exemplos de categorias
+2. **Conteúdo da aba "Parceiro Oficial"** (novo componente `src/components/profile/PartnerTab.tsx`)
+   - Header com badge "Parceiro Oficial Viralize"
+   - Seção de link de convite: gera um link único baseado no slug do parceiro na tabela `affiliates` (já existente no banco)
+   - Botão "Copiar Link" para copiar o link de convite
+   - Explicação de que convidados por esse link terão acesso a preço especial
+   - Estatísticas simples (se houver dados futuros)
 
-| Arquivo | Ação |
-|---|---|
-| `supabase/functions/generate-content-ideas/index.ts` | Fix enum, aumentar tokens, sanitizar output |
+3. **Integração com a tabela `affiliates`**
+   - Buscar o registro do parceiro pelo email do usuário logado
+   - Usar o `slug` para montar o link de convite: `https://viralizeia.com/{slug}`
+   - Se o parceiro ainda não tiver um registro na tabela, exibir estado vazio com instrução
+
+### Detalhes técnicos
+
+- Lista de emails autorizados como constante no componente (sem banco, sem RLS — é só uma verificação client-side para exibição da aba)
+- A tabela `affiliates` já existe e tem os campos `slug`, `checkout_monthly`, `checkout_lifetime`, `name`, `active`
+- Será necessário adicionar o campo `email` à tabela `affiliates` (via migration) para vincular o parceiro ao usuário logado, ou buscar pelo `name`/outro campo
+
+### Arquivos modificados
+- `src/pages/Perfil.tsx` — adicionar aba condicional
+- `src/components/profile/PartnerTab.tsx` — novo componente com conteúdo da aba
+
+### Migration necessária
+- Adicionar coluna `email` na tabela `affiliates` para vincular parceiro ao usuário logado
 
