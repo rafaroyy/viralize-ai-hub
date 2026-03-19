@@ -163,35 +163,42 @@ ${creatorContext}`;
 
     const userPrompt = `Com base no histórico, perfil e nos frameworks acima, gere ${ideaCount} ideias de conteúdo para vídeos curtos.
 
+## CONTEXTO DO CRIADOR (PRIORIDADE MÁXIMA)
+O criador tem o seguinte perfil — TODAS as ideias devem ser 100% relevantes para esse nicho e público:
+- Nicho: ${profile?.niche || "geral"}
+- Sub-nichos: ${(profile as any)?.sub_niches?.join(", ") || "não informado"}
+- Público-alvo: ${profile?.target_audience || "geral"}
+- Estilo de conteúdo: ${profile?.content_style || "natural"}
+- Tom de voz: ${profile?.tone_of_voice || "conversacional"}
+- Plataformas: ${(profile as any)?.main_platforms?.join(", ") || "não informado"}
+- Objetivos: ${(profile as any)?.goals || "não informado"}
+
 ## Histórico recente do criador:
 ${historyContext || "Nenhum histórico encontrado — gere ideias baseadas apenas no perfil."}
-
-## Perfil:
-- Nicho: ${profile?.niche || "geral"}
-- Público-alvo: ${profile?.target_audience || "geral"}
-- Estilo: ${profile?.content_style || "natural"}
-- Tom de voz: ${profile?.tone_of_voice || "conversacional"}
 ${appendContext}${specificRequest}
 
 ## REGRAS DE QUALIDADE (OBRIGATÓRIO)
-1. **Ângulos contraintuitivos**: Cada ideia DEVE ter um ângulo que vá contra o senso comum ou surpreenda. Nada de ângulos óbvios como "a importância de X" ou "como fazer Y". Pense: "O que faria alguém parar de scrollar porque discorda ou fica curioso?"
-2. **Hooks prontos para gravar**: O hook deve ser uma FRASE EXATA que o criador vai falar olhando pra câmera. Não descrições vagas. Deve soar natural e falado, não escrito.
-3. **Variedade de linhas**: Distribua as ideias entre Atração (alcance), Autoridade (posicionamento) e Conversão (vendas). Pelo menos 2 de cada.
-4. **Especificidade**: Ideias devem parecer VIVIDAS e ESPECÍFICAS, não templates genéricos. Use números concretos, situações reais, exemplos do cotidiano do público-alvo.
-5. **Inspiração nos cases**: Use os case studies de vídeos virais acima como referência de nível de qualidade e especificidade.
+1. **100% no nicho do criador**: Cada ideia DEVE ser específica para o nicho "${profile?.niche || "geral"}" e falar diretamente com "${profile?.target_audience || "o público-alvo"}". NÃO gere ideias genéricas sobre empreendedorismo, produtividade ou finanças se o nicho do criador for outro.
+2. **Ângulos contraintuitivos**: Cada ideia DEVE ter um ângulo que vá contra o senso comum ou surpreenda. Nada de ângulos óbvios como "a importância de X" ou "como fazer Y".
+3. **Hooks prontos para gravar**: O hook deve ser uma FRASE EXATA que o criador vai falar olhando pra câmera. Deve soar natural e falado.
+4. **Categorias válidas**: O campo "category" DEVE ser um destes valores exatos: tutorial, storytelling, polêmica, bastidores, lista, reação, comparação, desafio, tendência. NÃO use outros valores.
+5. **Especificidade**: Ideias devem parecer VIVIDAS e ESPECÍFICAS ao nicho do criador. Use números concretos, situações reais, exemplos do cotidiano do público-alvo.
+6. **Distribuição de propósito**: Misture ideias de alcance (atrair novos seguidores), autoridade (posicionamento) e conversão (vendas), mas use as categorias de FORMATO listadas acima.
 
 ## EXEMPLO DO NÍVEL ESPERADO (few-shot)
 ✅ BOM:
 - title: "Parei de postar todo dia e minhas views triplicaram"
 - angle: "Mostrar que volume sem estratégia queima o perfil e que 3 vídeos/semana com formato eficiente batem 7 vídeos genéricos"
 - hook: "Eu postava todo dia e meu perfil só caía. Até que eu fiz o oposto."
+- category: "storytelling"
 
 ❌ RUIM (genérico demais):
 - title: "Dicas para crescer nas redes sociais"
 - angle: "Compartilhar dicas úteis para o público"
 - hook: "Você quer crescer nas redes? Então assista esse vídeo."
+- category: "Atração" ← ERRADO, use valores do enum
 
-Gere ideias no nível do exemplo BOM. Cada ideia deve fazer o criador pensar "isso eu quero gravar agora".`;
+Gere ideias no nível do exemplo BOM, todas profundamente conectadas ao nicho do criador.`;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
