@@ -7,6 +7,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { TikTokIntegrationCard } from "@/components/integrations/TikTokIntegrationCard";
 import { CreatorProfileForm } from "@/components/profile/CreatorProfileForm";
+import PartnerTab from "@/components/profile/PartnerTab";
+
+const PARTNER_EMAILS = ["juliocrepaldi200@gmail.com", "rafa07roy@gmail.com"];
 
 const Perfil = () => {
   const { user, quota, logout } = useAuth();
