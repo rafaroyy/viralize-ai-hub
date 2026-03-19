@@ -937,7 +937,7 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: {checkoutMonthly?
 
               {activeTab === "quarterly" && (
                 <p className="text-xs text-green-500 font-medium">
-                  Equivale a R$98/mês — economize R$140
+                  Equivale a R$132/mês — economize R$186
                 </p>
               )}
 
