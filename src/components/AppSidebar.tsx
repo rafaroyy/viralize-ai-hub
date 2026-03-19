@@ -85,7 +85,7 @@ export function AppSidebar() {
         <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden pt-1">
           {open ? <Logo src={currentLogo} /> : <LogoIcon src={currentLogo} />}
           <nav className="mt-5 flex flex-col gap-1">
-            {navLinks.map((link) => {
+            {allLinks.map((link) => {
               const isActive = location.pathname === link.href;
               return (
                 <SidebarLink
