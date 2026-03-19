@@ -1,4 +1,4 @@
-import { User, Settings, CreditCard, Bell, LogOut, Plug } from "lucide-react";
+import { User, Settings, CreditCard, Bell, LogOut, Plug, Sparkles } from "lucide-react";
 import { MemberCard } from "@/components/ui/member-card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { TikTokIntegrationCard } from "@/components/integrations/TikTokIntegrationCard";
+import { CreatorProfileForm } from "@/components/profile/CreatorProfileForm";
 
 const Perfil = () => {
   const { user, quota, logout } = useAuth();
