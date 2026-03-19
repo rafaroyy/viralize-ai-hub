@@ -48,6 +48,14 @@ const TONES = [
   { value: 'direto', label: 'Direto / Objetivo' },
 ];
 
+const ARCHETYPES = [
+  { value: 'mentor', label: 'O Mentor', desc: 'Guia e ensina com autoridade' },
+  { value: 'rebelde', label: 'O Rebelde', desc: 'Desafia o status quo' },
+  { value: 'executor', label: 'O Executor', desc: 'Mostra resultados na prática' },
+  { value: 'visionario', label: 'O Visionário', desc: 'Inspira com visão de futuro' },
+  { value: 'provocador', label: 'O Provocador', desc: 'Questiona e gera debate' },
+];
+
 export function CreatorProfileForm() {
   const { toast } = useToast();
   const { profile, loading, saving, saveProfile } = useCreatorProfile();
