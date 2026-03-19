@@ -846,7 +846,7 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: {checkoutMonthly?
     },
     quarterly: {
       label: "Trimestral",
-      price: "295",
+      price: "395",
       period: "/trimestre",
       subtitle: "Economia de 32%",
       originalPrice: "435",
