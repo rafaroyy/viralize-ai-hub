@@ -92,6 +92,16 @@ export default function Conteudo() {
   const [preferredTone, setPreferredTone] = useState("");
   const [avoidTopics, setAvoidTopics] = useState("");
 
+
+  // Persist ideas to localStorage
+  useEffect(() => {
+    if (storageKeyIdeas) localStorage.setItem(storageKeyIdeas, JSON.stringify(ideas));
+  }, [ideas, storageKeyIdeas]);
+
+  useEffect(() => {
+    if (storageKeyDismissed) localStorage.setItem(storageKeyDismissed, JSON.stringify(dismissedIdeas));
+  }, [dismissedIdeas, storageKeyDismissed]);
+
   // Customization fields
   const [customTitle, setCustomTitle] = useState("");
   const [customAngle, setCustomAngle] = useState("");
