@@ -95,8 +95,10 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { user_id } = await req.json();
+    const { user_id, prompt_context, preferred_format, preferred_tone, avoid_topics, existing_titles, dismissed_titles } = await req.json();
     if (!user_id) throw new Error("user_id obrigatório");
+
+    const isAppendMode = Array.isArray(existing_titles) && existing_titles.length > 0;
 
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY não configurada");
