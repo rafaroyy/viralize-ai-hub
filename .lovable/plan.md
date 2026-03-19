@@ -1,51 +1,40 @@
 
 
-# Nova Pagina de Vendas em /pagina
+# Correções no Pipeline de Análise Viral
 
-## Resumo
-Criar uma nova pagina de vendas na rota `/pagina` com a copy agressiva fornecida, mantendo o design system existente (dark tech, neon roxo, glass-card, framer-motion). Nenhuma alteracao no backend ou em outras paginas.
+## Diagnóstico
 
-## Estrutura das Secoes
+O `knowledge_base.ts` está bem estruturado com 5 novas seções. Porém o `analyze-viral/index.ts` tem dois desalinhamentos:
 
-1. **Hero** - "Todos os dias alguem desconhecido fica rico com videos simples." + CTA "Quero comecar agora" + microcopy "Pagamento unico. Acesso vitalicio."
-2. **Dor + Inveja** - "Enquanto voce assiste, outros estao faturando." + frases curtas isoladas
-3. **Virada Mental** - "O jogo nao e sobre trabalhar. E sobre aparecer." + "Voce nao precisa de outro produto. Precisa de visualizacoes."
-4. **Solucao (Viralize)** - "A ferramenta criada para fabricar videos virais." + lista com X (sem criatividade, sem experiencia, sem audiencia)
-5. **Prova (Comparacao)** - "A diferenca e brutal." + 2 colunas (Sem Viralize vs Com Viralize)
-6. **Oferta** - Acesso vitalicio, De R$645 por R$247, CTA repetido, frase de ancoragem
-7. **Fechamento** - "Daqui a 1 ano, voce vai desejar ter comecado hoje."
+### Problema 1: Agente OpenAI não recebe os novos frameworks
+O prompt do OpenAI (Agente 2, linha 255-310) injeta apenas os 6 frameworks originais. Os 5 novos exports estão ausentes:
+- `FRAMEWORK_ANALISE_AUTENTICIDADE`
+- `REGRAS_DE_DECISAO_ANALISE`
+- `SCORECARD_ANALISE_VIRAL`
+- `FORMATO_SAIDA_ANALISE`
+- `SCHEMA_ANALISE_JSON`
 
-## Detalhes Tecnicos
+O Gemini recebe tudo (via `SYSTEM_PROMPT_BASE`), mas o OpenAI — que é o agente de refinamento estratégico — não tem acesso ao framework de autenticidade, regras de decisão nem ao scorecard.
 
-### Arquivos criados
-- `src/pages/PaginaVendas.tsx` - Nova pagina completa com todas as 7 secoes
+### Problema 2: Schema JSON dos prompts desatualizado
+Os dois prompts ainda pedem o schema antigo (`overallScore`, `hookAnalysis`, `bodyAnalysis`...), mas o `SCHEMA_ANALISE_JSON` define uma estrutura completamente diferente com `scores` (0-5 por dimensão), `evidence`, `risk_diagnosis`, `action_items`, `final_verdict`.
 
-### Arquivos modificados
-- `src/App.tsx` - Adicionar rota `/pagina` apontando para `PaginaVendas`
+O frontend (`AnalisadorViral.tsx`) espera o schema antigo, então temos que escolher: atualizar o frontend para o novo schema, ou manter o schema antigo nos prompts e usar o novo apenas como referência interna.
 
-### Componentes reutilizados
-- `ScrollReveal` (mesmo pattern da LandingPage)
-- `framer-motion` para animacoes
-- Classes utilitarias existentes: `glass-card`, `gradient-primary`, `shadow-glow`, `font-display`
-- Logo existente no header
-- Icones do `lucide-react` (ArrowRight, X, TrendingDown, TrendingUp, Shield)
+## Plano
 
-### Regras de UI seguidas conforme o prompt
-- Maximo 1 ideia por bloco
-- Frases de impacto em linha isolada (texto maior, peso bold)
-- Sem emojis no site
-- CTAs apenas no Hero + Oferta
-- Visual clean, contraste alto, bastante espaco
-- Navbar simplificada (logo + "Entrar" + CTA)
-- Footer minimalista
+### 1. Atualizar import no `analyze-viral/index.ts`
+Adicionar os 5 novos exports ao import.
 
-### Pricing
-- Preco: De R$645 por R$247
-- Pagamento unico
-- Link de checkout vitalicio reutilizado (CenterPag)
-- Suporte a affiliate slug mantido
+### 2. Injetar novos frameworks no prompt do OpenAI
+Adicionar `FRAMEWORK_ANALISE_AUTENTICIDADE`, `REGRAS_DE_DECISAO_ANALISE` e `SCORECARD_ANALISE_VIRAL` ao prompt do Agente 2, mantendo a mesma estrutura de separação por `---`.
 
-### Rota
-- `/pagina` como rota publica (nao protegida)
-- A rota `/:affiliateSlug` continua funcionando para a LandingPage original em `/`
+### 3. Manter o schema JSON de output atual
+O frontend já renderiza o schema antigo. Ao invés de quebrar tudo, vamos manter o output JSON atual mas instruir os agentes a usarem os novos frameworks como critérios de avaliação internos (autenticidade, cringe, risco de IA). Assim a qualidade da análise melhora sem quebrar a UI.
+
+### 4. Aumentar `max_tokens` do OpenAI
+Com mais contexto sendo processado, subir de 2000 para 3000 tokens para evitar respostas truncadas.
+
+### Arquivos alterados
+- `supabase/functions/analyze-viral/index.ts` — imports, prompt do OpenAI, max_tokens
 
