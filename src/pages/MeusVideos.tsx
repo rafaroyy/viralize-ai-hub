@@ -41,6 +41,7 @@ const MeusVideos = () => {
       } else {
         throw new Error("unavailable");
       }
+    } catch {
       toast({ title: "Erro", description: "Não foi possível carregar o preview.", variant: "destructive" });
       setSelectedVideo(null);
     } finally {
