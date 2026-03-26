@@ -128,8 +128,8 @@ export default function Conteudo() {
 
   // Persist scripts to localStorage
   useEffect(() => {
-    if (storageKeyScripts) localStorage.setItem(storageKeyScripts, JSON.stringify(scriptsMap));
-  }, [scriptsMap, storageKeyScripts]);
+    if (storageKeyScripts && dataLoaded) localStorage.setItem(storageKeyScripts, JSON.stringify(scriptsMap));
+  }, [scriptsMap, storageKeyScripts, dataLoaded]);
 
   const filteredIdeas = useMemo(() => {
     if (!activeFilter) return ideas;
