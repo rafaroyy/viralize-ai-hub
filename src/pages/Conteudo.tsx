@@ -301,7 +301,7 @@ export default function Conteudo() {
   if (loadingIdeas && ideas.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] gap-4">
-        <AiLoader />
+        <AiLoader hideText />
         <p className="text-muted-foreground">Analisando seu perfil e histórico...</p>
       </div>
     );
@@ -361,7 +361,7 @@ export default function Conteudo() {
       {/* Loading indicator for append mode */}
       {loadingIdeas && ideas.length > 0 && (
         <div className="flex items-center justify-center gap-3 py-4 border border-dashed border-primary/30 rounded-lg">
-          <AiLoader />
+          <AiLoader hideText />
           <p className="text-sm text-muted-foreground">Gerando mais ideias...</p>
         </div>
       )}
@@ -550,7 +550,7 @@ export default function Conteudo() {
 
               {loadingScript && (
                 <div className="flex justify-center py-4">
-                  <AiLoader />
+                  <AiLoader hideText />
                 </div>
               )}
 
