@@ -20,11 +20,11 @@ const frames = [
   [14, 6, 13, 20, 9, 7, 21],
 ];
 
-export function AiLoader({ className }: { className?: string }) {
+export function AiLoader({ className, hideText = false }: { className?: string; hideText?: boolean }) {
   return (
     <div className={cn("flex flex-col items-center justify-center gap-4", className)}>
       <DotLoader frames={frames} duration={120} className="gap-1.5" dotClassName="h-2.5 w-2.5" />
-      <p className="text-xs font-medium text-muted-foreground tracking-wide">Gerando vídeo...</p>
+      {!hideText && <p className="text-xs font-medium text-muted-foreground tracking-wide">Gerando vídeo...</p>}
     </div>
   );
 }
