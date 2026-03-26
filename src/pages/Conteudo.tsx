@@ -66,33 +66,23 @@ export default function Conteudo() {
   const storageKeyIdeas = user ? `viralize_ideas_${user.user_id}` : null;
   const storageKeyDismissed = user ? `viralize_dismissed_${user.user_id}` : null;
 
-  const [ideas, setIdeas] = useState<ContentIdea[]>(() => {
-    if (!storageKeyIdeas) return [];
+  const [ideas, setIdeas] = useState<ContentIdea[]>([]);
+  const [dismissedIdeas, setDismissedIdeas] = useState<ContentIdea[]>([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
+
+  // Load ideas from localStorage when user becomes available
+  useEffect(() => {
+    if (!storageKeyIdeas || !storageKeyDismissed) return;
     try {
-      // One-time cleanup of corrupted data
-      const CLEANUP_KEY = `viralize_cleanup_v1_${storageKeyIdeas}`;
-      if (!localStorage.getItem(CLEANUP_KEY)) {
-        localStorage.removeItem(storageKeyIdeas);
-        localStorage.setItem(CLEANUP_KEY, "1");
-        return [];
-      }
-      const stored = localStorage.getItem(storageKeyIdeas);
-      return stored ? JSON.parse(stored) : [];
-    } catch { return []; }
-  });
-  const [dismissedIdeas, setDismissedIdeas] = useState<ContentIdea[]>(() => {
-    if (!storageKeyDismissed) return [];
+      const storedIdeas = localStorage.getItem(storageKeyIdeas);
+      if (storedIdeas) setIdeas(JSON.parse(storedIdeas));
+    } catch { /* ignore */ }
     try {
-      const CLEANUP_KEY = `viralize_cleanup_v1_${storageKeyDismissed}`;
-      if (!localStorage.getItem(CLEANUP_KEY)) {
-        localStorage.removeItem(storageKeyDismissed);
-        localStorage.setItem(CLEANUP_KEY, "1");
-        return [];
-      }
-      const stored = localStorage.getItem(storageKeyDismissed);
-      return stored ? JSON.parse(stored) : [];
-    } catch { return []; }
-  });
+      const storedDismissed = localStorage.getItem(storageKeyDismissed);
+      if (storedDismissed) setDismissedIdeas(JSON.parse(storedDismissed));
+    } catch { /* ignore */ }
+    setDataLoaded(true);
+  }, [storageKeyIdeas, storageKeyDismissed]);
   const [loadingIdeas, setLoadingIdeas] = useState(false);
   const [selectedIdea, setSelectedIdea] = useState<ContentIdea | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -106,14 +96,14 @@ export default function Conteudo() {
   const [avoidTopics, setAvoidTopics] = useState("");
 
 
-  // Persist ideas to localStorage
+  // Persist ideas to localStorage (only after initial load)
   useEffect(() => {
-    if (storageKeyIdeas) localStorage.setItem(storageKeyIdeas, JSON.stringify(ideas));
-  }, [ideas, storageKeyIdeas]);
+    if (storageKeyIdeas && dataLoaded) localStorage.setItem(storageKeyIdeas, JSON.stringify(ideas));
+  }, [ideas, storageKeyIdeas, dataLoaded]);
 
   useEffect(() => {
-    if (storageKeyDismissed) localStorage.setItem(storageKeyDismissed, JSON.stringify(dismissedIdeas));
-  }, [dismissedIdeas, storageKeyDismissed]);
+    if (storageKeyDismissed && dataLoaded) localStorage.setItem(storageKeyDismissed, JSON.stringify(dismissedIdeas));
+  }, [dismissedIdeas, storageKeyDismissed, dataLoaded]);
 
   // Customization fields
   const [customTitle, setCustomTitle] = useState("");
@@ -123,13 +113,16 @@ export default function Conteudo() {
 
   // Script
   const storageKeyScripts = user ? `viralize_scripts_${user.user_id}` : null;
-  const [scriptsMap, setScriptsMap] = useState<Record<string, Script>>(() => {
-    if (!storageKeyScripts) return {};
+  const [scriptsMap, setScriptsMap] = useState<Record<string, Script>>({});
+
+  // Load scripts from localStorage when user becomes available
+  useEffect(() => {
+    if (!storageKeyScripts) return;
     try {
       const stored = localStorage.getItem(storageKeyScripts);
-      return stored ? JSON.parse(stored) : {};
-    } catch { return {}; }
-  });
+      if (stored) setScriptsMap(JSON.parse(stored));
+    } catch { /* ignore */ }
+  }, [storageKeyScripts]);
   const [script, setScript] = useState<Script | null>(null);
   const [loadingScript, setLoadingScript] = useState(false);
 
