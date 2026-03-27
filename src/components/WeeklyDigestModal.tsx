@@ -85,14 +85,17 @@ export function WeeklyDigestModal() {
       });
   }, [isAuthenticated]);
 
-  const handleClose = () => {
-    const weekKey = getWeekKey();
-    localStorage.setItem(`weekly_digest_seen_${weekKey}`, "true");
+  const handleDismiss = () => {
+    // Only mark as seen if content was successfully loaded
+    if (content) {
+      const weekKey = getWeekKey();
+      localStorage.setItem(`weekly_digest_seen_${weekKey}`, "true");
+    }
     setOpen(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) handleDismiss(); }}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto custom-scrollbar">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
@@ -111,7 +114,7 @@ export function WeeklyDigestModal() {
         {error && (
           <div className="text-center py-8">
             <p className="text-sm text-destructive mb-4">{error}</p>
-            <Button variant="outline" size="sm" onClick={handleClose}>Fechar</Button>
+            <Button variant="outline" size="sm" onClick={handleDismiss}>Fechar</Button>
           </div>
         )}
 
@@ -144,7 +147,7 @@ export function WeeklyDigestModal() {
               </div>
             ))}
 
-            <Button className="w-full" onClick={handleClose}>
+            <Button className="w-full" onClick={handleDismiss}>
               <Sparkles className="h-4 w-4 mr-2" />
               Entendi, vamos criar!
             </Button>
