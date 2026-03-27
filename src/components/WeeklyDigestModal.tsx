@@ -114,7 +114,7 @@ export function WeeklyDigestModal() {
         {error && (
           <div className="text-center py-8">
             <p className="text-sm text-destructive mb-4">{error}</p>
-            <Button variant="outline" size="sm" onClick={handleClose}>Fechar</Button>
+            <Button variant="outline" size="sm" onClick={handleDismiss}>Fechar</Button>
           </div>
         )}
 
@@ -147,7 +147,7 @@ export function WeeklyDigestModal() {
               </div>
             ))}
 
-            <Button className="w-full" onClick={handleClose}>
+            <Button className="w-full" onClick={handleDismiss}>
               <Sparkles className="h-4 w-4 mr-2" />
               Entendi, vamos criar!
             </Button>
