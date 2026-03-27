@@ -85,14 +85,17 @@ export function WeeklyDigestModal() {
       });
   }, [isAuthenticated]);
 
-  const handleClose = () => {
-    const weekKey = getWeekKey();
-    localStorage.setItem(`weekly_digest_seen_${weekKey}`, "true");
+  const handleDismiss = () => {
+    // Only mark as seen if content was successfully loaded
+    if (content) {
+      const weekKey = getWeekKey();
+      localStorage.setItem(`weekly_digest_seen_${weekKey}`, "true");
+    }
     setOpen(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) handleDismiss(); }}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto custom-scrollbar">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
