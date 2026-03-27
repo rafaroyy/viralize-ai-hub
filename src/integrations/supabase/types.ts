@@ -697,6 +697,27 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_digest: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          week_key: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          id?: string
+          week_key: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          week_key?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
