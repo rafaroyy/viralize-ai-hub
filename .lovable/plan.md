@@ -1,26 +1,72 @@
 
 
-## Plano: Persistir ideias + corrigir scrollbar da sidebar
+## Plano: Popup "Novidades da Semana" pós-login
 
-### Problema 1: Ideias somem ao recarregar
+### O que será feito
 
-A causa raiz: o `useState` initializer roda **uma única vez** no primeiro render, quando `user` ainda é `null` (auth é assíncrono). Resultado: estado inicializa como `[]`. Em seguida, o `useEffect` (linha 110-112) escreve `[]` no localStorage, apagando os dados salvos.
+Modal automático após login com conteúdo viral da semana (memes, músicas, trends), gerado por IA e cacheado no banco.
 
-**Solução**: Carregar ideias/scripts do localStorage em um `useEffect` que depende de `user`, em vez de no initializer do `useState`. Remover a lógica de cleanup v1 que já cumpriu seu papel.
+### Arquitetura
 
-### Problema 2: Scrollbar branca na sidebar
+```text
+Login → AppLayout → useEffect detecta login
+                       ↓
+         Verifica localStorage "weekly_digest_seen_{semana}"
+                       ↓ (não visto)
+         Chama Edge Function "weekly-digest"
+                       ↓
+         Verifica cache na tabela weekly_digest
+                       ↓
+         Cache válido → retorna | Senão → Gemini 2.5 Pro → salva → retorna
+                       ↓
+         Exibe Dialog com conteúdo por categoria
+```
 
-O `overflow-y-auto` no `DesktopSidebar` usa a scrollbar nativa do navegador, que em alguns dispositivos/OS aparece branca e fora do tema.
+### Banco de dados
 
-**Solução**: Adicionar classes CSS customizadas de scrollbar (webkit + Firefox) no `index.css` e aplicar na sidebar.
+Nova tabela `weekly_digest`:
 
----
+| Coluna | Tipo | Descrição |
+|---|---|---|
+| id | uuid PK | auto |
+| week_key | text unique | Ex: "2026-W13" |
+| content | jsonb | Memes, músicas, trends |
+| created_at | timestamptz | auto |
 
-### Arquivos a editar
+RLS: SELECT para authenticated. INSERT via service_role (edge function).
 
-| Arquivo | Mudança |
+### Edge Function: `weekly-digest`
+
+- Calcula `week_key` atual
+- Verifica cache na tabela
+- Se não existe, chama **google/gemini-2.5-pro** (modelo mais forte, melhor qualidade de resposta) via Lovable AI Gateway com prompt pedindo novidades virais da semana no Brasil
+- Salva e retorna JSON estruturado:
+
+```json
+{
+  "week": "2026-W13",
+  "sections": [
+    { "title": "🔥 Memes que Viralizaram", "items": [{ "title": "...", "description": "...", "platform": "tiktok" }] },
+    { "title": "🎵 Músicas em Alta", "items": [...] },
+    { "title": "📈 Trends da Semana", "items": [...] },
+    { "title": "💡 Oportunidades de Conteúdo", "items": [...] }
+  ]
+}
+```
+
+### Componente: `WeeklyDigestModal`
+
+- Dialog com seções e cards por item
+- Loading com `AiLoader hideText`
+- Botão "Entendi, vamos criar!" fecha e marca localStorage
+- Controle: `weekly_digest_seen_2026-W13`
+
+### Arquivos
+
+| Arquivo | Ação |
 |---|---|
-| `src/pages/Conteudo.tsx` | Inicializar estados como `[]`/`{}`, carregar de localStorage via `useEffect` quando `user` estiver disponível. Evitar que o effect de persistência sobrescreva com `[]` antes do carregamento. |
-| `src/index.css` | Adicionar classes utilitárias de scrollbar customizada (thin, cor do tema) |
-| `src/components/ui/animated-sidebar.tsx` | Adicionar classe de scrollbar customizada no `DesktopSidebar` |
+| Migração SQL | Criar tabela `weekly_digest` |
+| `supabase/functions/weekly-digest/index.ts` | Criar — usa **google/gemini-2.5-pro** via Lovable AI Gateway |
+| `src/components/WeeklyDigestModal.tsx` | Criar componente do modal |
+| `src/components/AppLayout.tsx` | Renderizar `WeeklyDigestModal` |
 
