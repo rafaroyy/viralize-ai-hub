@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.viral-clips]
 verify_jwt = false
+
+[functions.weekly-digest]
+verify_jwt = false
