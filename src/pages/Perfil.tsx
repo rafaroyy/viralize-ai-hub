@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { TikTokIntegrationCard } from "@/components/integrations/TikTokIntegrationCard";
 import { CreatorProfileForm } from "@/components/profile/CreatorProfileForm";
 import PartnerTab from "@/components/profile/PartnerTab";
+import { ChangePasswordDialog } from "@/components/profile/ChangePasswordDialog";
 
 const PARTNER_EMAILS = ["juliocrepaldi200@gmail.com", "rafa07roy@gmail.com"];
 
@@ -98,10 +99,7 @@ const Perfil = () => {
               <h2 className="font-display text-lg font-semibold">Configurações</h2>
               <Separator className="bg-border/50" />
               <div className="space-y-1">
-                <Button variant="ghost" className="w-full justify-start gap-3 h-12 text-foreground">
-                  <Settings className="w-4 h-4 text-muted-foreground" />
-                  Configurações da conta
-                </Button>
+                <ChangePasswordDialog />
                 <Button variant="ghost" className="w-full justify-start gap-3 h-12 text-foreground">
                   <CreditCard className="w-4 h-4 text-muted-foreground" />
                   Gerenciar assinatura
