@@ -7,6 +7,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const WEBHOOK_URL = "https://n8n.growyia.com/webhook/postpost";
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -23,10 +25,7 @@ serve(async (req) => {
     }
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
     // ─── Context ───
     const contextParts: string[] = [];
@@ -38,7 +37,7 @@ serve(async (req) => {
       ? `\n\nCONTEXTO DO USUÁRIO:\n${contextParts.join("\n")}`
       : "";
 
-    // ─── STEP 1: Gemini 2.5 Flash — Analyze style + Generate copy ───
+    // ─── STEP 1: Gemini — Analyze style + Generate copy ───
     const systemPrompt = `${SYSTEM_PROMPT_BASE}
 
 ## SUA TAREFA: MODELAGEM DE POST (ANÁLISE HÍBRIDA)
@@ -134,66 +133,149 @@ REGRAS:
 
     console.log("[model-post] Step 1 complete. Style:", parsed.estiloVisual?.slice(0, 100));
 
-    // ─── STEP 2: Generate background art via Lovable AI (Gemini Image) ───
-    const artPrompt = `Create a visually stunning social media post background image (1024x1024, 4:5 aspect ratio feel).
+    // ─── STEP 2: Deep image analysis for layout recreation ───
+    console.log("[model-post] Step 2: Deep image analysis for layout...");
 
-STYLE TO EMULATE (do NOT copy content, only the visual style):
-${parsed.estiloVisual || "Modern, clean, professional social media design with bold colors and dynamic composition."}
+    const layoutAnalysisPrompt = `Analise esta imagem de post do Instagram com EXTREMO DETALHE para que possamos recriar o layout visualmente.
 
-CRITICAL RULES:
-- DO NOT include ANY text, letters, words, numbers, watermarks, or typography in the image
-- DO NOT include any faces, people, logos, or identifiable elements from the original
-- Create an ORIGINAL abstract/artistic background that captures the mood and color palette described
-- The image should work as a background for overlaid text
-- Leave visual breathing room (especially bottom third) for text overlay
-- Make it vibrant, professional, and eye-catching for social media
-- Focus on: gradients, textures, geometric shapes, light effects, color transitions`;
+Retorne JSON com EXATAMENTE esta estrutura:
 
-    console.log("[model-post] Step 2: Generating background art via Lovable AI...");
+{
+  "layout": {
+    "width": "largura estimada em px (ex: 1080)",
+    "height": "altura estimada em px (ex: 1350)",
+    "aspectRatio": "proporção (ex: 4:5)",
+    "backgroundColor": "cor de fundo principal em hex (ex: #1a1a2e)",
+    "backgroundGradient": "gradiente se houver (ex: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%))",
+    "backgroundType": "solid | gradient | image | pattern"
+  },
+  "elements": [
+    {
+      "type": "text | image | shape | icon | divider",
+      "content": "conteúdo do texto se for texto",
+      "position": {
+        "x": "posição X em % (ex: 50%)",
+        "y": "posição Y em % (ex: 15%)",
+        "anchor": "center | top-left | top-center | bottom-center etc"
+      },
+      "style": {
+        "fontSize": "tamanho em px (ex: 48px)",
+        "fontWeight": "bold | normal | 900 etc",
+        "color": "cor em hex",
+        "fontFamily": "família da fonte estimada (ex: sans-serif bold, serif italic)",
+        "textAlign": "left | center | right",
+        "textTransform": "uppercase | lowercase | none",
+        "letterSpacing": "espaçamento se relevante",
+        "lineHeight": "altura da linha",
+        "maxWidth": "largura máxima do bloco de texto em %",
+        "textShadow": "sombra se houver",
+        "backgroundColor": "cor de fundo do elemento se houver",
+        "borderRadius": "borda arredondada se houver",
+        "padding": "padding se houver",
+        "border": "borda se houver",
+        "opacity": "opacidade se não for 1",
+        "width": "largura do elemento em % se relevante",
+        "height": "altura do elemento em % se relevante"
+      },
+      "zIndex": "ordem de camada (1 = fundo, maior = frente)"
+    }
+  ],
+  "colorPalette": ["#hex1", "#hex2", "#hex3", "#hex4", "#hex5"],
+  "mood": "descrição do mood/atmosfera",
+  "designStyle": "estilo de design (ex: minimalista, bold, editorial, neon)"
+}
 
-    let artImageUrl: string | null = null;
+REGRAS:
+- Liste TODOS os elementos visuais visíveis na imagem, na ordem de trás para frente (z-index)
+- Para textos: capture o CONTEÚDO EXATO que aparece na imagem
+- Para formas/shapes: descreva forma, cor, tamanho e posição
+- Posições devem ser em porcentagem relativa ao canvas
+- Cores SEMPRE em formato hex
+- Seja EXTREMAMENTE preciso nas posições, tamanhos e cores
+- Se houver imagem de fundo ou foto, descreva-a como elemento tipo "image"
+- PROIBIDO incluir nomes de usuário, @ handles, perfis ou qualquer identificação do post original
+- Retorne APENAS JSON válido`;
+
+    const layoutParts: any[] = [];
+    if (imageBase64.startsWith("data:")) {
+      const match = imageBase64.match(/^data:(image\/\w+);base64,(.+)$/);
+      if (match) {
+        layoutParts.push({ inlineData: { mimeType: match[1], data: match[2] } });
+      } else {
+        layoutParts.push({ inlineData: { mimeType: "image/jpeg", data: imageBase64.split(",")[1] || imageBase64 } });
+      }
+    } else {
+      layoutParts.push({ inlineData: { mimeType: "image/jpeg", data: imageBase64 } });
+    }
+    layoutParts.push({ text: layoutAnalysisPrompt });
+
+    const layoutResponse = await fetch(geminiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: layoutParts }],
+        generationConfig: { responseMimeType: "application/json", temperature: 0.3 },
+      }),
+    });
+
+    let layoutData = null;
+    if (layoutResponse.ok) {
+      const layoutResult = await layoutResponse.json();
+      const layoutContent = layoutResult.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      try {
+        const cleanedLayout = layoutContent.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+        layoutData = JSON.parse(cleanedLayout);
+        console.log("[model-post] Step 2 complete. Elements found:", layoutData?.elements?.length);
+      } catch (e) {
+        console.error("Failed to parse layout analysis:", layoutContent);
+      }
+    } else {
+      console.error("Layout analysis failed:", layoutResponse.status);
+    }
+
+    // ─── STEP 3: Send to webhook for HTML generation ───
+    console.log("[model-post] Step 3: Sending data to webhook...");
+
+    let postHtml: string | null = null;
 
     try {
-      const imageGenResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
+      const webhookPayload = {
+        copyData: {
+          parteVisual: parsed.parteVisual,
+          descricaoPost: parsed.descricaoPost,
+          copyModelado: parsed.copyModelado,
+          estiloVisual: parsed.estiloVisual,
         },
-        body: JSON.stringify({
-          model: "google/gemini-3-pro-image-preview",
-          messages: [
-            { role: "user", content: artPrompt }
-          ],
-          modalities: ["image", "text"],
-        }),
+        layoutAnalysis: layoutData,
+        context: {
+          niche: niche || null,
+          goal: goal || null,
+          tone: tone || null,
+          audience: audience || null,
+        },
+        imageBase64,
+      };
+
+      const webhookResponse = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(webhookPayload),
       });
 
-      if (!imageGenResponse.ok) {
-        const status = imageGenResponse.status;
-        const errBody = await imageGenResponse.text();
-        console.error(`[model-post] Image generation failed (${status}):`, errBody);
-
-        if (status === 429) {
-          console.warn("[model-post] Rate limited on image gen, returning without art");
-        } else if (status === 402) {
-          console.warn("[model-post] Payment required for image gen");
-        }
-        // Don't fail the whole request — just skip art generation
-      } else {
-        const imageData = await imageGenResponse.json();
-        const generatedImage = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-
-        if (generatedImage) {
-          artImageUrl = generatedImage;
-          console.log("[model-post] Step 2 complete. Art generated successfully.");
+      if (webhookResponse.ok) {
+        const contentType = webhookResponse.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) {
+          const jsonResp = await webhookResponse.json();
+          postHtml = jsonResp.html || jsonResp.HTML || jsonResp.content || null;
         } else {
-          console.warn("[model-post] No image in response, skipping art generation");
+          postHtml = await webhookResponse.text();
         }
+        console.log("[model-post] Step 3 complete. HTML received:", postHtml ? `${postHtml.length} chars` : "null");
+      } else {
+        console.error("[model-post] Webhook error:", webhookResponse.status, await webhookResponse.text());
       }
-    } catch (imgErr) {
-      console.error("[model-post] Image generation error:", imgErr);
-      // Non-fatal: continue without generated art
+    } catch (webhookErr) {
+      console.error("[model-post] Webhook call failed:", webhookErr);
     }
 
     // ─── Return result ───
@@ -202,7 +284,8 @@ CRITICAL RULES:
         success: true,
         result: {
           ...parsed,
-          artImageUrl, // base64 data URL or null
+          postHtml,
+          artImageUrl: null,
         },
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
