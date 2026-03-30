@@ -1,9 +1,11 @@
 import { useState, useRef, useCallback } from 'react';
-import { Upload, X, Loader2, Sparkles, Copy, Lightbulb, Palette, AlertTriangle, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Loader2, Sparkles, Copy, Lightbulb, Palette, AlertTriangle, Image as ImageIcon, PenTool } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,13 +40,33 @@ const tones = [
   { value: 'urgente', label: 'Urgente / Escassez' },
 ];
 
+const formats = [
+  { value: 'carrossel', label: 'Carrossel' },
+  { value: 'imagem-unica', label: 'Imagem única' },
+  { value: 'citacao', label: 'Citação / Quote' },
+  { value: 'infografico', label: 'Infográfico' },
+  { value: 'antes-depois', label: 'Antes e Depois' },
+];
+
+const styles = [
+  { value: 'minimalista', label: 'Minimalista' },
+  { value: 'bold', label: 'Bold / Impactante' },
+  { value: 'editorial', label: 'Editorial' },
+  { value: 'neon', label: 'Neon / Vibrante' },
+  { value: 'elegante', label: 'Elegante / Sofisticado' },
+  { value: 'divertido', label: 'Divertido / Colorido' },
+];
+
+type Mode = 'modelar' | 'criar';
+
 const ModelarPost = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [mode, setMode] = useState<Mode>('modelar');
+
+  // Shared fields
   const [niche, setNiche] = useState('');
   const [goal, setGoal] = useState('');
   const [tone, setTone] = useState('');
@@ -52,6 +74,17 @@ const ModelarPost = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<ModelResult | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  // Modelar fields
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Criar fields
+  const [topic, setTopic] = useState('');
+  const [format, setFormat] = useState('');
+  const [colors, setColors] = useState('');
+  const [style, setStyle] = useState('');
+  const [additionalInfo, setAdditionalInfo] = useState('');
 
   const handleFileSelect = useCallback((file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -88,7 +121,7 @@ const ModelarPost = () => {
       reader.readAsDataURL(file);
     });
 
-  const handleSubmit = async () => {
+  const handleSubmitModelar = async () => {
     if (!imageFile) {
       toast({ title: 'Envie uma imagem', description: 'Faça upload da imagem do post para modelar', variant: 'destructive' });
       return;
@@ -104,7 +137,6 @@ const ModelarPost = () => {
       if (!data?.success) throw new Error(data?.error || 'Erro ao modelar post');
       setResult(data.result);
 
-      // Save to history
       if (user) {
         await supabase.from('user_history' as any).insert({
           user_id: String(user.user_id),
@@ -120,7 +152,35 @@ const ModelarPost = () => {
     }
   };
 
-  // Export is now handled by PostPreview component
+  const handleSubmitCriar = async () => {
+    if (!topic.trim()) {
+      toast({ title: 'Informe o tema', description: 'Digite o assunto/tema do post que deseja criar', variant: 'destructive' });
+      return;
+    }
+    setIsLoading(true);
+    setResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-post', {
+        body: { topic, niche, goal, tone, audience, format, colors, style, additionalInfo },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'Erro ao criar post');
+      setResult(data.result);
+
+      if (user) {
+        await supabase.from('user_history' as any).insert({
+          user_id: String(user.user_id),
+          tipo: 'criacao-post',
+          titulo: topic ? `Post: ${topic.slice(0, 60)}` : 'Post criado',
+          payload: data.result,
+        });
+      }
+    } catch (err: any) {
+      toast({ title: 'Erro ao criar', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleCopy = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -135,136 +195,225 @@ const ModelarPost = () => {
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="text-center space-y-2">
             <h1 className="text-3xl md:text-4xl font-bold">
-              <span className="text-primary">Modelar</span> Post
+              <span className="text-primary">{mode === 'modelar' ? 'Modelar' : 'Criar'}</span> Post
             </h1>
             <p className="text-muted-foreground max-w-lg mx-auto">
-              Envie a imagem de um post e a IA vai criar uma copy adaptada ao seu nicho, com gatilhos mentais e diretrizes de design.
+              {mode === 'modelar'
+                ? 'Envie a imagem de um post e a IA vai criar uma copy adaptada ao seu nicho, com gatilhos mentais e diretrizes de design.'
+                : 'Descreva o que deseja e a IA vai criar um post completo do zero — arte + copy prontos para publicar.'}
             </p>
           </div>
 
           {!result && (
-            <div className="max-w-xl mx-auto space-y-4">
-              <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-                <p className="text-sm text-muted-foreground">
-                  Caso queira uma qualidade melhor, não tire print, recomendamos baixar a imagem original via{' '}
-                  <a href="https://snapinsta.app" target="_blank" rel="noopener noreferrer" className="text-primary font-medium underline underline-offset-2 hover:text-primary/80">
-                    Snapinsta
-                  </a>{' '}
-                  e fazer o upload aqui.
-                </p>
-              </div>
+            <>
+              <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)} className="max-w-xl mx-auto">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="modelar" className="gap-2">
+                    <ImageIcon className="w-4 h-4" /> Modelar Post
+                  </TabsTrigger>
+                  <TabsTrigger value="criar" className="gap-2">
+                    <PenTool className="w-4 h-4" /> Criar Post
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
 
-              <div className="rounded-2xl border border-border bg-card p-5 space-y-5">
-                {!imageFile ? (
-                  <div
-                    onDrop={handleDrop}
-                    onDragOver={(e) => e.preventDefault()}
-                    onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-secondary/20 transition-colors"
-                  >
-                    <ImageIcon className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-sm font-medium text-foreground">Arraste ou clique para enviar</p>
-                    <p className="text-xs text-muted-foreground mt-1">PNG, JPG, WEBP — máx. 20MB</p>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp,image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const f = e.target.files?.[0];
-                        if (f) handleFileSelect(f);
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <div className="rounded-xl border border-border bg-secondary/30 p-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-secondary shrink-0">
-                        {imagePreview && (
-                          <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{imageFile.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {(imageFile.size / (1024 * 1024)).toFixed(1)} MB
-                        </p>
-                      </div>
-                      <Button variant="ghost" size="icon" className="shrink-0 w-8 h-8" onClick={removeImage}>
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
+              <div className="max-w-xl mx-auto space-y-4">
+                {mode === 'modelar' && (
+                  <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+                    <p className="text-sm text-muted-foreground">
+                      Caso queira uma qualidade melhor, não tire print, recomendamos baixar a imagem original via{' '}
+                      <a href="https://snapinsta.app" target="_blank" rel="noopener noreferrer" className="text-primary font-medium underline underline-offset-2 hover:text-primary/80">
+                        Snapinsta
+                      </a>{' '}
+                      e fazer o upload aqui.
+                    </p>
                   </div>
                 )}
 
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm">Nicho ou negócio</Label>
-                    <Input
-                      placeholder="Ex: marketing digital, confeitaria, fitness..."
-                      value={niche}
-                      onChange={(e) => setNiche(e.target.value)}
-                    />
-                  </div>
+                <div className="rounded-2xl border border-border bg-card p-5 space-y-5">
+                  {/* Image upload — only for Modelar mode */}
+                  {mode === 'modelar' && (
+                    <>
+                      {!imageFile ? (
+                        <div
+                          onDrop={handleDrop}
+                          onDragOver={(e) => e.preventDefault()}
+                          onClick={() => fileInputRef.current?.click()}
+                          className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-secondary/20 transition-colors"
+                        >
+                          <ImageIcon className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                          <p className="text-sm font-medium text-foreground">Arraste ou clique para enviar</p>
+                          <p className="text-xs text-muted-foreground mt-1">PNG, JPG, WEBP — máx. 20MB</p>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp,image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const f = e.target.files?.[0];
+                              if (f) handleFileSelect(f);
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="rounded-xl border border-border bg-secondary/30 p-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-16 h-16 rounded-lg overflow-hidden bg-secondary shrink-0">
+                              {imagePreview && (
+                                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{imageFile.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {(imageFile.size / (1024 * 1024)).toFixed(1)} MB
+                              </p>
+                            </div>
+                            <Button variant="ghost" size="icon" className="shrink-0 w-8 h-8" onClick={removeImage}>
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Topic — only for Criar mode */}
+                  {mode === 'criar' && (
                     <div className="space-y-2">
-                      <Label className="text-sm">Objetivo</Label>
-                      <Select value={goal} onValueChange={setGoal}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {goals.map((g) => (
-                            <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Label className="text-sm">Tema / Assunto do Post *</Label>
+                      <Textarea
+                        placeholder="Ex: 5 erros que todo empreendedor comete no início, benefícios do jejum intermitente..."
+                        value={topic}
+                        onChange={(e) => setTopic(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm">Nicho ou negócio</Label>
+                      <Input
+                        placeholder="Ex: marketing digital, confeitaria, fitness..."
+                        value={niche}
+                        onChange={(e) => setNiche(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm">Objetivo</Label>
+                        <Select value={goal} onValueChange={setGoal}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {goals.map((g) => (
+                              <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm">Tom de voz</Label>
+                        <Select value={tone} onValueChange={setTone}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {tones.map((t) => (
+                              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-sm">Tom de voz</Label>
-                      <Select value={tone} onValueChange={setTone}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {tones.map((t) => (
-                            <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Label className="text-sm">Público-alvo</Label>
+                      <Input
+                        placeholder="Ex: empreendedores, mães, jovens 18-25..."
+                        value={audience}
+                        onChange={(e) => setAudience(e.target.value)}
+                      />
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-sm">Público-alvo</Label>
-                    <Input
-                      placeholder="Ex: empreendedores, mães, jovens 18-25..."
-                      value={audience}
-                      onChange={(e) => setAudience(e.target.value)}
-                    />
+                    {/* Extra fields for Criar mode */}
+                    {mode === 'criar' && (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm">Formato</Label>
+                            <Select value={format} onValueChange={setFormat}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {formats.map((f) => (
+                                  <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label className="text-sm">Estilo visual</Label>
+                            <Select value={style} onValueChange={setStyle}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {styles.map((s) => (
+                                  <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm">Cores preferidas</Label>
+                          <Input
+                            placeholder="Ex: azul e branco, tons terrosos, preto e dourado..."
+                            value={colors}
+                            onChange={(e) => setColors(e.target.value)}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm">Informações adicionais</Label>
+                          <Textarea
+                            placeholder="Alguma instrução extra, referência ou detalhe importante..."
+                            value={additionalInfo}
+                            onChange={(e) => setAdditionalInfo(e.target.value)}
+                            rows={2}
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
-              </div>
 
-              <Button
-                onClick={handleSubmit}
-                disabled={isLoading || !imageFile}
-                className="w-full h-12 text-base font-semibold gap-2 rounded-xl"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" /> Modelando com IA...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-5 h-5" /> Modelar Post
-                  </>
-                )}
-              </Button>
-            </div>
+                <Button
+                  onClick={mode === 'modelar' ? handleSubmitModelar : handleSubmitCriar}
+                  disabled={isLoading || (mode === 'modelar' ? !imageFile : !topic.trim())}
+                  className="w-full h-12 text-base font-semibold gap-2 rounded-xl"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" /> {mode === 'modelar' ? 'Modelando com IA...' : 'Criando com IA...'}
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5" /> {mode === 'modelar' ? 'Modelar Post' : 'Criar Post'}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </>
           )}
 
           {/* Results Dashboard */}
@@ -272,7 +421,7 @@ const ModelarPost = () => {
             <div className="space-y-6 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
               <div className="flex items-center justify-start">
                 <Button variant="outline" size="sm" onClick={() => setResult(null)} className="gap-2">
-                  <Upload className="w-4 h-4" /> Novo upload
+                  <Upload className="w-4 h-4" /> {mode === 'modelar' ? 'Novo upload' : 'Criar outro'}
                 </Button>
               </div>
 
@@ -282,7 +431,7 @@ const ModelarPost = () => {
                   parteVisual={result.parteVisual}
                   descricaoPost={result.descricaoPost}
                   artImageUrl={result.artImageUrl || null}
-                  referenceImage={imagePreview}
+                  referenceImage={mode === 'modelar' ? imagePreview : null}
                   postHtml={result.postHtml || null}
                 />
               </div>
@@ -294,7 +443,7 @@ const ModelarPost = () => {
                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                       <Copy className="w-4 h-4 text-primary" />
                     </div>
-                    <h3 className="font-bold text-lg">Copy Modelado</h3>
+                    <h3 className="font-bold text-lg">Copy {mode === 'modelar' ? 'Modelado' : 'Gerado'}</h3>
                   </div>
                   <Button
                     variant="ghost"
