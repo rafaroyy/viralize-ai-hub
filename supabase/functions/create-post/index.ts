@@ -58,9 +58,9 @@ Retorne JSON com EXATAMENTE esta estrutura:
 
 {
   "estiloVisual": "Descrição detalhada do estilo visual que o post deve ter: paleta de cores (ex: tons quentes dourados, azul profundo), mood/atmosfera (ex: energético, sofisticado, acolhedor), tipo de composição (ex: minimalista com muito espaço negativo, foto centralizada com overlay), iluminação (ex: luz natural suave, neon vibrante), estilo artístico (ex: fotografia editorial, flat design, gradiente abstrato). Seja específico e descritivo para que um gerador de imagem possa criar o estilo.",
-  "parteVisual": "A frase ou título impactante do INÍCIO da copy que será usada como texto principal sobreposto na arte. Deve ser curta (1-3 linhas), chamativa e funcionar sozinha como headline visual.",
-  "descricaoPost": "O RESTANTE da copy: corpo do texto, call-to-action, hashtags. Inclua hashtags relevantes no final.",
-  "copyModelado": "Texto COMPLETO da copy (parteVisual + descricaoPost juntos). Copy pronta para uso com emojis, hashtags, quebras de linha e call-to-action. Mínimo 3 parágrafos.",
+  "parteVisual": "Título/headline CURTO e impactante para sobrepor na arte. Máximo 8-10 palavras. Deve funcionar sozinha como chamada visual.",
+  "descricaoPost": "Legenda completa para a descrição do post no Instagram (NÃO é a mesma coisa que o copyModelado). Deve ser um texto envolvente com storytelling, CTA e hashtags. Mínimo 3 parágrafos. Este texto vai na LEGENDA do post, não dentro da arte.",
+  "copyModelado": "Texto CURTO que será inserido DENTRO da arte do post. Máximo 3-4 frases objetivas e diretas. Deve complementar o título (parteVisual) mas ser breve o suficiente para caber visualmente no post sem poluir. NÃO inclua hashtags aqui.",
   "gatilhosUtilizados": [
     {
       "nome": "Nome do gatilho mental",
