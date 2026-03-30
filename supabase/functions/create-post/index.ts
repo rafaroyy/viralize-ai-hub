@@ -120,100 +120,8 @@ REGRAS:
 
     console.log("[create-post] Step 1 complete. Headline:", parsed.parteVisual?.slice(0, 60));
 
-    // ─── STEP 2: Generate layout spec for the webhook ───
-    console.log("[create-post] Step 2: Generating layout specification...");
-
-    const layoutPrompt = `Baseado no estilo visual descrito abaixo, crie uma especificação de layout detalhada para um post de Instagram (1080x1350px, proporção 4:5).
-
-ESTILO VISUAL DESEJADO: ${parsed.estiloVisual}
-
-HEADLINE DO POST: ${parsed.parteVisual}
-
-${colors ? `CORES PREFERIDAS DO USUÁRIO: ${colors}` : ""}
-${style ? `ESTILO PREFERIDO DO USUÁRIO: ${style}` : ""}
-
-Retorne JSON com EXATAMENTE esta estrutura:
-
-{
-  "layout": {
-    "width": "1080",
-    "height": "1350",
-    "aspectRatio": "4:5",
-    "backgroundColor": "cor de fundo principal em hex",
-    "backgroundGradient": "gradiente CSS se aplicável",
-    "backgroundType": "solid | gradient"
-  },
-  "elements": [
-    {
-      "type": "text | shape | divider",
-      "content": "conteúdo do texto",
-      "position": {
-        "x": "posição X em %",
-        "y": "posição Y em %",
-        "anchor": "center | top-left | top-center | bottom-center"
-      },
-      "style": {
-        "fontSize": "tamanho em px",
-        "fontWeight": "bold | normal | 900",
-        "color": "cor em hex",
-        "fontFamily": "família da fonte",
-        "textAlign": "left | center | right",
-        "textTransform": "uppercase | lowercase | none",
-        "letterSpacing": "espaçamento",
-        "lineHeight": "altura da linha",
-        "maxWidth": "largura máxima em %",
-        "textShadow": "sombra se houver",
-        "backgroundColor": "cor de fundo do elemento",
-        "borderRadius": "borda arredondada",
-        "padding": "padding",
-        "border": "borda",
-        "opacity": "opacidade",
-        "width": "largura em %",
-        "height": "altura em %"
-      },
-      "zIndex": "ordem de camada"
-    }
-  ],
-  "colorPalette": ["#hex1", "#hex2", "#hex3", "#hex4", "#hex5"],
-  "mood": "descrição do mood/atmosfera",
-  "designStyle": "estilo de design"
-}
-
-REGRAS:
-- Crie um layout visualmente impactante e profissional
-- Posicione a headline de forma proeminente
-- Inclua elementos decorativos (shapes, dividers) para criar interesse visual
-- Use as cores preferidas do usuário se fornecidas
-- Posições em porcentagem relativa ao canvas
-- Cores SEMPRE em formato hex
-- Retorne APENAS JSON válido`;
-
-    const layoutResponse = await fetch(geminiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: layoutPrompt }] }],
-        generationConfig: { responseMimeType: "application/json", temperature: 0.5 },
-      }),
-    });
-
-    let layoutData = null;
-    if (layoutResponse.ok) {
-      const layoutResult = await layoutResponse.json();
-      const layoutContent = layoutResult.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      try {
-        const cleanedLayout = layoutContent.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-        layoutData = JSON.parse(cleanedLayout);
-        console.log("[create-post] Step 2 complete. Elements:", layoutData?.elements?.length);
-      } catch (e) {
-        console.error("Failed to parse layout:", layoutContent);
-      }
-    } else {
-      console.error("Layout generation failed:", layoutResponse.status);
-    }
-
-    // ─── STEP 3: Send to webhook ───
-    console.log("[create-post] Step 3: Sending data to webhook...");
+    // ─── STEP 2: Send to webhook ───
+    console.log("[create-post] Step 2: Sending data to webhook...");
 
     let postHtml: string | null = null;
 
@@ -225,8 +133,8 @@ REGRAS:
           descricaoPost: parsed.descricaoPost,
           copyModelado: parsed.copyModelado,
           estiloVisual: parsed.estiloVisual,
+          gatilhosUtilizados: parsed.gatilhosUtilizados,
         },
-        layoutAnalysis: layoutData,
         context: {
           topic: topic || null,
           niche: niche || null,
@@ -254,7 +162,7 @@ REGRAS:
         } else {
           postHtml = await webhookResponse.text();
         }
-        console.log("[create-post] Step 3 complete. HTML received:", postHtml ? `${postHtml.length} chars` : "null");
+        console.log("[create-post] Step 2 complete. HTML received:", postHtml ? `${postHtml.length} chars` : "null");
       } else {
         console.error("[create-post] Webhook error:", webhookResponse.status, await webhookResponse.text());
       }
