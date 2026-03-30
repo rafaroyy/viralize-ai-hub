@@ -133,8 +133,8 @@ REGRAS:
           descricaoPost: parsed.descricaoPost,
           copyModelado: parsed.copyModelado,
           estiloVisual: parsed.estiloVisual,
+          gatilhosUtilizados: parsed.gatilhosUtilizados,
         },
-        layoutAnalysis: layoutData,
         context: {
           topic: topic || null,
           niche: niche || null,
