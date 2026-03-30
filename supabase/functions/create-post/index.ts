@@ -58,9 +58,9 @@ Retorne JSON com EXATAMENTE esta estrutura:
 
 {
   "estiloVisual": "Descrição detalhada do estilo visual que o post deve ter: paleta de cores (ex: tons quentes dourados, azul profundo), mood/atmosfera (ex: energético, sofisticado, acolhedor), tipo de composição (ex: minimalista com muito espaço negativo, foto centralizada com overlay), iluminação (ex: luz natural suave, neon vibrante), estilo artístico (ex: fotografia editorial, flat design, gradiente abstrato). Seja específico e descritivo para que um gerador de imagem possa criar o estilo.",
-  "parteVisual": "A frase ou título impactante do INÍCIO da copy que será usada como texto principal sobreposto na arte. Deve ser curta (1-3 linhas), chamativa e funcionar sozinha como headline visual.",
-  "descricaoPost": "O RESTANTE da copy: corpo do texto, call-to-action, hashtags. Inclua hashtags relevantes no final.",
-  "copyModelado": "Texto COMPLETO da copy (parteVisual + descricaoPost juntos). Copy pronta para uso com emojis, hashtags, quebras de linha e call-to-action. Mínimo 3 parágrafos.",
+  "parteVisual": "Título/headline CURTO e impactante para sobrepor na arte. Máximo 8-10 palavras. Deve funcionar sozinha como chamada visual.",
+  "descricaoPost": "Legenda completa para a descrição do post no Instagram (NÃO é a mesma coisa que o copyModelado). Deve ser um texto envolvente com storytelling, CTA e hashtags. Mínimo 3 parágrafos. Este texto vai na LEGENDA do post, não dentro da arte.",
+  "copyModelado": "Texto CURTO que será inserido DENTRO da arte do post. Máximo 3-4 frases objetivas e diretas. Deve complementar o título (parteVisual) mas ser breve o suficiente para caber visualmente no post sem poluir. NÃO inclua hashtags aqui.",
   "gatilhosUtilizados": [
     {
       "nome": "Nome do gatilho mental",
@@ -71,8 +71,9 @@ Retorne JSON com EXATAMENTE esta estrutura:
 
 REGRAS:
 - A copy DEVE ser adaptada ao nicho, tom e público-alvo fornecidos.
-- "parteVisual" deve conter APENAS o título/headline impactante. Texto curto e direto.
-- "descricaoPost" deve conter todo o restante: corpo, CTA, hashtags.
+- "parteVisual" deve conter APENAS o título/headline impactante. Máximo 8-10 palavras.
+- "copyModelado" é o texto CURTO que vai DENTRO da arte. Máximo 3-4 frases. Sem hashtags.
+- "descricaoPost" é a LEGENDA do Instagram. Texto longo, envolvente, com storytelling, CTA e hashtags. DEVE ser completamente diferente do copyModelado — não repita frases.
 - Inclua pelo menos 3 gatilhos mentais relevantes.
 - PROIBIDO incluir nomes de usuário, @ handles, perfis ou qualquer identificação.
 - Se o usuário especificou cores ou estilo, PRIORIZE essas preferências no estiloVisual.
