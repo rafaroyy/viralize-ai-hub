@@ -71,8 +71,9 @@ Retorne JSON com EXATAMENTE esta estrutura:
 
 REGRAS:
 - A copy DEVE ser adaptada ao nicho, tom e público-alvo fornecidos.
-- "parteVisual" deve conter APENAS o título/headline impactante. Texto curto e direto.
-- "descricaoPost" deve conter todo o restante: corpo, CTA, hashtags.
+- "parteVisual" deve conter APENAS o título/headline impactante. Máximo 8-10 palavras.
+- "copyModelado" é o texto CURTO que vai DENTRO da arte. Máximo 3-4 frases. Sem hashtags.
+- "descricaoPost" é a LEGENDA do Instagram. Texto longo, envolvente, com storytelling, CTA e hashtags. DEVE ser completamente diferente do copyModelado — não repita frases.
 - Inclua pelo menos 3 gatilhos mentais relevantes.
 - PROIBIDO incluir nomes de usuário, @ handles, perfis ou qualquer identificação.
 - Se o usuário especificou cores ou estilo, PRIORIZE essas preferências no estiloVisual.
