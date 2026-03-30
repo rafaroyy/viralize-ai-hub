@@ -283,6 +283,7 @@ const ModelarPost = () => {
                   descricaoPost={result.descricaoPost}
                   artImageUrl={result.artImageUrl || null}
                   referenceImage={imagePreview}
+                  postHtml={result.postHtml || null}
                 />
               </div>
 
