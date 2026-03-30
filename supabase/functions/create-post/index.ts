@@ -156,12 +156,20 @@ REGRAS:
 
       if (webhookResponse.ok) {
         const contentType = webhookResponse.headers.get("content-type") || "";
+        let rawBody: string;
         if (contentType.includes("application/json")) {
           const jsonResp = await webhookResponse.json();
-          postHtml = jsonResp.html || jsonResp.HTML || jsonResp.content || null;
+          rawBody = jsonResp.html || jsonResp.HTML || jsonResp.content || jsonResp.output || "";
+          if (typeof rawBody !== "string") rawBody = JSON.stringify(rawBody);
         } else {
-          postHtml = await webhookResponse.text();
+          rawBody = await webhookResponse.text();
         }
+        // Strip markdown code fences if present
+        postHtml = rawBody
+          .replace(/^```html\s*/i, "")
+          .replace(/^```\s*/i, "")
+          .replace(/\s*```\s*$/i, "")
+          .trim() || null;
         console.log("[create-post] Step 2 complete. HTML received:", postHtml ? `${postHtml.length} chars` : "null");
       } else {
         console.error("[create-post] Webhook error:", webhookResponse.status, await webhookResponse.text());
