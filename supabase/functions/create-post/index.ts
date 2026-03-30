@@ -162,7 +162,7 @@ REGRAS:
         } else {
           postHtml = await webhookResponse.text();
         }
-        console.log("[create-post] Step 3 complete. HTML received:", postHtml ? `${postHtml.length} chars` : "null");
+        console.log("[create-post] Step 2 complete. HTML received:", postHtml ? `${postHtml.length} chars` : "null");
       } else {
         console.error("[create-post] Webhook error:", webhookResponse.status, await webhookResponse.text());
       }
