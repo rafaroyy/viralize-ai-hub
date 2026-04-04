@@ -154,7 +154,6 @@ function Navbar() {
   { label: "Como funciona", href: "#tour" },
   { label: "Vídeos", href: "#proof" },
   { label: "Por dentro", href: "#tour" },
-  { label: "Preços", href: "#pricing" },
   { label: "FAQ", href: "#faq" }];
 
 
