@@ -1044,9 +1044,6 @@ export default function LandingPage() {
       <TourSection />
       <WhatYouGetSection />
       <AudienceSection />
-      <PricingSection
-        checkoutMonthly={affiliateLinks?.checkout_monthly}
-        checkoutLifetime={affiliateLinks?.checkout_lifetime} />
       
       <FaqSection />
       <CtaFinalSection />
