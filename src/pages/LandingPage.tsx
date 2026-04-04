@@ -950,7 +950,6 @@ function Footer() {
               {[
               { label: "Como funciona", href: "#tour" },
               { label: "Vídeos", href: "#proof" },
-              { label: "Preços", href: "#pricing" },
               { label: "FAQ", href: "#faq" }].
               map((item) =>
               <li key={item.label}>
