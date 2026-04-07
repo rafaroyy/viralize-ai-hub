@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.create-post]
 verify_jwt = false
+
+[functions.apify-tiktok-fetch]
+verify_jwt = false
