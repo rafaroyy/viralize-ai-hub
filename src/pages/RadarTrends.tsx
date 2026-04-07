@@ -6,6 +6,7 @@ import { RadarTrendsTab } from "@/components/radar/RadarTrendsTab";
 import { RadarOportunidadesTab } from "@/components/radar/RadarOportunidadesTab";
 import { RadarClipadorTab } from "@/components/radar/RadarClipadorTab";
 import { RadarConfiguracoesTab } from "@/components/radar/RadarConfiguracoesTab";
+import { RadarTikTokTab } from "@/components/radar/RadarTikTokTab";
 import { TrendDetailSheet } from "@/components/radar/TrendDetailSheet";
 import { GenerateHooksModal } from "@/components/radar/GenerateHooksModal";
 import { useRadarTrends } from "@/hooks/useRadarTrends";
@@ -66,6 +67,7 @@ export default function RadarTrendsPage() {
           <TabsList className="bg-secondary/50 w-fit">
             <TabsTrigger value="dashboard" className="text-xs">Dashboard</TabsTrigger>
             <TabsTrigger value="trends" className="text-xs">Trends</TabsTrigger>
+            <TabsTrigger value="tiktok" className="text-xs">TikTok Virais</TabsTrigger>
             <TabsTrigger value="oportunidades" className="text-xs">Oportunidades</TabsTrigger>
             <TabsTrigger value="clipador" className="text-xs">Clipador</TabsTrigger>
             <TabsTrigger value="configuracoes" className="text-xs">Configurações</TabsTrigger>
@@ -84,6 +86,9 @@ export default function RadarTrendsPage() {
         </TabsContent>
         <TabsContent value="trends">
           <RadarTrendsTab trends={filtered} onViewDetail={openDetail} onGenerateHooks={openHooks} />
+        </TabsContent>
+        <TabsContent value="tiktok">
+          <RadarTikTokTab />
         </TabsContent>
         <TabsContent value="oportunidades">
           <RadarOportunidadesTab opportunities={opportunities} />

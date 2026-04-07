@@ -68,6 +68,33 @@ export type Database = {
         }
         Relationships: []
       }
+      apify_search_config: {
+        Row: {
+          active: boolean | null
+          config_type: string
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          active?: boolean | null
+          config_type: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          value: string
+        }
+        Update: {
+          active?: boolean | null
+          config_type?: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
       blocked_categories: {
         Row: {
           category: string
@@ -260,6 +287,75 @@ export type Database = {
           redirect_to?: string | null
           state?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      tiktok_viral_videos: {
+        Row: {
+          author_avatar: string | null
+          author_name: string | null
+          author_username: string | null
+          comment_count: number | null
+          cover_url: string | null
+          created_at: string | null
+          description: string | null
+          duration: number | null
+          external_id: string | null
+          fetched_at: string | null
+          hashtags: string[] | null
+          id: string
+          like_count: number | null
+          music_name: string | null
+          play_count: number | null
+          posted_at: string | null
+          raw_payload: Json | null
+          share_count: number | null
+          video_url: string | null
+          week_key: string
+        }
+        Insert: {
+          author_avatar?: string | null
+          author_name?: string | null
+          author_username?: string | null
+          comment_count?: number | null
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          external_id?: string | null
+          fetched_at?: string | null
+          hashtags?: string[] | null
+          id?: string
+          like_count?: number | null
+          music_name?: string | null
+          play_count?: number | null
+          posted_at?: string | null
+          raw_payload?: Json | null
+          share_count?: number | null
+          video_url?: string | null
+          week_key: string
+        }
+        Update: {
+          author_avatar?: string | null
+          author_name?: string | null
+          author_username?: string | null
+          comment_count?: number | null
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          external_id?: string | null
+          fetched_at?: string | null
+          hashtags?: string[] | null
+          id?: string
+          like_count?: number | null
+          music_name?: string | null
+          play_count?: number | null
+          posted_at?: string | null
+          raw_payload?: Json | null
+          share_count?: number | null
+          video_url?: string | null
+          week_key?: string
         }
         Relationships: []
       }
