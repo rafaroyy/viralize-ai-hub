@@ -30,18 +30,18 @@ Deno.serve(async (req) => {
     if (configErr) throw configErr;
 
     const hashtags = configs
-      ?.filter((c) => c.config_type === "hashtag")
-      .map((c) => c.value) ?? ["viral", "brasil"];
+      ?.filter((c: any) => c.config_type === "hashtag")
+      .map((c: any) => c.value) ?? ["viral", "brasil"];
     const searchQueries = configs
-      ?.filter((c) => c.config_type === "search_query")
-      .map((c) => c.value) ?? ["viral brasil"];
+      ?.filter((c: any) => c.config_type === "search_query")
+      .map((c: any) => c.value) ?? ["viral brasil"];
 
-    // 2. Chamar o Apify Actor via API
+    // 2. Chamar o Apify Actor — pedir mais resultados para filtrar por data depois
     const actorInput = {
       hashtags,
       searchQueries,
-      resultsPerPage: 20,
-      excludePinnedPosts: false,
+      resultsPerPage: 100,
+      excludePinnedPosts: true,
       shouldDownloadCovers: false,
       shouldDownloadSlideshowImages: false,
       shouldDownloadSubtitles: false,
@@ -78,7 +78,39 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 3. Gerar week_key (ex: "2026-W15")
+    // 3. Filtrar apenas vídeos dos últimos 7 dias
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+
+    const recentItems = items.filter((v: any) => {
+      const createTime = v.createTimeISO
+        ? new Date(v.createTimeISO).getTime()
+        : v.createTime
+        ? v.createTime * 1000
+        : 0;
+      return createTime >= sevenDaysAgo;
+    });
+
+    console.log(`After date filter (last 7 days): ${recentItems.length} of ${items.length}`);
+
+    // Se não houver vídeos recentes suficientes, pegar os mais recentes disponíveis
+    const candidates = recentItems.length >= 5
+      ? recentItems
+      : items
+          .filter((v: any) => v.id || v.videoId)
+          .sort((a: any, b: any) => {
+            const ta = a.createTime || 0;
+            const tb = b.createTime || 0;
+            return tb - ta;
+          })
+          .slice(0, 20);
+
+    // 4. Ordenar por engajamento e pegar top 20
+    const sorted = candidates
+      .filter((v: any) => v.id || v.videoId)
+      .sort((a: any, b: any) => ((b.playCount || 0) + (b.diggCount || 0)) - ((a.playCount || 0) + (a.diggCount || 0)))
+      .slice(0, 20);
+
+    // 5. Gerar week_key
     const now = new Date();
     const startOfYear = new Date(now.getFullYear(), 0, 1);
     const weekNum = Math.ceil(
@@ -86,13 +118,7 @@ Deno.serve(async (req) => {
     );
     const weekKey = `${now.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
 
-    // 4. Ordenar por engajamento e pegar top 20
-    const sorted = items
-      .filter((v: any) => v.id || v.videoId)
-      .sort((a: any, b: any) => ((b.playCount || 0) + (b.diggCount || 0)) - ((a.playCount || 0) + (a.diggCount || 0)))
-      .slice(0, 20);
-
-    // 5. Mapear e inserir no banco
+    // 6. Mapear e inserir no banco
     const rows = sorted.map((v: any) => ({
       external_id: v.id || v.videoId || null,
       author_name: v.authorMeta?.name || v.author?.nickname || null,
@@ -100,7 +126,7 @@ Deno.serve(async (req) => {
       author_avatar: v.authorMeta?.avatar || v.author?.avatarThumb || null,
       description: v.text || v.desc || null,
       video_url: v.webVideoUrl || v.videoUrl || (v.id ? `https://www.tiktok.com/@${v.authorMeta?.nickName || "user"}/video/${v.id}` : null),
-      cover_url: v.covers?.default || v.video?.cover || null,
+      cover_url: v.videoMeta?.coverUrl || v.covers?.default || v.video?.cover || null,
       play_count: v.playCount || 0,
       like_count: v.diggCount || v.likes || 0,
       comment_count: v.commentCount || v.comments || 0,
@@ -113,7 +139,7 @@ Deno.serve(async (req) => {
       raw_payload: v,
     }));
 
-    // Deletar dados anteriores desta semana para evitar duplicatas
+    // Deletar dados anteriores desta semana
     await supabase.from("tiktok_viral_videos").delete().eq("week_key", weekKey);
 
     const { error: insertErr } = await supabase
@@ -122,10 +148,16 @@ Deno.serve(async (req) => {
 
     if (insertErr) throw insertErr;
 
-    console.log(`Inserted ${rows.length} TikTok viral videos for ${weekKey}`);
+    console.log(`Inserted ${rows.length} TikTok viral videos for ${weekKey} (recent: ${recentItems.length})`);
 
     return new Response(
-      JSON.stringify({ success: true, count: rows.length, week_key: weekKey }),
+      JSON.stringify({
+        success: true,
+        count: rows.length,
+        week_key: weekKey,
+        total_fetched: items.length,
+        recent_count: recentItems.length,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
