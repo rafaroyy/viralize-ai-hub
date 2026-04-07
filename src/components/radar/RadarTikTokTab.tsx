@@ -48,12 +48,12 @@ export function RadarTikTokTab() {
     queryKey: ["tiktok-viral-videos"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("tiktok_viral_videos")
+        .from("tiktok_viral_videos" as any)
         .select("*")
         .order("play_count", { ascending: false })
         .limit(20);
       if (error) throw error;
-      return data as TikTokVideo[];
+      return (data ?? []) as unknown as TikTokVideo[];
     },
   });
 
