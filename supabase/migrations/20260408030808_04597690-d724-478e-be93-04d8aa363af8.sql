@@ -1,0 +1,1 @@
+DELETE FROM weekly_digest WHERE week_key = '2026-W15';
