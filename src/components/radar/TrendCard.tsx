@@ -1,6 +1,6 @@
 import { TrendStatusBadge } from "./TrendStatusBadge";
 import { RiskBadge } from "./RiskBadge";
-import { ScoreBar } from "./ScoreBar";
+import { TrendSpiderChart } from "./TrendSpiderChart";
 import { Badge } from "@/components/ui/badge";
 import { sourceLabels, categoryLabels } from "@/data/radarMocks";
 import type { Trend } from "@/types/radar";
@@ -21,7 +21,7 @@ export function TrendCard({ trend, onViewDetail, rank }: Props) {
       className="glass-card-premium group cursor-pointer hover:scale-[1.02] transition-all duration-300 hover:shadow-[0_8px_40px_hsl(263_70%_58%/0.15)]"
       onClick={() => onViewDetail(trend)}
     >
-      <div className="p-5 space-y-4">
+      <div className="p-5 space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             {rank !== undefined && (
@@ -46,11 +46,8 @@ export function TrendCard({ trend, onViewDetail, rank }: Props) {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <ScoreBar score={trend.velocityScore} label="Velocidade" />
-          <ScoreBar score={trend.viralPotentialScore} label="Viral" />
-          <ScoreBar score={trend.commercePotentialScore} label="Comercial" />
-        </div>
+        {/* Spider Chart */}
+        <TrendSpiderChart trend={trend} />
 
         <div className="flex items-center justify-between pt-2 border-t border-border/30">
           <div className="flex gap-1">
