@@ -7,6 +7,14 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// YouTube category IDs to EXCLUDE (music, gaming, movies, trailers, etc.)
+const BLOCKED_CATEGORY_IDS = new Set([
+  "10", // Music
+  "20", // Gaming
+  "43", // Shows
+  "44", // Trailers
+]);
+
 function calcScores(video: any) {
   const viewCount = Number(video.statistics?.viewCount || 0);
   const likeCount = Number(video.statistics?.likeCount || 0);
@@ -14,30 +22,15 @@ function calcScores(video: any) {
   const publishedAt = new Date(video.snippet?.publishedAt || Date.now());
   const hoursAgo = (Date.now() - publishedAt.getTime()) / 3600000;
 
-  // Velocity: newer + more views = higher
   const velocityRaw = hoursAgo > 0 ? viewCount / hoursAgo : viewCount;
   const velocityScore = Math.min(100, Math.round(Math.log10(Math.max(1, velocityRaw)) * 15));
-
-  // Novelty: newer = higher
   const noveltyScore = Math.min(100, Math.max(0, Math.round(100 - hoursAgo * 0.5)));
-
-  // Viral potential: engagement ratio
   const engagement = viewCount > 0 ? ((likeCount + commentCount) / viewCount) * 100 : 0;
   const viralPotentialScore = Math.min(100, Math.round(engagement * 10 + Math.log10(Math.max(1, viewCount)) * 5));
-
-  // Commerce potential: based on category and engagement
   const commercePotentialScore = Math.min(100, Math.round(Math.log10(Math.max(1, viewCount)) * 8 + engagement * 5));
-
-  // Risk: saturation proxy
   const riskScore = Math.min(100, Math.round(Math.log10(Math.max(1, viewCount)) * 3));
-
-  // Saturation
   const saturationScore = Math.min(100, Math.round(Math.max(0, hoursAgo > 48 ? 60 : hoursAgo)));
-
-  // Cross-source (only YouTube for now)
   const crossSourceScore = 25;
-
-  // Overall
   const overallScore = Math.min(
     100,
     Math.round(
@@ -48,20 +41,11 @@ function calcScores(video: any) {
         crossSourceScore * 0.15
     )
   );
-
-  // Raw score for trend_sources (normalized view count)
   const rawScore = Math.min(100, Math.round(Math.log10(Math.max(1, viewCount)) * 10));
 
   return {
-    velocityScore,
-    noveltyScore,
-    viralPotentialScore,
-    commercePotentialScore,
-    riskScore,
-    saturationScore,
-    crossSourceScore,
-    overallScore,
-    rawScore,
+    velocityScore, noveltyScore, viralPotentialScore, commercePotentialScore,
+    riskScore, saturationScore, crossSourceScore, overallScore, rawScore,
   };
 }
 
@@ -84,16 +68,19 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const sb = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Create fetch run
     const { data: run } = await sb
       .from("trend_fetch_runs")
       .insert({ source: "youtube", status: "running" })
       .select("id")
       .single();
-
     const runId = run?.id;
 
-    // Fetch YouTube trending videos (Brazil)
+    // Date threshold: only last 7 days
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const publishedAfter = sevenDaysAgo.toISOString();
+
+    // Fetch trending videos (Brazil) — publishedAfter not supported on chart=mostPopular,
+    // so we filter after fetching
     const ytUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&chart=mostPopular&regionCode=BR&maxResults=50&key=${YOUTUBE_API_KEY}`;
     const ytRes = await fetch(ytUrl);
 
@@ -101,8 +88,7 @@ serve(async (req) => {
       const errBody = await ytRes.text();
       console.error("[radar-youtube-fetch] YouTube API error:", errBody);
       if (runId) {
-        await sb
-          .from("trend_fetch_runs")
+        await sb.from("trend_fetch_runs")
           .update({ status: "error", error_message: errBody, finished_at: new Date().toISOString() })
           .eq("id", runId);
       }
@@ -110,7 +96,21 @@ serve(async (req) => {
     }
 
     const ytData = await ytRes.json();
-    const videos = ytData.items || [];
+    const allVideos = ytData.items || [];
+
+    // Filter: only last 7 days + exclude blocked categories
+    const videos = allVideos.filter((video: any) => {
+      const categoryId = video.snippet?.categoryId || "";
+      if (BLOCKED_CATEGORY_IDS.has(categoryId)) return false;
+
+      const publishedAt = video.snippet?.publishedAt;
+      if (publishedAt && new Date(publishedAt).getTime() < sevenDaysAgo.getTime()) return false;
+
+      return true;
+    });
+
+    console.log(`[radar-youtube-fetch] ${allVideos.length} total → ${videos.length} after filtering (7d + no music/gaming)`);
+
     let processed = 0;
 
     for (const video of videos) {
@@ -127,7 +127,6 @@ serve(async (req) => {
       const scores = calcScores(video);
       const status = mapStatus(hoursAgo, viewCount);
 
-      // Upsert trend
       const { data: trend, error: trendErr } = await sb
         .from("trends")
         .upsert(
@@ -169,12 +168,9 @@ serve(async (req) => {
         continue;
       }
 
-      const trendId = trend!.id;
-
-      // Insert trend_source
       await sb.from("trend_sources").upsert(
         {
-          trend_id: trendId,
+          trend_id: trend!.id,
           source: "youtube",
           source_type: "trending",
           signal_label: title,
@@ -192,22 +188,16 @@ serve(async (req) => {
       processed++;
     }
 
-    // Update fetch run
     if (runId) {
-      await sb
-        .from("trend_fetch_runs")
-        .update({
-          status: "success",
-          items_count: processed,
-          finished_at: new Date().toISOString(),
-        })
+      await sb.from("trend_fetch_runs")
+        .update({ status: "success", items_count: processed, finished_at: new Date().toISOString() })
         .eq("id", runId);
     }
 
     console.log(`[radar-youtube-fetch] Processed ${processed} trending videos from YouTube BR`);
 
     return new Response(
-      JSON.stringify({ ok: true, processed }),
+      JSON.stringify({ ok: true, processed, filtered: allVideos.length - videos.length }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
