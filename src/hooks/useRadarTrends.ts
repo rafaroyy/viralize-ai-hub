@@ -77,6 +77,31 @@ export function useRadarTrends() {
 
       const mapped = trendRows.map((row) => mapDbTrend(row, sourceRows || []));
       setTrends(mapped);
+
+      // Load opportunities
+      const { data: oppRows } = await supabase
+        .from("trend_opportunities")
+        .select("*")
+        .order("opportunity_score", { ascending: false })
+        .limit(50);
+
+      if (oppRows && oppRows.length > 0) {
+        const mappedOpps: Opportunity[] = oppRows.map((o: any) => ({
+          id: o.id,
+          trendId: o.trend_id,
+          niche: o.niche,
+          whyNow: o.why_now || "",
+          hooks: o.hooks || [],
+          videoIdeas: o.video_ideas || [],
+          narrative: o.narrative || "",
+          cta: o.cta || "",
+          suggestedProductKeywords: o.suggested_product_keywords || [],
+          opportunityScore: o.opportunity_score || 0,
+        }));
+        setOpportunities(mappedOpps);
+      } else {
+        setOpportunities([]);
+      }
     } catch (e: any) {
       console.error("Error loading trends:", e);
       setTrends([]);
