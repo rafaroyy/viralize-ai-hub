@@ -86,9 +86,11 @@ export function useRadarTrends() {
         .limit(50);
 
       if (oppRows && oppRows.length > 0) {
+        const trendMap = new Map(trendRows.map((t) => [t.id, t.label]));
         const mappedOpps: Opportunity[] = oppRows.map((o: any) => ({
           id: o.id,
           trendId: o.trend_id,
+          trendLabel: trendMap.get(o.trend_id) || "Trend",
           niche: o.niche,
           whyNow: o.why_now || "",
           hooks: o.hooks || [],
