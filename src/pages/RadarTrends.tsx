@@ -91,7 +91,7 @@ export default function RadarTrendsPage() {
           <RadarTikTokTab />
         </TabsContent>
         <TabsContent value="oportunidades">
-          <RadarOportunidadesTab opportunities={opportunities} />
+          <RadarOportunidadesTab opportunities={opportunities} onRefresh={refreshTrends} />
         </TabsContent>
         <TabsContent value="clipador">
           <RadarClipadorTab trends={filtered} onViewDetail={openDetail} />
