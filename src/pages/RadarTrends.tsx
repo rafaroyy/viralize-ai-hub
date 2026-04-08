@@ -30,7 +30,7 @@ export default function RadarTrendsPage() {
   const [hooksTrend, setHooksTrend] = useState<Trend | null>(null);
   const [hooksOpen, setHooksOpen] = useState(false);
 
-  const { trends: allTrends, opportunities, loading, fetching, fetchYouTube } = useRadarTrends();
+  const { trends: allTrends, opportunities, loading, fetching, fetchYouTube, refreshTrends } = useRadarTrends();
 
   const filtered = useMemo(() => {
     return allTrends.filter(t => {
