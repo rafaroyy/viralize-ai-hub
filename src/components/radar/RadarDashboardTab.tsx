@@ -2,12 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RadarCharts } from "./RadarCharts";
 import { TrendCard } from "./TrendCard";
-import { TrendBubbleChart } from "./TrendBubbleChart";
-import { RadialGauge } from "./RadialGauge";
-import { AnimatedCounter } from "./AnimatedCounter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, Youtube, Play, Heart, TrendingUp, Zap, ShoppingCart, MessageCircle, Music, Hash } from "lucide-react";
+import { RefreshCw, Youtube, Play, Heart, Eye, TrendingUp, Zap, ShoppingCart, MessageCircle, Music, Hash } from "lucide-react";
 import type { Trend } from "@/types/radar";
 
 interface Props {
@@ -44,7 +41,7 @@ export function RadarDashboardTab({ trends, onViewDetail, loading, fetching, onF
   const ttVideos = tiktokVideos || [];
   const ttTotalViews = ttVideos.reduce((s, v) => s + (v.play_count || 0), 0);
   const ttTotalLikes = ttVideos.reduce((s, v) => s + (v.like_count || 0), 0);
-  const ttAvgEngagement = ttTotalViews > 0 ? Math.round((ttTotalLikes / ttTotalViews) * 100) : 0;
+  const ttAvgEngagement = ttTotalViews > 0 ? ((ttTotalLikes / ttTotalViews) * 100).toFixed(1) : "0";
 
   const hashtagCounts: Record<string, number> = {};
   ttVideos.forEach(v => {
@@ -61,76 +58,35 @@ export function RadarDashboardTab({ trends, onViewDetail, loading, fetching, onF
   const topMusics = Object.entries(musicCounts).sort(([, a], [, b]) => b - a).slice(0, 5);
   const topTikToks = ttVideos.slice(0, 5);
 
-  const acelerando = trends.filter(t => t.status === "subindo").length;
-  const oportunidades = trends.filter(t => t.commercePotentialScore >= 70).length;
-  const avgScore = trends.length > 0 ? Math.round(trends.reduce((s, t) => s + t.overallScore, 0) / trends.length) : 0;
+  const kpis = [
+    { label: "Trends YouTube", value: trends.length, icon: Eye, accent: "from-red-500/20 to-red-500/5" },
+    { label: "TikToks Virais", value: ttVideos.length, icon: Play, accent: "from-primary/20 to-primary/5" },
+    { label: "Views TikTok", value: formatCount(ttTotalViews), icon: TrendingUp, accent: "from-emerald-500/20 to-emerald-500/5" },
+    { label: "Engajamento", value: `${ttAvgEngagement}%`, icon: Heart, accent: "from-pink-500/20 to-pink-500/5" },
+    { label: "Acelerando", value: trends.filter(t => t.status === "subindo").length, icon: Zap, accent: "from-blue-500/20 to-blue-500/5" },
+    { label: "Oportunidades", value: trends.filter(t => t.commercePotentialScore >= 70).length, icon: ShoppingCart, accent: "from-amber-500/20 to-amber-500/5" },
+  ];
 
   return (
     <div className="space-y-8">
-      {/* Hero KPI Row — Radial Gauges + Animated Counters */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 flex-1">
-          {/* Gauge: Avg Score */}
-          <div className="glass-card-premium group hover:scale-[1.03] transition-all duration-300">
-            <div className="p-4 flex flex-col items-center gap-1">
-              <RadialGauge value={avgScore} color="hsl(263,70%,58%)" size={72} strokeWidth={5} />
-              <span className="text-[10px] text-muted-foreground font-medium mt-1">Score Médio</span>
-            </div>
-          </div>
-
-          {/* Gauge: Engagement */}
-          <div className="glass-card-premium group hover:scale-[1.03] transition-all duration-300">
-            <div className="p-4 flex flex-col items-center gap-1">
-              <RadialGauge value={ttAvgEngagement} color="hsl(330,80%,55%)" size={72} strokeWidth={5} suffix="%" />
-              <span className="text-[10px] text-muted-foreground font-medium mt-1">Engajamento</span>
-            </div>
-          </div>
-
-          {/* Counter: Trends */}
-          <div className="glass-card-premium group hover:scale-[1.03] transition-all duration-300">
-            <div className="p-4 flex flex-col items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center">
-                <Youtube className="w-4 h-4 text-red-500" />
+      {/* KPIs */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 flex-1">
+          {kpis.map(k => (
+            <div key={k.label} className="glass-card-premium group hover:scale-[1.03] transition-all duration-300">
+              <div className={`absolute inset-0 bg-gradient-to-br ${k.accent} rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+              <div className="relative p-4 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-secondary/60 flex items-center justify-center">
+                    <k.icon className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <span className="text-[11px] text-muted-foreground font-medium">{k.label}</span>
+                </div>
+                <span className="text-2xl font-bold text-foreground tracking-tight">{k.value}</span>
               </div>
-              <AnimatedCounter end={trends.length} className="text-2xl font-bold text-foreground" />
-              <span className="text-[10px] text-muted-foreground font-medium">Trends YT</span>
             </div>
-          </div>
-
-          {/* Counter: TikToks */}
-          <div className="glass-card-premium group hover:scale-[1.03] transition-all duration-300">
-            <div className="p-4 flex flex-col items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Play className="w-4 h-4 text-primary" />
-              </div>
-              <AnimatedCounter end={ttVideos.length} className="text-2xl font-bold text-foreground" />
-              <span className="text-[10px] text-muted-foreground font-medium">TikToks Virais</span>
-            </div>
-          </div>
-
-          {/* Counter: Acelerando */}
-          <div className="glass-card-premium group hover:scale-[1.03] transition-all duration-300">
-            <div className="p-4 flex flex-col items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                <Zap className="w-4 h-4 text-emerald-400" />
-              </div>
-              <AnimatedCounter end={acelerando} className="text-2xl font-bold text-foreground" />
-              <span className="text-[10px] text-muted-foreground font-medium">Acelerando</span>
-            </div>
-          </div>
-
-          {/* Counter: Views */}
-          <div className="glass-card-premium group hover:scale-[1.03] transition-all duration-300">
-            <div className="p-4 flex flex-col items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-amber-400" />
-              </div>
-              <AnimatedCounter end={ttTotalViews} className="text-2xl font-bold text-foreground" formatter={formatCount} />
-              <span className="text-[10px] text-muted-foreground font-medium">Views TikTok</span>
-            </div>
-          </div>
+          ))}
         </div>
-
         {onFetchYouTube && (
           <Button variant="outline" size="sm" onClick={onFetchYouTube} disabled={fetching} className="shrink-0 gap-2 border-border/50 hover:border-primary/50 transition-colors">
             {fetching ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Youtube className="w-4 h-4 text-red-500" />}
@@ -138,11 +94,6 @@ export function RadarDashboardTab({ trends, onViewDetail, loading, fetching, onF
           </Button>
         )}
       </div>
-
-      {/* Bubble Chart — Trend Map */}
-      {trends.length > 0 && (
-        <TrendBubbleChart trends={trends} onViewDetail={onViewDetail} />
-      )}
 
       {/* TikTok Insights */}
       {ttVideos.length > 0 && (
