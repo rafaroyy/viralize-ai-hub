@@ -199,7 +199,7 @@ export function RadarTikTokTab() {
               onClick={() => setSelectedVideo(video)}
             >
               {/* Cover / Thumbnail */}
-              <div className="relative aspect-[9/12] bg-muted overflow-hidden">
+              <div className="relative aspect-[9/14] bg-muted overflow-hidden">
                 {video.cover_url ? (
                   <img
                     src={video.cover_url}
