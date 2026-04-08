@@ -191,50 +191,75 @@ export function RadarTikTokTab() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {videos.map((video, idx) => (
             <Card
               key={video.id}
-              className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer group"
+              className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
               onClick={() => setSelectedVideo(video)}
             >
-              <CardHeader className="pb-2">
-                <div className="flex items-start gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm shrink-0">
-                    {idx + 1}
+              {/* Cover / Thumbnail */}
+              <div className="relative aspect-[9/12] bg-muted overflow-hidden">
+                {video.cover_url ? (
+                  <img
+                    src={video.cover_url}
+                    alt={video.description || "TikTok video"}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Play className="w-12 h-12 text-muted-foreground/30" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      {video.author_avatar && (
-                        <img
-                          src={video.author_avatar}
-                          alt={video.author_name || ""}
-                          className="w-6 h-6 rounded-full object-cover"
-                        />
-                      )}
-                      <CardTitle className="text-sm truncate">
-                        @{video.author_username || video.author_name || "desconhecido"}
-                      </CardTitle>
-                      <Badge variant="outline" className="text-xs opacity-0 group-hover:opacity-100 transition-opacity gap-1 shrink-0">
-                        <Play className="w-3 h-3" /> Assistir
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {video.description || "Sem descrição"}
-                    </p>
+                )}
+                {/* Overlay play button */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                    <Play className="w-7 h-7 text-foreground fill-foreground ml-1" />
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary" className="gap-1 text-xs">
+                {/* Rank badge */}
+                <div className="absolute top-2 left-2 w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center shadow-md">
+                  {idx + 1}
+                </div>
+                {/* Duration badge */}
+                {video.duration > 0 && (
+                  <Badge className="absolute bottom-2 right-2 bg-black/70 text-white border-0 text-xs gap-1">
+                    <Clock className="w-3 h-3" />
+                    {formatDuration(video.duration)}
+                  </Badge>
+                )}
+                {/* Stats overlay */}
+                <div className="absolute bottom-2 left-2 flex gap-2">
+                  <Badge className="bg-black/70 text-white border-0 text-xs gap-1">
                     <Play className="w-3 h-3" />
                     {formatCount(video.play_count)}
                   </Badge>
-                  <Badge variant="secondary" className="gap-1 text-xs">
+                  <Badge className="bg-black/70 text-white border-0 text-xs gap-1">
                     <Heart className="w-3 h-3" />
                     {formatCount(video.like_count)}
                   </Badge>
+                </div>
+              </div>
+
+              <CardContent className="p-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  {video.author_avatar && (
+                    <img
+                      src={video.author_avatar}
+                      alt={video.author_name || ""}
+                      className="w-7 h-7 rounded-full object-cover shrink-0"
+                    />
+                  )}
+                  <span className="text-sm font-medium truncate">
+                    @{video.author_username || video.author_name || "desconhecido"}
+                  </span>
+                </div>
+
+                <p className="text-xs text-muted-foreground line-clamp-2">
+                  {video.description || "Sem descrição"}
+                </p>
+
+                <div className="flex flex-wrap gap-1.5">
                   <Badge variant="secondary" className="gap-1 text-xs">
                     <MessageCircle className="w-3 h-3" />
                     {formatCount(video.comment_count)}
@@ -243,18 +268,12 @@ export function RadarTikTokTab() {
                     <Share2 className="w-3 h-3" />
                     {formatCount(video.share_count)}
                   </Badge>
-                  {video.duration > 0 && (
-                    <Badge variant="outline" className="gap-1 text-xs">
-                      <Clock className="w-3 h-3" />
-                      {formatDuration(video.duration)}
-                    </Badge>
-                  )}
                 </div>
 
                 {video.posted_at && (
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
                     <Calendar className="w-3 h-3 shrink-0" />
-                    {format(new Date(video.posted_at), "dd 'de' MMM 'de' yyyy", { locale: ptBR })}
+                    {format(new Date(video.posted_at), "dd 'de' MMM", { locale: ptBR })}
                   </p>
                 )}
 
@@ -267,11 +286,11 @@ export function RadarTikTokTab() {
 
                 {video.hashtags?.length > 0 && (
                   <div className="flex flex-wrap gap-1">
-                    {video.hashtags.slice(0, 5).map((tag, i) => (
+                    {video.hashtags.slice(0, 4).map((tag, i) => (
                       <span key={i} className="text-xs text-primary">#{tag}</span>
                     ))}
-                    {video.hashtags.length > 5 && (
-                      <span className="text-xs text-muted-foreground">+{video.hashtags.length - 5}</span>
+                    {video.hashtags.length > 4 && (
+                      <span className="text-xs text-muted-foreground">+{video.hashtags.length - 4}</span>
                     )}
                   </div>
                 )}
