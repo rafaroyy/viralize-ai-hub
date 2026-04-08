@@ -36,7 +36,7 @@ export function RadarTrendsTab({ trends, onViewDetail, onGenerateHooks }: Props)
   };
 
   const SortHeader = ({ label, k }: { label: string; k: SortKey }) => (
-    <TableHead className="cursor-pointer select-none" onClick={() => toggleSort(k)}>
+    <TableHead className="cursor-pointer select-none hover:text-primary transition-colors" onClick={() => toggleSort(k)}>
       <div className="flex items-center gap-1 text-xs">
         {label} <ArrowUpDown className="w-3 h-3" />
       </div>
@@ -44,10 +44,10 @@ export function RadarTrendsTab({ trends, onViewDetail, onGenerateHooks }: Props)
   );
 
   return (
-    <div className="rounded-xl border border-border overflow-hidden">
+    <div className="glass-card-premium overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-secondary/30">
+          <TableRow className="bg-secondary/20 border-border/30 hover:bg-secondary/20">
             <SortHeader label="Trend" k="label" />
             <TableHead className="text-xs">Categoria</TableHead>
             <TableHead className="text-xs">Status</TableHead>
@@ -64,25 +64,27 @@ export function RadarTrendsTab({ trends, onViewDetail, onGenerateHooks }: Props)
           {sorted.map(t => {
             const sources = [...new Set(t.sourceSignals.map(s => s.source))];
             return (
-              <TableRow key={t.id} className="hover:bg-secondary/20 cursor-pointer" onClick={() => onViewDetail(t)}>
+              <TableRow key={t.id} className="hover:bg-primary/5 cursor-pointer border-border/20 transition-colors" onClick={() => onViewDetail(t)}>
                 <TableCell className="font-medium text-sm text-foreground max-w-[180px] truncate">{t.label}</TableCell>
-                <TableCell><Badge variant="outline" className="text-[10px]">{categoryLabels[t.category]}</Badge></TableCell>
+                <TableCell><Badge variant="outline" className="text-[10px] border-border/40">{categoryLabels[t.category]}</Badge></TableCell>
                 <TableCell><TrendStatusBadge status={t.status} /></TableCell>
                 <TableCell><RiskBadge score={t.riskScore} /></TableCell>
-                <TableCell className="font-bold text-primary text-sm">{t.overallScore}</TableCell>
-                <TableCell className="text-sm">{t.velocityScore}</TableCell>
-                <TableCell className="text-sm">{t.viralPotentialScore}</TableCell>
-                <TableCell className="text-sm">{t.commercePotentialScore}</TableCell>
+                <TableCell>
+                  <span className="font-bold text-sm bg-clip-text text-transparent bg-gradient-to-r from-primary to-[hsl(280_80%_65%)]">{t.overallScore}</span>
+                </TableCell>
+                <TableCell className="text-sm tabular-nums">{t.velocityScore}</TableCell>
+                <TableCell className="text-sm tabular-nums">{t.viralPotentialScore}</TableCell>
+                <TableCell className="text-sm tabular-nums">{t.commercePotentialScore}</TableCell>
                 <TableCell>
                   <div className="flex gap-0.5">
-                    {sources.map(s => <Badge key={s} variant="secondary" className="text-[9px] px-1 py-0">{sourceLabels[s]?.charAt(0)}</Badge>)}
+                    {sources.map(s => <Badge key={s} variant="secondary" className="text-[9px] px-1 py-0 bg-secondary/50">{sourceLabels[s]?.charAt(0)}</Badge>)}
                   </div>
                 </TableCell>
                 <TableCell className="text-right" onClick={e => e.stopPropagation()}>
-                  <div className="flex items-center justify-end gap-1">
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onViewDetail(t)}><Eye className="w-3.5 h-3.5" /></Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onGenerateHooks(t)}><Lightbulb className="w-3.5 h-3.5" /></Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => toast({ title: "Salvo!", description: `${t.label} adicionada à watchlist.` })}><Bookmark className="w-3.5 h-3.5" /></Button>
+                  <div className="flex items-center justify-end gap-0.5">
+                    <Button variant="ghost" size="icon" className="h-7 w-7 hover:text-primary transition-colors" onClick={() => onViewDetail(t)}><Eye className="w-3.5 h-3.5" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 hover:text-amber-400 transition-colors" onClick={() => onGenerateHooks(t)}><Lightbulb className="w-3.5 h-3.5" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 hover:text-emerald-400 transition-colors" onClick={() => toast({ title: "Salvo!", description: `${t.label} adicionada à watchlist.` })}><Bookmark className="w-3.5 h-3.5" /></Button>
                   </div>
                 </TableCell>
               </TableRow>
