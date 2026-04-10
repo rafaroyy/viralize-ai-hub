@@ -153,7 +153,7 @@ function Navbar() {
   const navItems = [
   { label: "Como funciona", href: "#tour" },
   { label: "Vídeos", href: "#proof" },
-  { label: "Por dentro", href: "#tour" },
+  { label: "Preços", href: "#pricing" },
   { label: "FAQ", href: "#faq" }];
 
 
@@ -950,6 +950,7 @@ function Footer() {
               {[
               { label: "Como funciona", href: "#tour" },
               { label: "Vídeos", href: "#proof" },
+              { label: "Preços", href: "#pricing" },
               { label: "FAQ", href: "#faq" }].
               map((item) =>
               <li key={item.label}>
@@ -1034,6 +1035,9 @@ export default function LandingPage() {
     fetchAffiliate();
   }, [affiliateSlug, navigate]);
 
+  const checkoutMonthly = affiliateLinks?.checkout_monthly || "https://pay.zouti.com.br/checkout?poi=prod_offer_qnohqjvl02nadr7v471icj";
+  const checkoutLifetime = affiliateLinks?.checkout_lifetime || "https://pay.zouti.com.br/checkout?poi=prod_offer_xx1w0hy1pi5lhvnvcukmdo";
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <MarqueeStyles />
@@ -1043,7 +1047,7 @@ export default function LandingPage() {
       <TourSection />
       <WhatYouGetSection />
       <AudienceSection />
-      
+      <PricingSection checkoutMonthly={checkoutMonthly} checkoutLifetime={checkoutLifetime} />
       <FaqSection />
       <CtaFinalSection />
       <Footer />
