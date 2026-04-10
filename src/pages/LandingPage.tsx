@@ -973,7 +973,7 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: { checkoutMonthly
               </div>
             </motion.div>
 
-            {/* VITALÍCIO */}
+            {/* TRIMESTRAL */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -986,22 +986,22 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: { checkoutMonthly
                 transition={{ repeat: Infinity, duration: 4, ease: "linear" }} />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-2">
-                  <h3 className="text-lg font-semibold text-foreground">Vitalício</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Trimestral</h3>
                   <span className="text-[10px] font-bold uppercase tracking-wider bg-primary/15 text-primary px-2.5 py-1 rounded-full border border-primary/30">
                     Melhor oferta
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground mb-6">Pague uma vez. Acesso permanente.</p>
+                <p className="text-sm text-muted-foreground mb-6">3 meses de acesso com desconto.</p>
                 <div className="mb-6">
-                  <span className="text-base text-foreground/70 font-medium">12x de</span>
-                  <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-2xl font-bold text-foreground">R$</span>
-                    <span className="text-6xl font-extrabold text-foreground font-display tracking-tighter">25,19</span>
+                  <div className="flex items-end gap-1">
+                    <span className="text-sm text-muted-foreground">R$</span>
+                    <span className="text-5xl font-bold text-foreground font-display tracking-tight">395</span>
+                    <span className="text-sm text-muted-foreground mb-1.5">/trimestre</span>
                   </div>
-                  <p className="text-sm text-muted-foreground/70 mt-2">ou R$245 à vista</p>
+                  <p className="text-sm text-muted-foreground/70 mt-2">≈ R$131,67/mês</p>
                 </div>
                 <a
-                  href={checkoutLifetime}
+                  href="https://pay.zouti.com.br/checkout?poi=prod_offer_n629se81ujd65aonk5otzt"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full gradient-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-glow text-sm mb-6">
@@ -1018,7 +1018,7 @@ function PricingSection({ checkoutMonthly, checkoutLifetime }: { checkoutMonthly
                 </ul>
                 <div className="mt-6 pt-5 border-t border-border/50 flex items-center gap-2 text-xs text-muted-foreground">
                   <Shield className="h-4 w-4 text-primary" />
-                  Pagamento único. Acesso permanente. Sem taxas escondidas.
+                  Economize R$40 comparado ao mensal. Garantia de 7 dias.
                 </div>
               </div>
             </motion.div>
