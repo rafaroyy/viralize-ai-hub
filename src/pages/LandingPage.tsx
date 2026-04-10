@@ -898,6 +898,137 @@ function FaqSection() {
    9) CTA FINAL
    ═══════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════
+   9.5) PRICING
+   ═══════════════════════════════════════════ */
+
+const pricingFeatures = [
+  "Catálogo de produtos para afiliação",
+  "Motor de criação de vídeos virais com IA",
+  "Frameworks de viralização (HDC, PPMO, etc.)",
+  "Roteiros e copy visual prontos para gravar",
+  "Análise de roteiro com metodologia P-C-R",
+  "Chat IA especializado em vídeos virais",
+  "Suporte prioritário",
+  "Garantia de 7 dias",
+];
+
+function PricingSection({ checkoutMonthly, checkoutLifetime }: { checkoutMonthly: string; checkoutLifetime: string }) {
+  return (
+    <section id="pricing" className="w-full py-20 md:py-28 relative overflow-hidden">
+      <div className="absolute inset-0">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[160px]" />
+      </div>
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
+        <ScrollReveal>
+          <div className="text-center mb-4">
+            <SectionTag>Preços</SectionTag>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
+              Escolha seu{" "}
+              <GradientText className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight font-display">
+                plano
+              </GradientText>
+            </h2>
+            <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
+              Produto, vídeo e tráfego na mesma plataforma. Comece agora.
+            </p>
+          </div>
+        </ScrollReveal>
+
+        <ScrollReveal delay={0.1}>
+          <div className="max-w-3xl mx-auto mt-10 grid md:grid-cols-2 gap-6">
+            {/* MENSAL */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3 }}
+              className="relative glass-card rounded-2xl border border-border/60 p-8 overflow-hidden">
+              <div className="relative z-10">
+                <h3 className="text-lg font-semibold text-foreground mb-2">Mensal</h3>
+                <p className="text-sm text-muted-foreground mb-6">Acesso completo com renovação mensal.</p>
+                <div className="mb-6">
+                  <div className="flex items-end gap-1">
+                    <span className="text-sm text-muted-foreground">R$</span>
+                    <span className="text-5xl font-bold text-foreground font-display tracking-tight">145</span>
+                    <span className="text-sm text-muted-foreground mb-1.5">/mês</span>
+                  </div>
+                </div>
+                <a
+                  href={checkoutMonthly}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-secondary text-foreground py-3.5 rounded-xl font-semibold hover:bg-secondary/80 transition-colors flex items-center justify-center gap-2 text-sm mb-6 border border-border/50">
+                  Começar agora
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+                <ul className="space-y-3">
+                  {pricingFeatures.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                      <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </motion.div>
+
+            {/* VITALÍCIO */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="relative glass-card rounded-2xl border border-primary/30 p-8 overflow-hidden shadow-glow">
+              <BorderTrail
+                className="bg-gradient-to-l from-primary via-primary/50 to-transparent"
+                size={80}
+                transition={{ repeat: Infinity, duration: 4, ease: "linear" }} />
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="text-lg font-semibold text-foreground">Vitalício</h3>
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-primary/15 text-primary px-2.5 py-1 rounded-full border border-primary/30">
+                    Melhor oferta
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground mb-6">Pague uma vez. Acesso permanente.</p>
+                <div className="mb-6">
+                  <span className="text-base text-foreground/70 font-medium">12x de</span>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="text-2xl font-bold text-foreground">R$</span>
+                    <span className="text-6xl font-extrabold text-foreground font-display tracking-tighter">25,19</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground/70 mt-2">ou R$245 à vista</p>
+                </div>
+                <a
+                  href={checkoutLifetime}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full gradient-primary text-primary-foreground py-3.5 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-glow text-sm mb-6">
+                  Entrar para a Viralize
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+                <ul className="space-y-3">
+                  {pricingFeatures.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                      <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-6 pt-5 border-t border-border/50 flex items-center gap-2 text-xs text-muted-foreground">
+                  <Shield className="h-4 w-4 text-primary" />
+                  Pagamento único. Acesso permanente. Sem taxas escondidas.
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </ScrollReveal>
+      </div>
+    </section>
+  );
+}
+
 function CtaFinalSection() {
   return (
     <section className="w-full py-20 md:py-28 relative overflow-hidden">
