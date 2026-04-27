@@ -264,7 +264,7 @@ export function RadarTikTokTab() {
         .order("play_count", { ascending: false })
         .limit(200);
       if (error) throw error;
-      return (data ?? []) as TikTokVideo[];
+      return (data ?? []) as unknown as TikTokVideo[];
     },
   });
 
