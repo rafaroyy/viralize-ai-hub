@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ExternalLink, Play, Heart, MessageCircle, Share2, Music, Clock, RefreshCw, X, Calendar } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ExternalLink, Play, Heart, MessageCircle, Share2, Music, Clock, RefreshCw, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -30,6 +31,13 @@ interface TikTokVideo {
   posted_at: string | null;
   week_key: string;
   created_at: string;
+  niche: string | null;
+}
+
+interface NicheConfig {
+  slug: string;
+  label: string;
+  hashtag: string;
 }
 
 function formatCount(n: number): string {
@@ -46,7 +54,6 @@ function formatDuration(seconds: number): string {
 
 function TikTokEmbedDialog({ video, open, onClose }: { video: TikTokVideo | null; open: boolean; onClose: () => void }) {
   if (!video) return null;
-
   const embedId = video.external_id;
 
   return (
@@ -97,22 +104,187 @@ function TikTokEmbedDialog({ video, open, onClose }: { video: TikTokVideo | null
   );
 }
 
+function VideoGrid({
+  videos,
+  onSelect,
+}: {
+  videos: TikTokVideo[];
+  onSelect: (v: TikTokVideo) => void;
+}) {
+  if (!videos.length) {
+    return (
+      <Card className="border-dashed">
+        <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+          <Play className="w-12 h-12 text-muted-foreground/40 mb-3" />
+          <p className="text-sm text-muted-foreground">Nenhum vídeo encontrado nesta categoria.</p>
+          <p className="text-xs text-muted-foreground mt-1">Clique em "Atualizar" para buscar.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      {videos.map((video, idx) => (
+        <Card
+          key={video.id}
+          className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
+          onClick={() => onSelect(video)}
+        >
+          <div className="relative aspect-[9/14] bg-muted overflow-hidden">
+            {video.cover_url ? (
+              <img
+                src={video.cover_url}
+                alt={video.description || "TikTok video"}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <Play className="w-12 h-12 text-muted-foreground/30" />
+              </div>
+            )}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+              <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                <Play className="w-7 h-7 text-foreground fill-foreground ml-1" />
+              </div>
+            </div>
+            <div className="absolute top-2 left-2 w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center shadow-md">
+              {idx + 1}
+            </div>
+            {video.duration > 0 && (
+              <Badge className="absolute bottom-2 right-2 bg-black/70 text-white border-0 text-xs gap-1">
+                <Clock className="w-3 h-3" />
+                {formatDuration(video.duration)}
+              </Badge>
+            )}
+            <div className="absolute bottom-2 left-2 flex gap-2">
+              <Badge className="bg-black/70 text-white border-0 text-xs gap-1">
+                <Play className="w-3 h-3" />
+                {formatCount(video.play_count)}
+              </Badge>
+              <Badge className="bg-black/70 text-white border-0 text-xs gap-1">
+                <Heart className="w-3 h-3" />
+                {formatCount(video.like_count)}
+              </Badge>
+            </div>
+          </div>
+
+          <CardContent className="p-3 space-y-2">
+            <div className="flex items-center gap-2">
+              {video.author_avatar && (
+                <img
+                  src={video.author_avatar}
+                  alt={video.author_name || ""}
+                  className="w-7 h-7 rounded-full object-cover shrink-0"
+                />
+              )}
+              <span className="text-sm font-medium truncate">
+                @{video.author_username || video.author_name || "desconhecido"}
+              </span>
+            </div>
+
+            <p className="text-xs text-muted-foreground line-clamp-2">
+              {video.description || "Sem descrição"}
+            </p>
+
+            <div className="flex flex-wrap gap-1.5">
+              <Badge variant="secondary" className="gap-1 text-xs">
+                <MessageCircle className="w-3 h-3" />
+                {formatCount(video.comment_count)}
+              </Badge>
+              <Badge variant="secondary" className="gap-1 text-xs">
+                <Share2 className="w-3 h-3" />
+                {formatCount(video.share_count)}
+              </Badge>
+            </div>
+
+            {video.posted_at && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <Calendar className="w-3 h-3 shrink-0" />
+                {format(new Date(video.posted_at), "dd 'de' MMM", { locale: ptBR })}
+              </p>
+            )}
+
+            {video.music_name && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
+                <Music className="w-3 h-3 shrink-0" />
+                {video.music_name}
+              </p>
+            )}
+
+            {video.hashtags?.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {video.hashtags.slice(0, 4).map((tag, i) => (
+                  <span key={i} className="text-xs text-primary">#{tag}</span>
+                ))}
+                {video.hashtags.length > 4 && (
+                  <span className="text-xs text-muted-foreground">+{video.hashtags.length - 4}</span>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
 export function RadarTikTokTab() {
   const [fetching, setFetching] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<TikTokVideo | null>(null);
+  const [activeTab, setActiveTab] = useState("general");
 
-  const { data: videos, isLoading, refetch } = useQuery({
-    queryKey: ["tiktok-viral-videos"],
+  const { data: niches } = useQuery({
+    queryKey: ["tiktok-niches"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("apify_search_config")
+        .select("value")
+        .eq("config_type", "niche")
+        .eq("active", true);
+      if (error) throw error;
+      return (data ?? [])
+        .map((r: any) => {
+          try {
+            return typeof r.value === "string" ? JSON.parse(r.value) : r.value;
+          } catch {
+            return null;
+          }
+        })
+        .filter((n: any): n is NicheConfig => n && n.slug && n.label);
+    },
+  });
+
+  const { data: allVideos, isLoading, refetch } = useQuery({
+    queryKey: ["tiktok-viral-videos-all"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("tiktok_viral_videos")
         .select("*")
         .order("play_count", { ascending: false })
-        .limit(20);
+        .limit(200);
       if (error) throw error;
       return (data ?? []) as TikTokVideo[];
     },
   });
+
+  const generalVideos = useMemo(
+    () => (allVideos ?? []).filter((v) => !v.niche).slice(0, 20),
+    [allVideos]
+  );
+
+  const videosByNiche = useMemo(() => {
+    const map: Record<string, TikTokVideo[]> = {};
+    (allVideos ?? []).forEach((v) => {
+      if (!v.niche) return;
+      if (!map[v.niche]) map[v.niche] = [];
+      map[v.niche].push(v);
+    });
+    Object.keys(map).forEach((k) => {
+      map[k] = map[k].slice(0, 20);
+    });
+    return map;
+  }, [allVideos]);
 
   const handleFetch = async () => {
     setFetching(true);
@@ -128,20 +300,20 @@ export function RadarTikTokTab() {
     }
   };
 
-  const weekKey = videos?.[0]?.week_key;
-  const oldestPosted = videos?.length
-    ? videos.reduce((min, v) => {
+  const referenceVideos = generalVideos.length ? generalVideos : (allVideos ?? []);
+  const weekKey = referenceVideos[0]?.week_key;
+  const oldestPosted = referenceVideos.length
+    ? referenceVideos.reduce((min, v) => {
         const d = v.posted_at ? new Date(v.posted_at).getTime() : Infinity;
         return d < min ? d : min;
       }, Infinity)
     : null;
-  const newestPosted = videos?.length
-    ? videos.reduce((max, v) => {
+  const newestPosted = referenceVideos.length
+    ? referenceVideos.reduce((max, v) => {
         const d = v.posted_at ? new Date(v.posted_at).getTime() : 0;
         return d > max ? d : max;
       }, 0)
     : null;
-
   const dateRange = oldestPosted && newestPosted && oldestPosted !== Infinity
     ? `${format(new Date(oldestPosted), "dd MMM", { locale: ptBR })} — ${format(new Date(newestPosted), "dd MMM yyyy", { locale: ptBR })}`
     : null;
@@ -153,7 +325,7 @@ export function RadarTikTokTab() {
           <h2 className="text-lg font-semibold text-foreground">TikTok Virais 🇧🇷</h2>
           <div className="flex items-center gap-2 flex-wrap">
             <p className="text-xs text-muted-foreground">
-              Top vídeos virais do TikTok Brasil
+              Top vídeos virais do TikTok Brasil por nicho
               {weekKey && <span className="ml-1">• Semana {weekKey}</span>}
             </p>
             {dateRange && (
@@ -177,127 +349,46 @@ export function RadarTikTokTab() {
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-48 rounded-xl" />
-          ))}
-        </div>
-      ) : !videos?.length ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <Play className="w-12 h-12 text-muted-foreground/40 mb-3" />
-            <p className="text-sm text-muted-foreground">Nenhum vídeo viral encontrado ainda.</p>
-            <p className="text-xs text-muted-foreground mt-1">Clique em "Atualizar" para buscar os vídeos mais virais do TikTok Brasil.</p>
-          </CardContent>
-        </Card>
-      ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {videos.map((video, idx) => (
-            <Card
-              key={video.id}
-              className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
-              onClick={() => setSelectedVideo(video)}
-            >
-              {/* Cover / Thumbnail */}
-              <div className="relative aspect-[9/14] bg-muted overflow-hidden">
-                {video.cover_url ? (
-                  <img
-                    src={video.cover_url}
-                    alt={video.description || "TikTok video"}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Play className="w-12 h-12 text-muted-foreground/30" />
-                  </div>
-                )}
-                {/* Overlay play button */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                  <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-                    <Play className="w-7 h-7 text-foreground fill-foreground ml-1" />
-                  </div>
-                </div>
-                {/* Rank badge */}
-                <div className="absolute top-2 left-2 w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center shadow-md">
-                  {idx + 1}
-                </div>
-                {/* Duration badge */}
-                {video.duration > 0 && (
-                  <Badge className="absolute bottom-2 right-2 bg-black/70 text-white border-0 text-xs gap-1">
-                    <Clock className="w-3 h-3" />
-                    {formatDuration(video.duration)}
-                  </Badge>
-                )}
-                {/* Stats overlay */}
-                <div className="absolute bottom-2 left-2 flex gap-2">
-                  <Badge className="bg-black/70 text-white border-0 text-xs gap-1">
-                    <Play className="w-3 h-3" />
-                    {formatCount(video.play_count)}
-                  </Badge>
-                  <Badge className="bg-black/70 text-white border-0 text-xs gap-1">
-                    <Heart className="w-3 h-3" />
-                    {formatCount(video.like_count)}
-                  </Badge>
-                </div>
-              </div>
-
-              <CardContent className="p-3 space-y-2">
-                <div className="flex items-center gap-2">
-                  {video.author_avatar && (
-                    <img
-                      src={video.author_avatar}
-                      alt={video.author_name || ""}
-                      className="w-7 h-7 rounded-full object-cover shrink-0"
-                    />
-                  )}
-                  <span className="text-sm font-medium truncate">
-                    @{video.author_username || video.author_name || "desconhecido"}
-                  </span>
-                </div>
-
-                <p className="text-xs text-muted-foreground line-clamp-2">
-                  {video.description || "Sem descrição"}
-                </p>
-
-                <div className="flex flex-wrap gap-1.5">
-                  <Badge variant="secondary" className="gap-1 text-xs">
-                    <MessageCircle className="w-3 h-3" />
-                    {formatCount(video.comment_count)}
-                  </Badge>
-                  <Badge variant="secondary" className="gap-1 text-xs">
-                    <Share2 className="w-3 h-3" />
-                    {formatCount(video.share_count)}
-                  </Badge>
-                </div>
-
-                {video.posted_at && (
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Calendar className="w-3 h-3 shrink-0" />
-                    {format(new Date(video.posted_at), "dd 'de' MMM", { locale: ptBR })}
-                  </p>
-                )}
-
-                {video.music_name && (
-                  <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
-                    <Music className="w-3 h-3 shrink-0" />
-                    {video.music_name}
-                  </p>
-                )}
-
-                {video.hashtags?.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {video.hashtags.slice(0, 4).map((tag, i) => (
-                      <span key={i} className="text-xs text-primary">#{tag}</span>
-                    ))}
-                    {video.hashtags.length > 4 && (
-                      <span className="text-xs text-muted-foreground">+{video.hashtags.length - 4}</span>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="h-72 rounded-xl" />
           ))}
         </div>
+      ) : (
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="flex-wrap h-auto">
+            <TabsTrigger value="general" className="gap-2">
+              Geral
+              <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
+                {generalVideos.length}
+              </Badge>
+            </TabsTrigger>
+            {(niches ?? []).map((n) => (
+              <TabsTrigger key={n.slug} value={n.slug} className="gap-2">
+                {n.label}
+                <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
+                  {videosByNiche[n.slug]?.length ?? 0}
+                </Badge>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          <TabsContent value="general" className="mt-4">
+            <VideoGrid videos={generalVideos} onSelect={setSelectedVideo} />
+          </TabsContent>
+
+          {(niches ?? []).map((n) => (
+            <TabsContent key={n.slug} value={n.slug} className="mt-4">
+              <p className="text-xs text-muted-foreground mb-3">
+                Buscado pela hashtag <span className="text-primary">#{n.hashtag}</span>
+              </p>
+              <VideoGrid
+                videos={videosByNiche[n.slug] ?? []}
+                onSelect={setSelectedVideo}
+              />
+            </TabsContent>
+          ))}
+        </Tabs>
       )}
 
       <TikTokEmbedDialog
