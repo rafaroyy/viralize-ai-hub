@@ -306,6 +306,7 @@ export type Database = {
           id: string
           like_count: number | null
           music_name: string | null
+          niche: string | null
           play_count: number | null
           posted_at: string | null
           raw_payload: Json | null
@@ -328,6 +329,7 @@ export type Database = {
           id?: string
           like_count?: number | null
           music_name?: string | null
+          niche?: string | null
           play_count?: number | null
           posted_at?: string | null
           raw_payload?: Json | null
@@ -350,6 +352,7 @@ export type Database = {
           id?: string
           like_count?: number | null
           music_name?: string | null
+          niche?: string | null
           play_count?: number | null
           posted_at?: string | null
           raw_payload?: Json | null
