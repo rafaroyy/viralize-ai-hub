@@ -71,6 +71,86 @@ function mapItems(items: any[], weekKey: string, niche: string | null) {
   }));
 }
 
+async function runFullFetch(apifyKey: string, supabase: any) {
+  // 1. Load configs
+  const { data: configs, error: configErr } = await supabase
+    .from("apify_search_config")
+    .select("config_type, value")
+    .eq("active", true);
+  if (configErr) throw configErr;
+
+  const generalHashtags = configs
+    ?.filter((c: any) => c.config_type === "hashtag")
+    .map((c: any) => c.value) ?? ["viral", "brasil"];
+  const generalQueries = configs
+    ?.filter((c: any) => c.config_type === "search_query")
+    .map((c: any) => c.value) ?? ["viral brasil"];
+
+  const niches: NicheConfig[] = (configs ?? [])
+    .filter((c: any) => c.config_type === "niche")
+    .map((c: any) => {
+      try {
+        return typeof c.value === "string" ? JSON.parse(c.value) : c.value;
+      } catch {
+        return null;
+      }
+    })
+    .filter((n: any): n is NicheConfig => n && n.slug && n.hashtag);
+
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const weekNum = Math.ceil(
+    ((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7
+  );
+  const weekKey = `${now.getFullYear()}-W${String(weekNum).padStart(2, "0")}`;
+
+  // GENERAL
+  try {
+    console.log("Fetching GENERAL", { generalHashtags, generalQueries });
+    const items = await runApify(apifyKey, {
+      hashtags: generalHashtags,
+      searchQueries: generalQueries,
+      resultsPerPage: 50,
+      excludePinnedPosts: true,
+      shouldDownloadCovers: false,
+      shouldDownloadSlideshowImages: false,
+      shouldDownloadSubtitles: false,
+      shouldDownloadVideos: false,
+    });
+    const rows = mapItems(Array.isArray(items) ? items : [], weekKey, null);
+    await supabase.from("tiktok_viral_videos").delete().eq("week_key", weekKey).is("niche", null);
+    if (rows.length) await supabase.from("tiktok_viral_videos").insert(rows);
+    console.log(`General: ${rows.length} inserted`);
+  } catch (err) {
+    console.error("General failed:", err);
+  }
+
+  // NICHES
+  for (const niche of niches) {
+    try {
+      console.log(`Fetching niche ${niche.slug} #${niche.hashtag}`);
+      const items = await runApify(apifyKey, {
+        hashtags: [niche.hashtag],
+        searchQueries: [],
+        resultsPerPage: 50,
+        excludePinnedPosts: true,
+        shouldDownloadCovers: false,
+        shouldDownloadSlideshowImages: false,
+        shouldDownloadSubtitles: false,
+        shouldDownloadVideos: false,
+      });
+      const rows = mapItems(Array.isArray(items) ? items : [], weekKey, niche.slug);
+      await supabase.from("tiktok_viral_videos").delete().eq("week_key", weekKey).eq("niche", niche.slug);
+      if (rows.length) await supabase.from("tiktok_viral_videos").insert(rows);
+      console.log(`Niche ${niche.slug}: ${rows.length} inserted`);
+    } catch (err) {
+      console.error(`Niche ${niche.slug} failed:`, err);
+    }
+  }
+
+  console.log("Full fetch complete");
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -88,6 +168,29 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Background execution to bypass 150s edge timeout
+    // @ts-ignore EdgeRuntime is provided at runtime
+    EdgeRuntime.waitUntil(runFullFetch(apifyKey, supabase));
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: "Busca iniciada em background. Os vídeos vão aparecer em 1-3 minutos. Atualize a aba.",
+      }),
+      { status: 202, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (err) {
+    console.error("Error:", err);
+    return new Response(
+      JSON.stringify({ error: (err as Error).message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// Legacy inline body kept below (unused after refactor)
+async function _legacy_unused(supabase: any, apifyKey: string) {
 
     // 1. Load configs (general hashtags/queries + niches)
     const { data: configs, error: configErr } = await supabase
