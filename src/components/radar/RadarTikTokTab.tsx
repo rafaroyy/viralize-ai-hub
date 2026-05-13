@@ -291,8 +291,8 @@ export function RadarTikTokTab() {
     try {
       const { data, error } = await supabase.functions.invoke("apify-tiktok-fetch");
       if (error) throw error;
-      toast.success(`${data?.count || 0} vídeos virais atualizados!`);
-      refetch();
+      toast.success(data?.message || "Busca iniciada! Atualize em ~2 minutos.");
+      setTimeout(() => refetch(), 90_000);
     } catch (err: any) {
       toast.error("Erro ao buscar vídeos: " + (err.message || "Tente novamente"));
     } finally {
